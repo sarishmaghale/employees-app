@@ -19,7 +19,7 @@ class EmployeeRepository
                 'role' => $data['role'],
                 'isDeleted' => 0
             ]);
-            $employee->detail->create([
+            $employee->detail = EmployeeDetail::create([
                 'employee_id' => $employee->id,
                 'address' => $data['address'] ?? null,
                 'phone' => $data['phone'] ?? null,
@@ -57,7 +57,7 @@ class EmployeeRepository
         });
     }
 
-    public function updateProfile(Employee $profile, array $personalInfo): bool
+    public function updateProfile(Employee $profile, array $personalInfo): Employee
     {
         return DB::transaction(function () use ($profile, $personalInfo) {
             $profile->update([
@@ -74,7 +74,7 @@ class EmployeeRepository
                 }
                 $profile->detail->update($detailData);
             }
-            return true;
+            return Employee::with('detail')->find($profile->id);
         });
     }
     public function deleteEmployee(Employee $employee): bool

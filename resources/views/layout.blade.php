@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    <script src={{ asset('js/script.js') }} defer></script>
+
 </head>
 
 <body>
@@ -24,17 +25,19 @@
         </div>
 
         <nav class="sidebar-menu">
-            <a href="#" class="menu-item active" data-title="Dashboard">
+            <a href="{{ route('dashboard') }}" class="menu-item " data-title="Dashboard">
                 <i class="fas fa-home"></i>
                 <span class="menu-text">Dashboard</span>
             </a>
 
-            <div class="menu-label">Components</div>
+            @if (session('role') === 'admin')
+                <div class="menu-label">Components</div>
 
-            <a href="#" class="menu-item" data-title="Users">
-                <i class="fas fa-users"></i>
-                <span class="menu-text">Employees</span>
-            </a>
+                <a href="{{ route('employees.index') }}" class="menu-item" data-title="Users">
+                    <i class="fas fa-users"></i>
+                    <span class="menu-text">Employees</span>
+                </a>
+            @endif
             <div class="menu-label">Tasks</div>
 
             <a href="#" class="menu-item" data-title="Users">
@@ -65,12 +68,15 @@
 
         <div class="header-right">
             <div class="user-menu" id="userMenu">
-                <div class="user-avatar">AD</div>
-                <span class="user-name">Admin User</span>
+                <div class="user-avatar">
+                    <img class="img-radius" src="{{ asset('storage/' . session('profile_image')) }}"
+                        alt="User-Profile-Image">
+                </div>
+                <span class="user-name">{{ session('username') }}</span>
                 <i class="fas fa-chevron-down" style="font-size: 0.8rem;"></i>
 
                 <div class="user-dropdown">
-                    <a href="#" class="dropdown-item">
+                    <a href="{{ route('profile.show') }}" class="dropdown-item">
                         <i class="fas fa-user"></i>
                         <span>Profile</span>
                     </a>
@@ -79,7 +85,11 @@
                         <span>Settings</span>
                     </a>
                     <div class="dropdown-divider"></div>
-                    <button class="dropdown-item danger">
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                        @csrf
+                    </form>
+                    <button class="dropdown-item danger" href="#"
+                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                         <i class="fas fa-sign-out-alt"></i>
                         <span>Logout</span>
                     </button>
@@ -93,7 +103,16 @@
         @yield('content')
     </main>
 
+    <div id="globalSpinner" class="d-none text-center mt-3">
+        <div class="spinner-border text-primary" role="status">
+        </div>
+    </div>
 
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('js/script.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @stack('scripts')
 </body>
 
 </html>

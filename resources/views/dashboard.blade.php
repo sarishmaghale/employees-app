@@ -1,7 +1,7 @@
  @extends('layout')
  @section('content')
      <!-- Stats Cards -->
-     <div class="stats-grid">
+     {{-- <div class="stats-grid">
          <div class="stat-card">
              <div class="stat-icon primary">
                  <i class="fas fa-users"></i>
@@ -41,10 +41,10 @@
                  <p>Total Products</p>
              </div>
          </div>
-     </div>
+     </div> --}}
 
      <!-- Recent Orders -->
-     <div class="content-card">
+     {{-- <div class="content-card">
          <div class="card-header">
              <h2 class="card-title">Recent Orders</h2>
              <button class="btn btn-primary">
@@ -79,5 +79,5 @@
                  </tbody>
              </table>
          </div>
-     </div>
+     </div> --}}
  @endsection
