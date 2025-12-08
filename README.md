@@ -27,29 +27,45 @@ You can use the following credentials to log in:
 
 ## Installation & Setup
 
+1. Clone the repository:
+
+```bash
 git clone https://github.com/sarishmaghale/employees-app.git
+cd employees-app
+```
+
+Install Dependencies and other required commands:
+
+```bash
 composer install
 cp .env.example .env
 php artisan key:generate
+php artisan storage:link
+
+```
 
 ---
 
-## Folder Structure
+## Folder structure
 
-project-root/
+```
+employees-app/
 │
 ├── app/
 │ ├── Http/
-│ │ ├── Controllers/ # Handles routing & validation
-│ ├── Repositories/ # Handles backend logic & database operations
+│ │ └── Controllers/ # Handles routing & validation
+│ └── Repositories/ # Handles backend logic & database operations
 │
 ├── resources/
 │ └── views/ # Blade templates (UI)
 │
 ├── public/
-└──css/
-└── js/
+│ ├── css/ # CSS files
+│ ├── js/ # JS files
 │ └── storage/ # Linked to storage/app/public for images
+│
 ├── routes/
 │ └── web.php # Application routes
 │
+└── README.md
+```
