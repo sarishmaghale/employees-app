@@ -632,26 +632,109 @@
             opacity: 1;
             visibility: visible;
         }
-/* Form styling */
-.form-control {
-    border-radius: 8px;
-    padding: 10px;
-    border: 1px solid #d1d5db; /* light gray */
-}
-.user-menu .img-radius {
-    width: 40px;
-    height: 40px;
-    object-fit: cover;   /* fills circle */
-    border-radius: 50%;
+        /* Form styling */
+        .form-control {
+            border-radius: 8px;
+            padding: 10px;
+            border: 1px solid #d1d5db; /* light gray */
+        }
+        .user-menu .img-radius {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;   /* fills circle */
+            border-radius: 50%;
+        }
+
+        .form-control:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+        }
+        label {
+            font-weight: 500;
+            color: #374151; /* dark gray */
+        }
+        /* calendar */
+#calendar-container {
+    max-width: 900px;
+    margin: 20px auto;
 }
 
-.form-control:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+/* Calendar box */
+#calendar {
+    background-color: #f8f9fa;           /* light gray/off-white */
+    border: 1px solid #d1d5db;           /* slightly darker border */
+    border-radius: 12px;
+    padding: 20px;                        /* more padding for space */
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);  /* deeper, soft shadow */
+    font-family: 'Inter', sans-serif;
+    height: 550px;
 }
-label {
+
+/* Toolbar title */
+.fc-toolbar-title {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #111827;
+}
+
+/* Weekday headers */
+.fc-col-header-cell-cushion {
     font-weight: 500;
-    color: #374151; /* dark gray */
+    font-size: 0.8rem;
+}
+
+/* Weekends in red */
+.fc-col-header-cell.fc-day-sat .fc-col-header-cell-cushion,
+.fc-col-header-cell.fc-day-sun .fc-col-header-cell-cushion {
+    color: red;
+}
+
+/* Weekdays in black */
+.fc-col-header-cell:not(.fc-day-sat):not(.fc-day-sun) .fc-col-header-cell-cushion {
+    color: black;
+}
+
+/* Day numbers */
+.fc-daygrid-day-number {
+    font-weight: 500;
+}
+
+/* Weekend dates in red */
+.fc-daygrid-day.fc-day-sat .fc-daygrid-day-number,
+.fc-daygrid-day.fc-day-sun .fc-daygrid-day-number {
+    color: red;
+}
+
+/* Weekdays dates in black */
+.fc-daygrid-day:not(.fc-day-sat):not(.fc-day-sun) .fc-daygrid-day-number {
+    color: black;
+}
+
+/* Day cells */
+.fc-daygrid-day {
+    border: 0.5px solid #d1d5db;
+    padding: 4px;
+    height: 50px;
+}
+
+/* Events styling */
+.fc-event {
+    border-radius: 6px;
+    font-size: 0.75rem;
+    padding: 2px 4px;
+    color: #fff;
+    background-color: #3b82f6;
+    border-color: #2563eb;
+}
+
+.fc-event:hover {
+    filter: brightness(0.9);
+}
+
+/* Hover effect on day cells */
+.fc-daygrid-day:hover {
+    background-color: #e9ecef; /* subtle hover highlight */
+    cursor: pointer;
 }
 
         /* Responsive Design */

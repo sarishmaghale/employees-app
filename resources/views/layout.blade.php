@@ -7,8 +7,8 @@
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-
 </head>
 
 <body>
@@ -40,7 +40,7 @@
             @endif
             <div class="menu-label">Tasks</div>
 
-            <a href="#" class="menu-item" data-title="Users">
+            <a href="{{ route('calendar.index') }}" class="menu-item" data-title="Users">
                 <i class="fas fa-users"></i>
                 <span class="menu-text">Calendar</span>
             </a>
@@ -112,6 +112,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/script.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js'></script>
+
     @stack('scripts')
 </body>
 

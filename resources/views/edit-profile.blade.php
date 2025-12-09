@@ -100,7 +100,7 @@
     </div>
 @endsection
 
-@section('script')
+@push('script')
     <script>
         $(document).ready(function() {
             $("#profile_image").on("change", function(e) {
@@ -144,4 +144,4 @@
             });
         });
     </script>
-@endsection
+@endpush

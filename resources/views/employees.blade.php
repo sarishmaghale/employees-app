@@ -132,7 +132,7 @@
                             tr.append($("<td>").text(emp.username));
                             tr.append($("<td>").text(emp.email));
                             tr.append($("<td>").text(emp.role));
-                            tr.append($("<td>").text(emp.phone));
+                            tr.append($("<td>").text(emp.detail.phone));
                             const editUrl = '{{ route('employees.show', ':id') }}'.replace(
                                 ':id', emp.id);
                             let actions = `
@@ -144,12 +144,7 @@
                         });
                     },
                     error: function(xhr) {
-                        Swal.fire({
-                            title: 'Error',
-                            text: 'Something went wrong',
-                            icon: 'error',
-                            confirmButtonText: 'OK',
-                        });
+                        Swal.fire("Error!", "Something went wrong", "error");
                         console.error('Error:' + xhr.responseText);
                     }
                 });

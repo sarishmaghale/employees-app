@@ -18,4 +18,8 @@ class Employee extends Authenticatable
     {
         return $this->hasOne(EmployeeDetail::class, 'employee_id');
     }
+    public function tasks()
+    {
+        return $this->hasMany(Task::class, 'employee_id');
+    }
 }

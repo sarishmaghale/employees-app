@@ -5,8 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AuthenticateController;
-
-
+use App\Http\Controllers\TaskController;
 
 Route::get('/login', [AuthenticateController::class, 'index'])->name('login');
 Route::post('/login', [AuthenticateController::class, 'login'])->name('login.request');
@@ -24,4 +23,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/employees', [EmployeeController::class, 'store'])->name('employees.store');
     Route::post('/employees/{id}', [EmployeeController::class, 'update'])->name('employees.update');
     Route::patch('/employees/{id}', [EmployeeController::class, 'delete'])->name('employees.delete');
+
+    Route::get('/calendar', [TaskController::class, 'index'])->name('calendar.index');
+    Route::get('/tasks', [TaskController::class, 'allTasks'])->name('calendar.lists');
+    Route::get('/tasks/{id}', [TaskController::class, 'show'])->name('calendar.show');
+    Route::post('/tasks', [TaskController::class, 'store'])->name('calendar.store');
+    Route::post('/task/update/{id}', [TaskController::class, 'update'])->name('calendar.update');
+    Route::delete('/task/{id}', [TaskController::class, 'delete'])->name('calendar.destroy');
 });

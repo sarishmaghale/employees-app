@@ -95,7 +95,7 @@
     </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
     <script>
         $(document).on('submit', '#updateEmployeeForm', function(e) {
             e.preventDefault();
@@ -125,4 +125,4 @@
             })
         })
     </script>
-@endsection
+@endpush
