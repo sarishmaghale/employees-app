@@ -6,7 +6,7 @@ A **web-based employee management system** built with **Laravel 12** and **PHP 8
 
 ## **Database Setup**
 
-1. I have provided a database file named **`sample-php.sql`**.
+1. I have provided a database file named **`sample-php.sql`** containing intial setup- later you can just migrate through bash.
 2. Create a new database in your system with db_name: sample-php.
 3. Import the **`sample-php.sql`** file into the newly created database.
     - This will import all necessary tables along with sample data.
@@ -41,6 +41,7 @@ composer install
 cp .env.example .env
 php artisan key:generate
 php artisan storage:link
+php artisan migrate
 
 ```
 
