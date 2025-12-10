@@ -23,11 +23,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/employees', [EmployeeController::class, 'store'])->name('employees.store');
     Route::post('/employees/{id}', [EmployeeController::class, 'update'])->name('employees.update');
     Route::patch('/employees/{id}', [EmployeeController::class, 'delete'])->name('employees.delete');
+    Route::get('/employee/task/{id}', [EmployeeController::class, 'task'])->name('employees.task');
 
     Route::get('/calendar', [TaskController::class, 'index'])->name('calendar.index');
     Route::get('/tasks', [TaskController::class, 'allTasks'])->name('calendar.lists');
     Route::get('/tasks/{id}', [TaskController::class, 'show'])->name('calendar.show');
-    Route::post('/tasks', [TaskController::class, 'store'])->name('calendar.store');
-    Route::post('/task/update/{id}', [TaskController::class, 'update'])->name('calendar.update');
-    Route::delete('/task/{id}', [TaskController::class, 'delete'])->name('calendar.destroy');
+    Route::post('/tasks', [TaskController::class, 'store'])->name('task.store');
+    Route::post('/task/update/{id}', [TaskController::class, 'update'])->name('task.update');
+    Route::delete('/task/{id}', [TaskController::class, 'delete'])->name('task.destroy');
 });

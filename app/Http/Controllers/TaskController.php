@@ -18,6 +18,9 @@ class TaskController extends Controller
     public function allTasks()
     {
         $result = $this->taskRepo->getAll(Auth::user()->id);
+        foreach ($result as $task) {
+            if ($task->isImportant == 1) $task->color = 'red';
+        };
         return response()->json($result);
     }
 
@@ -27,8 +30,10 @@ class TaskController extends Controller
             'title' => 'required',
             'start' => 'required|date',
             'end' => 'required|date',
+            'isImportant' => 'required|integer'
         ]);
-        $validatedData['employee_id'] = Auth::user()->id;
+        if (!$request->employee_id) $validatedData['employee_id'] = Auth::user()->id;
+        else $validatedData['employee_id'] = $request->employee_id;
         $task = $this->taskRepo->addTask($validatedData);
         if ($task !== null) {
             return response()->json([
@@ -65,6 +70,7 @@ class TaskController extends Controller
             'title' => 'required',
             'start' => 'required|date',
             'end' => 'required|date',
+            'isImportant' => 'required|integer'
         ]);
         $validatedData['employee_id'] = Auth::user()->id;
         $isUpdated = $this->taskRepo->updateTask($validatedData, $task);
@@ -90,7 +96,7 @@ class TaskController extends Controller
             ]);
         }
         $isDeleted = $this->taskRepo->deleteTask($task);
-        if ($isDeleted) return response()->json(['success' => false, 'message' => 'deleted successfully']);
+        if ($isDeleted) return response()->json(['success' => true, 'message' => 'deleted successfully']);
         return response()->json(['success' => false, 'message' => 'Failed to delete']);
     }
 }

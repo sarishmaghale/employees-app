@@ -12,6 +12,7 @@ class Task extends Model
         'start',
         'end',
         'isImportant',
+        'color',
         'employee_id'
     ];
     public function employee()

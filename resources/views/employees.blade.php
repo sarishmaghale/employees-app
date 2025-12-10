@@ -43,22 +43,23 @@
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <form action="{{ route('employees.store') }}" method="POST" id="newEmployeeForm">
-                    @csrf
-                    <div class="modal-body">
+
+                <div class="modal-body">
+                    <form action="{{ route('employees.store') }}" method="POST" id="newEmployeeForm">
+                        @csrf
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="username">Username</label>
-                                    <input type="text" class="form-control" id="username" name="username">
+                                    <input type="text" class="form-control" id="username" name="username" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="email">Email</label>
-                                    <input type="text" class="form-control" id="email" name="email">
+                                    <input type="text" class="form-control" id="email" name="email" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="password">Password</label>
-                                    <input type="text" class="form-control" id="password" name="password">
+                                    <input type="text" class="form-control" id="password" name="password" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -75,7 +76,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="exampleFormControlSelect1">Role</label>
-                                    <select class="form-control" id="role" name="role">
+                                    <select class="form-control" id="role" name="role"required>
                                         <option selected disabled>Select Role</option>
                                         <option value="admin">Admin</option>
                                         <option value="staff">Staff</option>
@@ -89,16 +90,16 @@
                                     name="phone">
                             </div>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="fas fa-times me-1"></i>Cancel
-                        </button>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-1"></i>Save Info
-                        </button>
-                    </div>
-                </form>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary" form="newEmployeeForm">
+                        <i class="fas fa-save me-1"></i>Save Info
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -108,14 +109,6 @@
     <script>
         $(document).ready(function() {
             loadEmployees();
-
-            $('#newEmployeeModal').on('show.bs.modal', function() {
-                document.getElementById('mainContent').setAttribute('inert', '');
-            });
-            $('#newEmployeeModal').on('hidden.bs.modal', function() {
-                document.getElementById('mainContent').removeAttribute('inert');
-            });
-
 
             //  get employees list to populate table
             function loadEmployees() {
@@ -135,8 +128,11 @@
                             tr.append($("<td>").text(emp.detail.phone));
                             const editUrl = '{{ route('employees.show', ':id') }}'.replace(
                                 ':id', emp.id);
+                            const addTaskUrl = '{{ route('employees.task', ':id') }}'.replace(
+                                ':id', emp.id);
                             let actions = `
-                                <a href="${editUrl}" class="btn btn-edit btn-action">Edit</a>
+                                  <a href="${addTaskUrl}" class="btn btn-secondry btn-action">Add Task</a>
+                                <a href="${editUrl}" class="btn btn-warning btn-action">Edit</a>
                                 <button class="btn btn-delete btn-action delete-employee" data-id="${emp.id}">Delete</button>
                                 `;
                             tr.append($("<td>").html(actions));

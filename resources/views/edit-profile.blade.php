@@ -134,6 +134,8 @@
                             icon: response.success ? 'success' : 'error',
                             confirmButtonText: 'OK',
                         });
+                        window.location.href =
+                            "{{ route('dashboard') }}"
                     },
                     error: function(xhr) {
                         alert('Something went wrong');

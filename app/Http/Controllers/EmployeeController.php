@@ -7,11 +7,15 @@ use App\Models\EmployeeDetail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use App\Repositories\EmployeeRepository;
+use App\Repositories\TaskRepository;
 use PHPUnit\TextUI\XmlConfiguration\FailedSchemaDetectionResult;
 
 class EmployeeController extends Controller
 {
-    public function __construct(protected EmployeeRepository $employeeRepo) {}
+    public function __construct(
+        protected EmployeeRepository $employeeRepo,
+        protected TaskRepository $taskRepo
+    ) {}
 
     private function checkAdmin()
     {
@@ -165,5 +169,11 @@ class EmployeeController extends Controller
             'success' => false,
             'message' => 'Failed to delete Employee'
         ]);
+    }
+
+    public function task(int $id)
+    {
+        $employee = $this->employeeRepo->getById($id);
+        return view('add-task', compact('employee'));
     }
 }

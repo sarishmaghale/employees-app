@@ -99,9 +99,9 @@
     </header>
 
     <!-- Main Content -->
-    <main class="main-content" id="mainContent">
+    <div class="main-content" id="mainContent">
         @yield('content')
-    </main>
+    </div>
 
     <div id="globalSpinner" class="d-none text-center mt-3">
         <div class="spinner-border text-primary" role="status">
