@@ -115,12 +115,15 @@
                         confirmButtonText: 'OK'
                     }).then(() => {
                         window.location.href = "{{ route('employees.index') }}";
-
                     });
                 },
                 error: function(xhr) {
-                    alert('Something went wrong');
-                    console.error('Error:' + xhr.responseText);
+                    reenableFormButtons('updateEmployeeForm');
+                    if (xhr.status === 422) handleValidationErrors(xhr, '#updateEmployeeForm');
+                    else {
+                        alert('Something went wrong');
+                        console.error('Error:' + xhr.responseText);
+                    }
                 }
             })
         })

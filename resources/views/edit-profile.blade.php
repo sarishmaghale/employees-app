@@ -5,7 +5,7 @@
         <div class="page-header">
             <div class="page-title-section">
                 <h2><i class="fas fa-user me-2" style="color: #3b82f6;">
-                    </i>Profile</h2>a
+                    </i>Profile</h2>
                 <p class="page-subtitle">Manage your info</p>
             </div>
         </div>
@@ -133,13 +133,19 @@
                             text: response.message,
                             icon: response.success ? 'success' : 'error',
                             confirmButtonText: 'OK',
+                        }).then(() => {
+                            window.location.href =
+                                "{{ route('dashboard') }}"
                         });
-                        window.location.href =
-                            "{{ route('dashboard') }}"
                     },
                     error: function(xhr) {
-                        alert('Something went wrong');
-                        console.error('Error:' + xhr.responseText);
+                        reenableFormButtons('updateProfileForm');
+                        if (xhr.status === 422) handleValidationErrors(xhr,
+                            '#updateProfileForm');
+                        else {
+                            alert('Something went wrong');
+                            console.error('Error:' + xhr.responseText);
+                        }
                     }
                 });
 

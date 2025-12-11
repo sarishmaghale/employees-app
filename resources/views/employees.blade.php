@@ -51,15 +51,15 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="username">Username</label>
-                                    <input type="text" class="form-control" id="username" name="username" required>
+                                    <input type="text" class="form-control" id="username" name="username">
                                 </div>
                                 <div class="form-group">
                                     <label for="email">Email</label>
-                                    <input type="text" class="form-control" id="email" name="email" required>
+                                    <input type="text" class="form-control" id="email" name="email">
                                 </div>
                                 <div class="form-group">
                                     <label for="password">Password</label>
-                                    <input type="text" class="form-control" id="password" name="password" required>
+                                    <input type="text" class="form-control" id="password" name="password">
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -75,8 +75,8 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="exampleFormControlSelect1">Role</label>
-                                    <select class="form-control" id="role" name="role"required>
+                                    <label for="role">Role</label>
+                                    <select class="form-control" id="role" name="role">
                                         <option selected disabled>Select Role</option>
                                         <option value="admin">Admin</option>
                                         <option value="staff">Staff</option>
@@ -173,12 +173,11 @@
 
                     },
                     error: function(xhr) {
-                        if (xhr.status === 422) {
-                            alert('Please fill all required fields correctly.');
-                            return;
+                        if (xhr.status === 422) handleValidationErrors(xhr, '#newEmployeeForm');
+                        else {
+                            alert('Something went wrong');
+                            console.error('Error:' + xhr.responseText);
                         }
-                        alert('Something went wrong');
-                        console.error('Error:' + xhr.responseText);
                     }
                 });
             });

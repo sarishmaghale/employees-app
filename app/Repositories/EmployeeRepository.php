@@ -14,7 +14,7 @@ class EmployeeRepository
         return DB::transaction(function () use ($data) {
             $employee = Employee::create([
                 'email' => $data['email'],
-                'password' => $data['password'],
+                'password' => bcrypt($data['password']),
                 'username' => $data['username'],
                 'role' => $data['role'],
                 'isDeleted' => 0
@@ -33,11 +33,13 @@ class EmployeeRepository
     {
         return Employee::with('detail')->find($employeeId);
     }
+
     public function getAll(): Collection
     {
         return Employee::with('detail')->where('isDeleted', 0)
             ->get();
     }
+
     public function updateEmployee(Employee $model, array $employee,): bool
     {
         return DB::transaction(function () use ($model, $employee) {
@@ -64,6 +66,7 @@ class EmployeeRepository
                 'username' => $personalInfo['username'],
             ]);
             if ($profile->detail) {
+
                 $detailData = [
                     'address' => $personalInfo['address'],
                     'phone' => $personalInfo['phone'],

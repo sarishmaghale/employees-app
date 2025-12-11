@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\JsonReponse;
+use App\Http\Requests\StoreTaskRequest;
 use App\Repositories\TaskRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,79 +26,47 @@ class TaskController extends Controller
         return response()->json($result);
     }
 
-    public function store(Request $request)
+    public function store(StoreTaskRequest $request)
     {
-        $validatedData = $request->validate([
-            'title' => 'required',
-            'start' => 'required|date',
-            'end' => 'required|date',
-            'isImportant' => 'required|integer'
-        ]);
+        $validatedData = $request->validated();
         if (!$request->employee_id) $validatedData['employee_id'] = Auth::user()->id;
         else $validatedData['employee_id'] = $request->employee_id;
         $task = $this->taskRepo->addTask($validatedData);
         if ($task !== null) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Task added successfully',
-                'data' => $task,
-            ]);
+            return JsonReponse::success(message: 'Task added successfully', data: $task);
         }
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to add',
-        ]);
+        return JsonReponse::error(message: 'Failed to add');
     }
 
     public function show(int $id)
     {
         $task = $this->taskRepo->getById($id);
         if ($task !== null) {
-            return response()->json([
-                'success' => true,
-                'data' => $task,
-            ]);
+            return JsonReponse::success(data: $task);
         }
-        return response()->json([
-            'success' => false,
-            'message' => 'Task doesnt exists',
-        ]);
+        return JsonReponse::error(message: "Task doesn't exist");
     }
 
-    public function update(Request $request, int $id)
+    public function update(StoreTaskRequest $request, int $id)
     {
         $task = $this->taskRepo->getById($id);
-        $validatedData = $request->validate([
-            'title' => 'required',
-            'start' => 'required|date',
-            'end' => 'required|date',
-            'isImportant' => 'required|integer'
-        ]);
+        $validatedData = $request->validated();
         $validatedData['employee_id'] = Auth::user()->id;
         $isUpdated = $this->taskRepo->updateTask($validatedData, $task);
         if ($isUpdated) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Task updated successfully',
-            ]);
+            return JsonReponse::success(message: 'Task updated successfully');
         }
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to update',
-        ]);
+        return JsonReponse::error(message: 'Faied to update');
     }
 
     public function delete(int $id)
     {
         $task = $this->taskRepo->getById($id);
         if ($task === null) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Task not found',
-            ]);
+            return JsonReponse::error(message: 'Task not found');
         }
         $isDeleted = $this->taskRepo->deleteTask($task);
-        if ($isDeleted) return response()->json(['success' => true, 'message' => 'deleted successfully']);
-        return response()->json(['success' => false, 'message' => 'Failed to delete']);
+        if ($isDeleted) return JsonReponse::success(message: 'Deleted successfully');
+        return JsonReponse::error(message: 'Failed to delete');
     }
 }

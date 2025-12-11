@@ -2,15 +2,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
      const spinner = document.getElementById("globalSpinner");
 
-            document.querySelectorAll("form").forEach(form => {
-                form.addEventListener("submit", function(e) {
-                    form.querySelectorAll("[type='submit']").forEach(btn => {
-                        btn.disabled = true;
-                        btn.innerHTML =
-                            `<span class="spinner-border spinner-border-sm me-2" role="status"></span>`;
-                    });
-                });
+           document.querySelectorAll("form").forEach(form => {
+        form.addEventListener("submit", function() {
+            const submitButtons = form.querySelectorAll("[type='submit']");
+            submitButtons.forEach(btn => {
+                if (!btn.dataset.originalText) btn.dataset.originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status"></span>`;
             });
+        });
+    });
             
     const sidebar = document.getElementById('sidebar');
     const header = document.getElementById('header');
@@ -103,3 +104,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 250);
     });
 });
+function reenableFormButtons(formId) {
+    const form = document.getElementById(formId);
+    if (!form) return; // safety check
+
+    const submitButtons = form.querySelectorAll("[type='submit']");
+    submitButtons.forEach(btn => {
+        btn.disabled = false;
+        // Restore original text from data attribute
+        if (btn.dataset.originalText) {
+            btn.innerHTML = btn.dataset.originalText;
+        }
+    });
+}
+
