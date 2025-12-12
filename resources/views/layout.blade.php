@@ -41,8 +41,12 @@
             <div class="menu-label">Tasks</div>
 
             <a href="{{ route('calendar.index') }}" class="menu-item" data-title="Users">
-                <i class="fas fa-users"></i>
+                <i class="fas fa-calendar-alt"></i>
                 <span class="menu-text">Calendar</span>
+            </a>
+            <a href="{{ route('tasks.all') }}" class="menu-item" data-title="Users">
+                <i class="fas fa-tasks"></i>
+                <span class="menu-text">Tasks</span>
             </a>
             <div class="menu-label">Components</div>
 

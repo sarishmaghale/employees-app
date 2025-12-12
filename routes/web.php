@@ -27,7 +27,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/{id}', [EmployeeController::class, 'modifyProfile'])->name('profile.update');
     Route::post('/loggedOut', [AuthenticateController::class, 'logout'])->name('logout');
 
-    Route::get('/calendar', [TaskController::class, 'index'])->name('calendar.index');
+    Route::get('/calendar', [TaskController::class, 'calendar'])->name('calendar.index');
+    Route::get('/tasks/all', [TaskController::class, 'index'])->name('tasks.all');
     Route::get('/tasks', [TaskController::class, 'allTasks'])->name('calendar.lists');
     Route::get('/tasks/{id}', [TaskController::class, 'show'])->name('calendar.show');
     Route::post('/tasks', [TaskController::class, 'store'])->name('task.store');

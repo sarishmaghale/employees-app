@@ -24,8 +24,9 @@ class StoreTaskRequest extends FormRequest
         return [
             'title' => 'required',
             'start' => 'required|date',
-            'end' => 'required|date',
-            'isImportant' => 'required|integer'
+            'end' => 'required|date|after_or_equal:start',
+            'isImportant' => 'required|integer|in:0,1,2', //0=normal, 1=important, 2=moderate
+            'category_id' => 'nullable|exists:task_categories,id',
         ];
     }
     public function messages()
@@ -34,6 +35,8 @@ class StoreTaskRequest extends FormRequest
             'title.required' => 'Title is required',
             'start.required' => 'Start date is required',
             'end.required' => 'End date is required',
+            'end.after_or_equal' => 'End date cannot be before start date',
+            'isImportant' => 'Please select valid priority type',
         ];
     }
 }

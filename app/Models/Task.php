@@ -12,11 +12,17 @@ class Task extends Model
         'start',
         'end',
         'isImportant',
+        'priority',
         'color',
-        'employee_id'
+        'employee_id',
+        'category_id',
     ];
     public function employee()
     {
-        return $this->belongsTo(EMployee::class, 'employee_id');
+        return $this->belongsTo(Employee::class, 'employee_id');
+    }
+    public function taskCategory()
+    {
+        return $this->belongsTo(TaskCategory::class, 'category_id');
     }
 }

@@ -13,16 +13,18 @@ class TaskController extends Controller
 {
     public function __construct(protected TaskRepository $taskRepo) {}
 
-    public function index()
+    public function calendar()
     {
         return view('calendar');
+    }
+
+    public function index()
+    {
+        return view('all-tasks');
     }
     public function allTasks()
     {
         $result = $this->taskRepo->getAll(Auth::user()->id);
-        foreach ($result as $task) {
-            if ($task->isImportant == 1) $task->color = 'red';
-        };
         return response()->json($result);
     }
 
