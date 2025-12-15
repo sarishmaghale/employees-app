@@ -11,6 +11,7 @@ A **web-based employee management system** built with **Laravel 12** and **PHP 8
 3. Import the **`sample-php.sql`** file into the newly created database.
     - This will import all necessary tables along with sample data.
       Run: php artisan storage:link
+4. Run php artisan migrate followed by php artisan db:seed to create other tables and populate data
 
 ---
 
@@ -41,7 +42,12 @@ composer install
 cp .env.example .env
 php artisan key:generate
 php artisan storage:link
+npm install
 php artisan migrate
+php artisan db:seed
+composer dump-autoload #for the helper functions
+npm run dev
+php artisan serve
 
 ```
 
