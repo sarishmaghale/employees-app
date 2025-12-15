@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+$(document).ready(function(){
 
      const spinner = document.getElementById("globalSpinner");
 
@@ -103,7 +103,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 250);
     });
+
+    
 });
+
 function reenableFormButtons(formId) {
     const form = document.getElementById(formId);
     if (!form) return; // safety check
@@ -117,4 +120,5 @@ function reenableFormButtons(formId) {
         }
     });
 }
+window.reenableFormButtons = reenableFormButtons;
 

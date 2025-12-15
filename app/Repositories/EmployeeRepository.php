@@ -66,7 +66,6 @@ class EmployeeRepository
                 'username' => $personalInfo['username'],
             ]);
             if ($profile->detail) {
-
                 $detailData = [
                     'address' => $personalInfo['address'],
                     'phone' => $personalInfo['phone'],
@@ -80,6 +79,7 @@ class EmployeeRepository
             return Employee::with('detail')->find($profile->id);
         });
     }
+
     public function deleteEmployee(Employee $employee): bool
     {
         $employee->update([

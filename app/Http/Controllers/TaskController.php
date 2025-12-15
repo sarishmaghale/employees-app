@@ -13,18 +13,18 @@ class TaskController extends Controller
 {
     public function __construct(protected TaskRepository $taskRepo) {}
 
-    public function calendar()
-    {
-        return view('calendar');
-    }
-
     public function index()
     {
         return view('all-tasks');
     }
-    public function allTasks()
+
+    public function allTasks(Request $request)
     {
-        $result = $this->taskRepo->getAll(Auth::user()->id);
+        $filters = $request->only(['start', 'end', 'category_id']);
+        $userRole = Auth::user()->role;
+        if ($userRole === 'admin')   $result = $this->taskRepo->getAll($filters);
+        else $result = $this->taskRepo->getAllById(Auth::user()->id, $filters);
+
         return response()->json($result);
     }
 

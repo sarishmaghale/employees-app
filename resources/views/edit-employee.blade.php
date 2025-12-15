@@ -72,7 +72,7 @@
                     </div>
                     <div class="col-md-3">
                         <label for="dob" class="form-label fw-semibold">Date of Birth</label>
-                        <input type="date" class="form-control" id="dob" name="dob"
+                        <input type="text" class="form-control datepicker" id="dob" name="dob"
                             value="{{ $employee->detail->dob }}">
                     </div>
                     <div class="col-md-3">

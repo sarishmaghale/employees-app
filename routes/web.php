@@ -6,6 +6,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AuthenticateController;
+use App\Http\Controllers\CalendarController;
 
 Route::get('/login', [AuthenticateController::class, 'index'])->name('login');
 Route::post('/login', [AuthenticateController::class, 'login'])->name('login.request');
@@ -27,10 +28,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/{id}', [EmployeeController::class, 'modifyProfile'])->name('profile.update');
     Route::post('/loggedOut', [AuthenticateController::class, 'logout'])->name('logout');
 
-    Route::get('/calendar', [TaskController::class, 'calendar'])->name('calendar.index');
+    Route::get('/calendar', [CalendarController::class, 'calendar'])->name('calendar.index');
+    Route::get('/calendar/show', [CalendarController::class, 'show'])->name('calendar.show');
+
     Route::get('/tasks/all', [TaskController::class, 'index'])->name('tasks.all');
-    Route::get('/tasks', [TaskController::class, 'allTasks'])->name('calendar.lists');
-    Route::get('/tasks/{id}', [TaskController::class, 'show'])->name('calendar.show');
+    Route::get('/tasks', [TaskController::class, 'allTasks'])->name('tasks.lists');
+    Route::get('/tasks/{id}', [TaskController::class, 'show'])->name('task.show');
     Route::post('/tasks', [TaskController::class, 'store'])->name('task.store');
     Route::post('/task/update/{id}', [TaskController::class, 'update'])->name('task.update');
     Route::delete('/task/{id}', [TaskController::class, 'delete'])->name('task.destroy');

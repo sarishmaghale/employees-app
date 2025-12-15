@@ -7,43 +7,61 @@ use Illuminate\Database\Eloquent\Collection;
 
 class TaskRepository
 {
-    public function getAll(int $employeeId): Collection
+    public function getAllById(int $employeeId, array $filters = []): Collection
     {
-        $tasks = Task::with('employee', 'taskCategory')
-            ->where('employee_id', $employeeId)
-            ->get();
+        $query = Task::with('employee', 'taskCategory')
+            ->where('employee_id', $employeeId);
+        if (!empty($filters['start'])) {
+            $query->whereDate('start', '>=', $filters['start']);
+        }
+        if (!empty($filters['end'])) {
+            $query->whereDate('end', '<=', $filters['end']);
+        }
+        if (!empty($filters['category_id'])) {
+            $query->where('category_id', $filters['category_id']);
+        }
+        $tasks = $query->get();
         foreach ($tasks as $task) {
-            $task->priority = match ($task->isImportant) {
-                1 => 'Important',
-                2 => 'Moderate',
-                default => 'Normal',
-            };
+            $task->color = $task->taskCategory->color ?? null;
         };
-        foreach ($tasks as $task) {
-            if ($task->category_id == 1) {
-                $task->color = 'green';
-            } elseif ($task->category_id == 2) {
-                $task->color = 'purple';
-            } else {
-                $task->color = 'black';
-            }
-        };
-
         return $tasks;
     }
+
+    public function getAll(array $filters = []): Collection
+    {
+        $query = Task::with('employee', 'taskCategory');
+        if (!empty($filters['start'])) {
+            $query->whereDate('start', '>=', $filters['start']);
+        }
+        if (!empty($filters['end'])) {
+            $query->whereDate('end', '<=', $filters['end']);
+        }
+        if (!empty($filters['category_id'])) {
+            $query->where('category_id', $filters['category_id']);
+        }
+        $tasks = $query->get();
+        foreach ($tasks as $task) {
+            $task->color = $task->taskCategory->color ?? null;
+        };
+        return $tasks;
+    }
+
     public function getById(int $id): Task
     {
         return Task::with('employee')
             ->find($id);
     }
+
     public function addTask(array $data): Task
     {
         return Task::create($data);
     }
+
     public function updateTask(array $data, Task $task): bool
     {
         return $task->update($data);
     }
+
     public function deleteTask(Task $task): bool
     {
         return $task->delete();

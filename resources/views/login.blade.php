@@ -94,22 +94,23 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        $(document).ready(function() {
             const spinner = document.getElementById("globalSpinner");
+            const form = document.getElementById("LoginForm");
+            const submitBtn = form.querySelector("[type='submit']");
 
-            document.querySelectorAll("form").forEach(form => {
-                form.addEventListener("submit", function(e) {
-                    form.querySelectorAll("[type='submit']").forEach(btn => {
-                        btn.disabled = true;
-                        btn.innerHTML =
-                            `<span class="spinner-border spinner-border-sm me-2" role="status"></span>`;
-                    });
-                });
-            });
-            document.getElementById("LoginForm").addEventListener("submit", async function(e) {
+            form.addEventListener("submit", async function(e) {
                 e.preventDefault(); // prevent default form submission
+
+                // Disable button and show spinner
+                submitBtn.disabled = true;
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML =
+                    `<span class="spinner-border spinner-border-sm me-2" role="status"></span>`;
+
                 const formData = new FormData(this);
                 formData.append('_token', '{{ csrf_token() }}');
+
                 $.ajax({
                     url: `{{ route('login.request') }}`,
                     type: "POST",
@@ -122,10 +123,16 @@
                             window.location.href = "{{ route('dashboard') }}";
                         } else {
                             alert(response.message);
+                            // Re-enable button
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalText;
                         }
                     },
                     error: function(xhr) {
                         console.error('Server error', xhr.responseText);
+                        // Re-enable button
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
                     }
                 });
             });

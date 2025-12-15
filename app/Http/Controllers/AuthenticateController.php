@@ -10,10 +10,12 @@ use Illuminate\Support\Facades\Session;
 class AuthenticateController extends Controller
 {
     public function __construct(protected EmployeeRepository $repo) {}
+
     public function index()
     {
         return view('login');
     }
+
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -32,12 +34,12 @@ class AuthenticateController extends Controller
                 'message' => 'Login successful',
             ]);
         }
-
         return response()->json([
             'success' => false,
             'message' => 'Invalid credentials',
         ]);
     }
+
     public function logout(Request $request)
     {
         Auth::logout();
