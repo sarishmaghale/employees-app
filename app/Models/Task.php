@@ -11,11 +11,10 @@ class Task extends Model
         'title',
         'start',
         'end',
-        'isImportant',
-        'priority',
         'color',
         'employee_id',
         'category_id',
+        'badge'
     ];
     public function employee()
     {

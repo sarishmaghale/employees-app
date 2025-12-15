@@ -25,7 +25,8 @@ class StoreTaskRequest extends FormRequest
             'title' => 'required',
             'start' => 'required|date',
             'end' => 'required|date|after_or_equal:start',
-            'category_id' => 'nullable|exists:task_categories,id',
+            'category_id' => 'required|exists:task_categories,id',
+            'badge' => 'required',
         ];
     }
     public function messages()
@@ -35,6 +36,9 @@ class StoreTaskRequest extends FormRequest
             'start.required' => 'Start date is required',
             'end.required' => 'End date is required',
             'end.after_or_equal' => 'End date cannot be before start date',
+            'category_id.required' => 'Please select event category',
+            'category_id.exists' => 'Invalid category',
+            'badge.required' => 'Please select the badge',
         ];
     }
 }

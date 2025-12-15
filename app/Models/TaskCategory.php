@@ -14,4 +14,14 @@ class TaskCategory extends Model
     {
         return $this->hasMany(Task::class, 'category_id');
     }
+
+    public function subCategories()
+    {
+        return $this->belongsToMany(
+            TaskSubCategory::class,
+            'task_category_links',
+            'category_id',
+            'sub_category_id'
+        );
+    }
 }

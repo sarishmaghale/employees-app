@@ -83,11 +83,25 @@
             });
 
             calendar.on('eventClick', function(info) {
+
+                const categoryId = info.event.extendedProps.category_id;
+                const badgeValue = info.event.extendedProps.badge;
                 $('#edit_task_id').val(info.event.id);
                 $('#edit_task_title').val(info.event.title);
-                $('#edit_task_category').val(info.event.extendedProps.category_id || 0);
+                $('#edit_task_category').val(categoryId || 0);
                 $('#edit_task_start').val(info.event.startStr);
                 $('#edit_task_end').val(info.event.endStr ? info.event.endStr : info.event.startStr);
+                $('.subCategoryGroup').hide();
+                $(`.subCategoryGroup[data-category="${categoryId}"]`).show();
+                if (badgeValue) {
+                    console.log(badgeValue)
+                    $('.subCategoryGroup').hide();
+                    $(`.subCategoryGroup[data-category="${categoryId}"]`).show();
+                    $('input[name="badge"][value="' + badgeValue + '"]').prop('checked', true);
+                    $(`.subCategoryGroup[data-category="${categoryId}"] input[name="badge"][value="${badgeValue}"]`)
+                        .prop('checked', true);
+                }
+
                 $('#editTaskModal').modal('show');
             });
 
@@ -98,6 +112,7 @@
                 request.append('start', info.event.startStr);
                 request.append('end', info.event.endStr ? info.event.endStr : info.event
                     .startStr);
+                request.append('badge', info.event.extendedProps.badge);
                 request.append('_token', '{{ csrf_token() }}');
                 $.ajax({
                     url: `/task/update/${info.event.id}`,
@@ -127,7 +142,7 @@
 
             $(document).on('click', '#openAddEventModal', function() {
                 $('#addTaskModal').modal('show');
-            })
+            });
             $('.category-filter').on('click', function() {
                 activeCategoryId = $(this).data('category-id') ?? null
                 calendar.refetchEvents();

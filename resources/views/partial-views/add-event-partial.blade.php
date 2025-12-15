@@ -19,6 +19,7 @@
                                  Category:</label>
                              <select class="form-select" name="category_id" id="add_task_category"
                                  style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 12px; font-size: 14px; color: #333;">
+                                 <option selected disabled>Select Event Type</option>
                                  @forelse(getTaskCategories() as $category)
                                      <option value="{{ $category->id }}">{{ $category->category_name }}</option>
                                  @empty
@@ -64,16 +65,35 @@
                          <textarea class="form-control" rows="4" placeholder="Enter Description"
                              style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 12px; font-size: 14px; resize: none;"></textarea>
                      </div>
+
+                     <div class="subCategoryContainer">
+                         @foreach (getTaskCategories() as $category)
+                             <div class="subCategoryGroup" data-category="{{ $category->id }}" style="display:none;">
+                                 @foreach (getTaskSubCategories($category->id) as $sub)
+                                     <div class="form-check form-check-inline">
+                                         <input class="form-check-input" type="radio" name="badge" id="task_badge"
+                                             value="{{ $sub->sub_category_name }}"
+                                             style="width: 18px; height: 18px; border: 2px solid #dc3545; cursor: pointer;">
+                                         <label class="form-check-label" _
+                                             style="font-size: 14px; color: #666; margin-left: 6px; cursor: pointer;">
+                                             {{ $sub->sub_category_name }}</label>
+                                     </div>
+                                 @endforeach
+                             </div>
+                         @endforeach
+                     </div>
+
                  </form>
              </div>
 
              <div class="modal-footer"
                  style="border-top: none; padding: 0 24px 24px 24px; display: flex; justify-content: flex-end; gap: 12px;">
-                 <button class="btn" data-bs-dismiss="modal"
-                     style="background: white; color: #007bff; border: 1px solid #e0e0e0; padding: 10px 24px; border-radius: 6px; font-weight: 500; font-size: 14px;">Discard</button>
                  <button type="submit" class="btn btn-primary" id="saveTaskBtn"
                      style="background: #007bff; border: none; padding: 10px 24px; border-radius: 6px; font-weight: 500; font-size: 14px; box-shadow: 0 2px 8px rgba(0,123,255,0.3);">Add
                      Task</button>
+                 <button class="btn" data-bs-dismiss="modal"
+                     style="background: white; color: #007bff; border: 1px solid #e0e0e0; padding: 10px 24px; border-radius: 6px; font-weight: 500; font-size: 14px;">Discard</button>
+
              </div>
 
          </div>
@@ -83,7 +103,6 @@
  @push('scripts')
      <script>
          $(document).ready(function() {
-
              // Submit new task
              $(document).on('click', '#saveTaskBtn', function(e) {
                  e.preventDefault();
@@ -118,8 +137,16 @@
              // Reset form when modal is closed
              $('#addTaskModal').on('hidden.bs.modal', function() {
                  $('#addTaskForm')[0].reset();
+                 $('.subCategoryGroup').hide();
+                 $('input[name="badge"]').prop('checked', false);
                  $('#addTaskForm .is-invalid').removeClass('is-invalid');
                  $('#addTaskForm .invalid-feedback').remove();
+             });
+
+             $('#add_task_category').on('change', function() {
+                 const categoryId = $(this).val();
+                 $('.subCategoryGroup').hide();
+                 $(`.subCategoryGroup[data-category="${categoryId}"]`).show();
              });
 
          });
