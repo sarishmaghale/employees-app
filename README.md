@@ -59,16 +59,17 @@ php artisan serve
 employees-app/
 │
 ├── app/
+  ├── Helpers/
 │ ├── Http/
 │ │ └── Controllers/ # Handles routing & validation
 │ └── Repositories/ # Handles backend logic & database operations
 │
 ├── resources/
+  ├── css/ # CSS files
+  ├── js/ # JS files
 │ └── views/ # Blade templates (UI)
 │
 ├── public/
-│ ├── css/ # CSS files
-│ ├── js/ # JS files
 │ └── storage/ # Linked to storage/app/public for images
 │
 ├── routes/
