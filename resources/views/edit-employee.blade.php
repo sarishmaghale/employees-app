@@ -118,7 +118,7 @@
                     });
                 },
                 error: function(xhr) {
-                    reenableFormButtons('updateEmployeeForm');
+                    hideSpinner('updateEmployeeForm');
                     if (xhr.status === 422) handleValidationErrors(xhr, '#updateEmployeeForm');
                     else {
                         alert('Something went wrong');

@@ -19,7 +19,7 @@ class TaskSubCategorySeeder extends Seeder
             ['name' => 'Work'],
             ['name' => 'Meeting'],
             ['name' => 'Important'],
-            ['name' => 'Misc.'],
+            ['name' => 'Misc'],
             ['name' => 'Appointment']
         ];
         foreach ($subCategories as $sub) {
@@ -35,7 +35,7 @@ class TaskSubCategorySeeder extends Seeder
         $work = TaskSubCategory::where('sub_category_name', 'Work')->first();
         $meeting = TaskSubCategory::where('sub_category_name', 'Meeting')->first();
         $imp = TaskSubCategory::where('sub_category_name', 'Important')->first();
-        $misc = TaskSubCategory::where('sub_category_name', 'Misc.')->first();
+        $misc = TaskSubCategory::where('sub_category_name', 'Misc')->first();
         $apt = TaskSubCategory::where('sub_category_name', 'Appointment')->first();
 
         $links = [

@@ -27,6 +27,23 @@
                                  @endforelse
                              </select>
                          </div>
+                         @if (session('role') === 'admin')
+                             <div class="col-md-6">
+                                 <label class="form-label"
+                                     style="font-size: 13px; color: #999; font-weight: 500; margin-bottom: 8px;">Assign
+                                     to:
+                                 </label>
+                                 <select class="form-select" name="employee_id" id="edit_task_employee"
+                                     style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 12px; font-size: 14px; color: #333;">
+                                     <option value=""> Self</option>
+                                     @forelse(getEmployees() as $employee)
+                                         <option value="{{ $employee->id }}">{{ $employee->username }}</option>
+                                     @empty
+                                         <option value="">No employees found</option>
+                                     @endforelse
+                                 </select>
+                             </div>
+                         @endif
                      </div>
 
                      <!-- Event Title -->
@@ -57,15 +74,6 @@
                          </div>
                      </div>
 
-                     <!-- Event Description -->
-                     <div class="mb-4">
-                         <label class="form-label"
-                             style="font-size: 13px; color: #999; font-weight: 500; margin-bottom: 8px;">Event
-                             Description:</label>
-                         <textarea class="form-control" rows="4" placeholder="Enter Description"
-                             style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 12px; font-size: 14px; resize: none;"></textarea>
-                     </div>
-
                      <div class="subCategoryContainer">
                          @foreach (getTaskCategories() as $category)
                              <div class="subCategoryGroup" data-category="{{ $category->id }}" style="display:none;">
@@ -88,7 +96,7 @@
 
              <div class="modal-footer"
                  style="border-top: none; padding: 0 24px 24px 24px; display: flex; justify-content: flex-end; gap: 12px;">
-                 <button type="submit" class="btn btn-primary" id="saveTaskBtn"
+                 <button type="button" class="btn btn-primary modal-submit-btn" id="saveTaskBtn"
                      style="background: #007bff; border: none; padding: 10px 24px; border-radius: 6px; font-weight: 500; font-size: 14px; box-shadow: 0 2px 8px rgba(0,123,255,0.3);">Add
                      Task</button>
                  <button class="btn" data-bs-dismiss="modal"
@@ -106,6 +114,8 @@
              // Submit new task
              $(document).on('click', '#saveTaskBtn', function(e) {
                  e.preventDefault();
+                 const btn = this;
+                 showSpinner(btn);
                  const form = document.getElementById('addTaskForm');
                  const modal = $('#addTaskModal');
                  const formData = new FormData(form);
@@ -125,8 +135,10 @@
                          } else {
                              Swal.fire('Error', response.message, 'error');
                          }
+                         hideSpinner(btn);
                      },
                      error: function(xhr) {
+                         hideSpinner(btn);
                          if (xhr.status === 422) handleValidationErrors(xhr,
                              '#addTaskForm');
                          else console.error(xhr.responseText);

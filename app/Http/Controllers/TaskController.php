@@ -31,8 +31,7 @@ class TaskController extends Controller
     public function store(StoreTaskRequest $request)
     {
         $validatedData = $request->validated();
-        if (!$request->employee_id) $validatedData['employee_id'] = Auth::user()->id;
-        else $validatedData['employee_id'] = $request->employee_id;
+        $validatedData['employee_id'] = $request->employee_id ?: Auth::user()->id;
         $task = $this->taskRepo->addTask($validatedData);
         if ($task !== null) {
             return JsonReponse::success(message: 'Task added successfully', data: $task);
@@ -53,7 +52,7 @@ class TaskController extends Controller
     {
         $task = $this->taskRepo->getById($id);
         $validatedData = $request->validated();
-        $validatedData['employee_id'] = Auth::user()->id;
+        $validatedData['employee_id'] = $request->employee_id ?: Auth::user()->id;
         $isUpdated = $this->taskRepo->updateTask($validatedData, $task);
         if ($isUpdated) {
             return JsonReponse::success(message: 'Task updated successfully');

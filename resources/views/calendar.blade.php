@@ -62,6 +62,9 @@
                 initialView: 'dayGridMonth',
                 editable: true,
                 selectable: true,
+                eventDurationEditable: true,
+                eventStartEditable: true,
+                eventResizableFromStart: true,
                 eventSources: [{
                     url: `{{ route('calendar.show') }}`,
                     method: "GET",
@@ -86,26 +89,37 @@
 
                 const categoryId = info.event.extendedProps.category_id;
                 const badgeValue = info.event.extendedProps.badge;
+                const employeeId = info.event.extendedProps.employee_id;
+                console.log(info.event.extendedProps.employee.id)
                 $('#edit_task_id').val(info.event.id);
                 $('#edit_task_title').val(info.event.title);
                 $('#edit_task_category').val(categoryId || 0);
                 $('#edit_task_start').val(info.event.startStr);
-                $('#edit_task_end').val(info.event.endStr ? info.event.endStr : info.event.startStr);
-                $('.subCategoryGroup').hide();
-                $(`.subCategoryGroup[data-category="${categoryId}"]`).show();
+                $('#edit_task_end').val(info.event.endStr ? info.event.endStr :
+                    info.event.startStr);
                 if (badgeValue) {
-                    console.log(badgeValue)
                     $('.subCategoryGroup').hide();
                     $(`.subCategoryGroup[data-category="${categoryId}"]`).show();
-                    $('input[name="badge"][value="' + badgeValue + '"]').prop('checked', true);
-                    $(`.subCategoryGroup[data-category="${categoryId}"] input[name="badge"][value="${badgeValue}"]`)
+                    $('input[name="badge"][value="' + badgeValue + '"]')
                         .prop('checked', true);
                 }
+                //fetching employee id from tasks
+
+                $('#edit_task_employee').val(employeeId);
 
                 $('#editTaskModal').modal('show');
             });
 
-            calendar.on('eventDrop', function(info) {
+            calendar.on('eventDrop', updateEvent);
+            calendar.on('eventResize', updateEvent);
+
+            calendar.render();
+
+            document.addEventListener('calendar:refresh', function() {
+                calendar.refetchEvents();
+            });
+
+            function updateEvent(info) {
                 const request = new FormData();
                 request.append('title', info.event.title);
                 request.append('category_id', info.event.extendedProps.category_id);
@@ -132,17 +146,12 @@
                         console.error(xhr.responseText);
                     }
                 });
-            });
-
-            calendar.render();
-
-            document.addEventListener('calendar:refresh', function() {
-                calendar.refetchEvents();
-            });
+            }
 
             $(document).on('click', '#openAddEventModal', function() {
                 $('#addTaskModal').modal('show');
             });
+
             $('.category-filter').on('click', function() {
                 activeCategoryId = $(this).data('category-id') ?? null
                 calendar.refetchEvents();

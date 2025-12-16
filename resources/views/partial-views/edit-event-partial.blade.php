@@ -26,6 +26,23 @@
                                   @endforelse
                               </select>
                           </div>
+
+                          @if (session('role') === 'admin')
+                              <div class="col-md-6">
+                                  <label class="form-label"
+                                      style="font-size: 13px; color: #999; font-weight: 500; margin-bottom: 8px;">Assign
+                                      to:
+                                  </label>
+                                  <select class="form-select" name="employee_id" id="edit_task_employee"
+                                      style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 12px; font-size: 14px; color: #333;">
+                                      @forelse(getEmployees() as $employee)
+                                          <option value="{{ $employee->id }}">{{ $employee->username }}</option>
+                                      @empty
+                                          <option value="">No employees found</option>
+                                      @endforelse
+                                  </select>
+                              </div>
+                          @endif
                       </div>
 
                       <!-- Event Title -->
@@ -54,15 +71,6 @@
                                   placeholder="End Date"
                                   style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 12px; font-size: 14px;">
                           </div>
-                      </div>
-
-                      <!-- Event Description -->
-                      <div class="mb-4">
-                          <label class="form-label"
-                              style="font-size: 13px; color: #999; font-weight: 500; margin-bottom: 8px;">Event
-                              Description:</label>
-                          <textarea class="form-control" rows="4" placeholder="Enter Description"
-                              style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 12px; font-size: 14px; resize: none;"></textarea>
                       </div>
 
                       <div class="subCategoryContainer">
@@ -115,6 +123,8 @@
 
               $(document).on('click', '#updateTaskBtn', function(e) {
                   e.preventDefault();
+                  const btn = this;
+                  showSpinner(btn);
                   const form = document.getElementById('editTaskForm');
                   const modal = $('#editTaskModal');
                   const formData = new FormData(form);
@@ -136,8 +146,10 @@
                           } else {
                               Swal.fire('Error', response.message, 'error');
                           }
+                          hideSpinner(btn)
                       },
                       error: function(xhr) {
+                          hideSpinner(btn)
                           if (xhr.status === 422) handleValidationErrors(xhr,
                               '#editTaskForm');
                           else console.error(xhr.responseText);
@@ -147,20 +159,28 @@
 
               $(document).on('click', '#deleteTaskBtn', function(e) {
                   e.preventDefault();
+                  const btn = this;
+                  showSpinner(btn);
                   const editEventId = $('#edit_task_id').val();
                   const modal = $('#editTaskModal');
                   if (!editEventId) return;
                   $.ajax({
                       url: `/task/${editEventId}`,
                       method: "DELETE",
+                      headers: {
+                          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                      },
                       success: function(response) {
                           if (response.success) {
                               Swal.fire('Deleted!', response.message, 'success');
+                              reenableFormButtons('editTaskForm');
                               $(modal).modal('hide');
                               document.dispatchEvent(new Event('calendar:refresh'));
                           }
+                          hideSpinner(this)
                       },
                       error: function(xhr) {
+                          hideSpinner(this)
                           console.error('Error:', xhr.responseText);
                       }
                   });

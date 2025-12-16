@@ -21,7 +21,9 @@ class CalendarController extends Controller
     {
         $filters = $request->only(['start', 'end', 'category_id']);
         $userId = Auth::user()->id;
-        $result = $this->taskRepo->getAllById($userId, $filters);
+        $userRole = Auth::user()->role;
+        if ($userRole === 'admin') $result = $this->taskRepo->getAll($filters);
+        else $result = $this->taskRepo->getAllById($userId, $filters);
         return response()->json($result);
     }
 }

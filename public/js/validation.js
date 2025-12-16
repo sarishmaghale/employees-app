@@ -12,4 +12,3 @@ function handleValidationErrors(xhr,formSelector)
     });
     return true;
 }
-window.handleValidationErrors = handleValidationErrors;

@@ -1,8 +1,6 @@
 $(document).ready(function(){
 
-     const spinner = document.getElementById("globalSpinner");
-
-           document.querySelectorAll("form").forEach(form => {
+    document.querySelectorAll("form").forEach(form => {
         form.addEventListener("submit", function() {
             const submitButtons = form.querySelectorAll("[type='submit']");
             submitButtons.forEach(btn => {
@@ -107,18 +105,44 @@ $(document).ready(function(){
     
 });
 
-function reenableFormButtons(formId) {
-    const form = document.getElementById(formId);
-    if (!form) return; // safety check
-
-    const submitButtons = form.querySelectorAll("[type='submit']");
-    submitButtons.forEach(btn => {
-        btn.disabled = false;
-        // Restore original text from data attribute
-        if (btn.dataset.originalText) {
-            btn.innerHTML = btn.dataset.originalText;
-        }
+//activate flatpickr
+    $(document).ready(function(){
+    flatpickr(".datepicker", {
+        dateFormat: "Y-m-d"
     });
+    });
+
+$('#addTaskModal','#editTaskModal','#newEmployeeModal').on('shown.bs.modal',function(){
+    flatpickr(".datepicker", { 
+        dateFormat: "Y-m-d"
+     });
+})
+
+function showSpinner(btn) {
+    if (!btn.dataset.originalText) btn.dataset.originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `
+        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+        
+    `;
 }
-window.reenableFormButtons = reenableFormButtons;
+function hideSpinner(target) {
+    if (typeof target === 'string') {
+        // If target is a form ID, restore all submit buttons inside it
+        const $form = $('#' + target);
+        if (!$form.length) return;
+
+        $form.find("[type='submit']").each(function() {
+            hideSpinner(this); // recursively restore each button
+        });
+    } else {
+        // If target is a single button
+        const $btn = $(target);
+        $btn.prop('disabled', false);
+        if ($btn.data('originalText')) {
+            $btn.html($btn.data('originalText'));
+        }
+    }
+}
+
 

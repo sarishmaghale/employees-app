@@ -61,7 +61,7 @@
                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                       <i class="fas fa-times me-1"></i>Cancel
                   </button>
-                  <button type="submit" class="btn btn-primary" form="newEmployeeForm">
+                  <button type="button" class="btn btn-primary modal-submit-btn" form="newEmployeeForm">
                       <i class="fas fa-save me-1"></i>Save Info
                   </button>
               </div>
@@ -74,6 +74,8 @@
           $(document).ready(function() {
               $(document).on("submit", "#newEmployeeForm", function(e) {
                   e.preventDefault();
+                  const btn = this;
+                  showSpinner(btn)
                   const formData = new FormData(this);
                   formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
                   const createUrl = $(this).attr("action");
@@ -96,8 +98,10 @@
                               $('#newEmployeeModal').modal('hide');
                               document.dispatchEvent(new Event('employees:refresh'));
                           }
+                          hideSpinner(btn)
                       },
                       error: function(xhr) {
+                          hideSpinner(btn)
                           if (xhr.status === 422) handleValidationErrors(xhr, '#newEmployeeForm');
                           else {
                               alert('Something went wrong');

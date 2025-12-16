@@ -139,7 +139,7 @@
                         });
                     },
                     error: function(xhr) {
-                        reenableFormButtons('updateProfileForm');
+                        hideSpinner('updateProfileForm');
                         if (xhr.status === 422) handleValidationErrors(xhr,
                             '#updateProfileForm');
                         else {
