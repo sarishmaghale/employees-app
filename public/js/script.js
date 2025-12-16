@@ -145,4 +145,14 @@ function hideSpinner(target) {
     }
 }
 
+function toCalendarEnd(dateStr) {
+    const d = new Date(dateStr);
+    d.setDate(d.getDate() + 1); 
+    return d.toISOString().split('T')[0];
+}
+function fromCalendarEnd(dateStr) {
+    const d = new Date(dateStr);
+    d.setDate(d.getDate() - 1); 
+    return d.toISOString().split('T')[0];
+}
 

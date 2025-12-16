@@ -100,10 +100,10 @@
                 if (badgeValue) {
                     $('.subCategoryGroup').hide();
                     $(`.subCategoryGroup[data-category="${categoryId}"]`).show();
-                    $('input[name="badge"][value="' + badgeValue + '"]')
+                    $('input[name="badge"][value="' + badgeValue + '"]').prop('checked', true);
+                    $(`.subCategoryGroup[data-category="${categoryId}"] input[name="badge"][value="${badgeValue}"]`)
                         .prop('checked', true);
                 }
-                //fetching employee id from tasks
 
                 $('#edit_task_employee').val(employeeId);
 

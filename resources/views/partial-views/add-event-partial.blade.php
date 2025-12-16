@@ -33,7 +33,7 @@
                                      style="font-size: 13px; color: #999; font-weight: 500; margin-bottom: 8px;">Assign
                                      to:
                                  </label>
-                                 <select class="form-select" name="employee_id" id="edit_task_employee"
+                                 <select class="form-select" name="employee_id" id="add_task_employee"
                                      style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 12px; font-size: 14px; color: #333;">
                                      <option value=""> Self</option>
                                      @forelse(getEmployees() as $employee)
@@ -131,6 +131,7 @@
                              Swal.fire('Success', response.message, 'success');
                              modal.modal('hide');
                              form.reset();
+                             recentTasks();
                              document.dispatchEvent(new Event('calendar:refresh'));
                          } else {
                              Swal.fire('Error', response.message, 'error');

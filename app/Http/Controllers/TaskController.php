@@ -20,7 +20,7 @@ class TaskController extends Controller
 
     public function allTasks(Request $request)
     {
-        $filters = $request->only(['start', 'end', 'category_id']);
+        $filters = $request->only(['start', 'end', 'category_id', 'employee_id']);
         $userRole = Auth::user()->role;
         if ($userRole === 'admin')   $result = $this->taskRepo->getAll($filters);
         else $result = $this->taskRepo->getAllById(Auth::user()->id, $filters);
@@ -48,6 +48,13 @@ class TaskController extends Controller
         return JsonReponse::error(message: "Task doesn't exist");
     }
 
+    public function recentTasks()
+    {
+        if (Auth::user()->role === 'admin') $task = $this->taskRepo->getRecentlyAddedTasks();
+        else $task = $this->taskRepo->getRecentlyAddedTasksForStaff(Auth::user()->id);
+        if ($task !== null) return response()->json($task);
+        else   return JsonReponse::error(message: "No tasks");
+    }
     public function update(StoreTaskRequest $request, int $id)
     {
         $task = $this->taskRepo->getById($id);

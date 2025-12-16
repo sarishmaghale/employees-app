@@ -173,14 +173,13 @@
                       success: function(response) {
                           if (response.success) {
                               Swal.fire('Deleted!', response.message, 'success');
-                              reenableFormButtons('editTaskForm');
-                              $(modal).modal('hide');
+                              modal.modal('hide');
                               document.dispatchEvent(new Event('calendar:refresh'));
                           }
-                          hideSpinner(this)
+                          hideSpinner(btn)
                       },
                       error: function(xhr) {
-                          hideSpinner(this)
+                          hideSpinner(btn)
                           console.error('Error:', xhr.responseText);
                       }
                   });

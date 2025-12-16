@@ -20,7 +20,7 @@ class TaskRepository
         if (!empty($filters['category_id'])) {
             $query->where('category_id', $filters['category_id']);
         }
-        $tasks = $query->get();
+        $tasks = $query->orderBy('id', 'desc')->get();
         foreach ($tasks as $task) {
             $task->color = $task->taskCategory->color ?? null;
         };
@@ -39,10 +39,27 @@ class TaskRepository
         if (!empty($filters['category_id'])) {
             $query->where('category_id', $filters['category_id']);
         }
-        $tasks = $query->get();
+        if (!empty($filters['employee_id'])) {
+            $query->where('employee_id', $filters['employee_id']);
+        }
+        $tasks = $query->orderBy('id', 'desc')->get();
         foreach ($tasks as $task) {
             $task->color = $task->taskCategory->color ?? null;
         };
+        return $tasks;
+    }
+
+    public function getRecentlyAddedTasks(): Collection
+    {
+        $tasks = Task::with('employee', 'taskCategory')
+            ->orderBy('id', 'desc')->take(5)->get();
+        return $tasks;
+    }
+    public function getRecentlyAddedTasksForStaff(int $id): Collection
+    {
+        $tasks = Task::with('employee', 'taskCategory')
+            ->where('employee_id', $id)
+            ->orderBy('id', 'desc')->take(5)->get();
         return $tasks;
     }
 

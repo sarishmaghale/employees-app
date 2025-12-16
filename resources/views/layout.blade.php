@@ -51,12 +51,7 @@
                 <i class="fas fa-tasks"></i>
                 <span class="menu-text">Tasks</span>
             </a>
-            <div class="menu-label">Components</div>
 
-            <a href="#" class="menu-item" data-title="Analytics">
-                <i class="fas fa-chart-line"></i>
-                <span class="menu-text">Add User</span>
-            </a>
         </nav>
     </aside>
 

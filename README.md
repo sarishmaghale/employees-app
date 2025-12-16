@@ -1,6 +1,6 @@
 # Employee Management System
 
-A **web-based employee management system** built with **Laravel 12** and **PHP 8.2**, designed to manage staff information, profile images, and roles. This project includes both admin and user access for testing.
+A **web-based employee management system** built with **Laravel 12** and **PHP 8.2**, designed to manage staff information and tasks integrated with FullCalendar. This project includes both admin and user access for testing.
 
 ---
 
@@ -42,11 +42,9 @@ composer install
 cp .env.example .env
 php artisan key:generate
 php artisan storage:link
-npm install
 php artisan migrate
 php artisan db:seed
 composer dump-autoload #for the helper functions
-npm run dev
 php artisan serve
 
 ```
@@ -65,11 +63,11 @@ employees-app/
 │ └── Repositories/ # Handles backend logic & database operations
 │
 ├── resources/
-  ├── css/ # CSS files
-  ├── js/ # JS files
 │ └── views/ # Blade templates (UI)
 │
 ├── public/
+  ├── css/ # CSS files
+  ├── js/ # JS files
 │ └── storage/ # Linked to storage/app/public for images
 │
 ├── routes/

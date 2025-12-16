@@ -53,5 +53,34 @@
                 }
             });
         }
+
+        function recentTasks() {
+            $('#tasksTableBody').empty();
+            $.ajax({
+                url: `{{ route('tasks.recent') }}`,
+                method: "GET",
+                dataType: "json",
+                success: function(tasks) {
+                    let rows = "";
+                    tasks.forEach(result => {
+                        let tr = $("<tr>");
+                        tr.append($("<td>").text(result.task_category ? result.task_category
+                            .category_name : '-'));
+                        tr.append($("<td>").text(result.title));
+                        if (userRole === 'admin') {
+                            tr.append($("<td>").text(result.employee.username));
+                        }
+                        tr.append($("<td>").text(result.start));
+                        tr.append($("<td>").text(result.end));
+                        tr.append($("<td>").text(result.badge));
+                        $("#tasksTableBody").append(tr);
+                    });
+                },
+                error: function(xhr) {
+                    Swal.fire("Error!", "Something went wrong", "error");
+                    console.error('Error:' + xhr.responseText);
+                }
+            });
+        }
     </script>
 @endpush

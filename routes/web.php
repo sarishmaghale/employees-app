@@ -33,8 +33,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/tasks/all', [TaskController::class, 'index'])->name('tasks.all');
     Route::get('/tasks', [TaskController::class, 'allTasks'])->name('tasks.lists');
+    Route::get('/tasks/recents', [TaskController::class, 'recentTasks'])->name('tasks.recent');
     Route::get('/tasks/{id}', [TaskController::class, 'show'])->name('task.show');
     Route::post('/tasks', [TaskController::class, 'store'])->name('task.store');
+
     Route::post('/task/update/{id}', [TaskController::class, 'update'])->name('task.update');
     Route::delete('/task/{id}', [TaskController::class, 'delete'])->name('task.destroy');
 });
