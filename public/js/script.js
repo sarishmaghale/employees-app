@@ -112,11 +112,25 @@ $(document).ready(function(){
     });
     });
 
-$('#addTaskModal','#editTaskModal','#newEmployeeModal').on('shown.bs.modal',function(){
+$('#addTaskModal, #editTaskModal, #newEmployeeModal').on('shown.bs.modal',function(){
     flatpickr(".datepicker", { 
         dateFormat: "Y-m-d"
      });
-})
+    const $currentModal = $(this);
+    const startDate = $currentModal.find(".task_start_date")[0]?._flatpickr;
+    const endDate = $currentModal.find(".task_end_date")[0]?._flatpickr;
+    if (startDate && endDate) {
+        if (startDate.input.value) {
+            endDate.set('minDate', startDate.input.value);
+        }
+        startDate.set('onChange', function(selectedDates, dateStr) {
+            endDate.set('minDate', dateStr);
+            if (endDate.selectedDates[0] && endDate.selectedDates[0] < selectedDates[0]) {
+                endDate.clear();
+            }
+        });
+    }
+});
 
 function showSpinner(btn) {
     if (!btn.dataset.originalText) btn.dataset.originalText = btn.innerHTML;

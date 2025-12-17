@@ -61,15 +61,15 @@
                          <div class="col-md-6">
                              <label class="form-label"
                                  style="font-size: 13px; color: #999; font-weight: 500; margin-bottom: 8px;">From:</label>
-                             <input type="text" class="form-control datepicker" id="add_task_start" name="start"
-                                 placeholder="Start Date"
+                             <input type="text" class="form-control task_start_date datepicker" id="add_task_start"
+                                 name="start" placeholder="Start Date"
                                  style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 12px; font-size: 14px; ">
                          </div>
                          <div class="col-md-6">
                              <label class="form-label"
                                  style="font-size: 13px; color: #999; font-weight: 500; margin-bottom: 8px;">To:</label>
-                             <input type="text" class="form-control datepicker" id="add_task_end" name="end"
-                                 placeholder="End Date"
+                             <input type="text" class="form-control task_end_date datepicker" id="add_task_end"
+                                 name="end" placeholder="End Date"
                                  style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 12px; font-size: 14px;">
                          </div>
                      </div>
