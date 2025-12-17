@@ -10,6 +10,7 @@ use App\Http\Controllers\CalendarController;
 
 Route::get('/login', [AuthenticateController::class, 'index'])->name('login');
 Route::post('/login', [AuthenticateController::class, 'login'])->name('login.request');
+Route::post('/verify', [AuthenticateController::class, 'verifyLogin'])->name('login.verify');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('dashboard');

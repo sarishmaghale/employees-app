@@ -20,10 +20,17 @@
                 enctype="multipart/form-data">
                 @csrf
                 <!-- Employee ID -->
-                <div class="mb-2">
-                    <label for="id" class="form-label fw-semibold">ID</label>
-                    <input type="text" class="form-control" id="id" name="id" value="{{ $profileData->id }}"
-                        readonly>
+                <div class="row g-3 mb-2">
+                    <div class="col-md-6">
+                        <label for="id" class="form-label fw-semibold">ID</label>
+                        <input type="text" class="form-control" id="id" name="id"
+                            value="{{ $profileData->id }}" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="email" class="form-label fw-semibold">Email</label>
+                        <input type="email" class="form-control" id="email" name="email"
+                            value="{{ $profileData->email }}" readonly>
+                    </div>
                 </div>
 
                 <!-- Username & Email -->
@@ -34,9 +41,9 @@
                             value="{{ $profileData->username }}">
                     </div>
                     <div class="col-md-6">
-                        <label for="email" class="form-label fw-semibold">Email</label>
-                        <input type="email" class="form-control" id="email" name="email"
-                            value="{{ $profileData->email }}" readonly>
+                        <label for="password" class="form-label fw-semibold">Password</label>
+                        <input type="password" class="form-control" id="password" name="password"
+                            placeholder="Set new password">
                     </div>
                 </div>
 
@@ -132,10 +139,10 @@
                             title: response.success ? 'Updated' : 'Error',
                             text: response.message,
                             icon: response.success ? 'success' : 'error',
-                            confirmButtonText: 'OK',
+                            confirmButtonText: 'OK'
                         }).then(() => {
-                            window.location.href =
-                                "{{ route('dashboard') }}"
+                            window.location.href = "{{ route('dashboard') }}";
+
                         });
                     },
                     error: function(xhr) {

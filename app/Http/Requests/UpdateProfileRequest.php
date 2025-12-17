@@ -27,6 +27,7 @@ class UpdateProfileRequest extends FormRequest
             'phone' => 'nullable|regex:/^[0-9]{10}$/',
             'dob' => 'nullable|date',
             'profile_image' => 'nullable|image|mimes:jpeg,png,jpg',
+            'password' => 'nullable'
         ];
     }
 

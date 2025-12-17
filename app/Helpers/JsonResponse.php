@@ -2,7 +2,7 @@
 
 namespace App\Helpers;
 
-class JsonReponse
+class JsonResponse
 {
     public static function success($message = '', $data = [])
     {

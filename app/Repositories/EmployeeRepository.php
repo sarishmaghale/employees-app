@@ -34,6 +34,10 @@ class EmployeeRepository
         return Employee::with('detail')->find($employeeId);
     }
 
+    public function getByEmail(string $email): Employee
+    {
+        return Employee::with('detail')->where('email', $email)->first();
+    }
     public function getAll(): Collection
     {
         return Employee::with('detail')->where('isDeleted', 0)
@@ -62,8 +66,12 @@ class EmployeeRepository
     public function updateProfile(Employee $profile, array $personalInfo): Employee
     {
         return DB::transaction(function () use ($profile, $personalInfo) {
+            $password = !empty($personalInfo['password'])
+                ? bcrypt($personalInfo['password'])
+                : $profile->password;
             $profile->update([
                 'username' => $personalInfo['username'],
+                'password' => $password
             ]);
             if ($profile->detail) {
                 $detailData = [

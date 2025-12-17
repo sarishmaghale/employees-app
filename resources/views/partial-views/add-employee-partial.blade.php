@@ -61,7 +61,7 @@
                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                       <i class="fas fa-times me-1"></i>Cancel
                   </button>
-                  <button type="button" class="btn btn-primary modal-submit-btn" form="newEmployeeForm">
+                  <button type="button" class="btn btn-primary modal-submit-btn" id="addNewEmployeeBtn">
                       <i class="fas fa-save me-1"></i>Save Info
                   </button>
               </div>
@@ -72,16 +72,15 @@
   @push('scripts')
       <script>
           $(document).ready(function() {
-              $(document).on("submit", "#newEmployeeForm", function(e) {
+              $(document).on("click", "#addNewEmployeeBtn", function(e) {
                   e.preventDefault();
                   const btn = this;
-                  showSpinner(btn)
-                  const formData = new FormData(this);
+                  showSpinner(btn);
+                  const form = document.getElementById('newEmployeeForm');
+                  const formData = new FormData(form);
                   formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
-                  const createUrl = $(this).attr("action");
-
                   $.ajax({
-                      url: createUrl,
+                      url: '/employees',
                       type: "POST",
                       data: formData,
                       processData: false,

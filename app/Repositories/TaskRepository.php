@@ -71,7 +71,8 @@ class TaskRepository
 
     public function addTask(array $data): Task
     {
-        return Task::create($data);
+        $task = Task::create($data);
+        return Task::with('employee')->find($task->id);
     }
 
     public function updateTask(array $data, Task $task): bool

@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\JsonReponse;
+use App\Helpers\JsonResponse;
 use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
 use App\Http\Requests\UpdateProfileRequest;
+use App\Repositories\EmailRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use App\Repositories\EmployeeRepository;
@@ -15,7 +16,8 @@ class EmployeeController extends Controller
 {
     public function __construct(
         protected EmployeeRepository $employeeRepo,
-        protected TaskRepository $taskRepo
+        protected TaskRepository $taskRepo,
+        protected EmailRepository $emailService,
     ) {}
 
     public function index()
@@ -33,8 +35,16 @@ class EmployeeController extends Controller
     {
         $validatedData = $request->validated();
         $employee = $this->employeeRepo->storeEmployee($validatedData);
-        if ($employee === null) return JsonReponse::error(message: 'Failed to add Employee');
-        else return JsonReponse::success(message: "Employee $employee->username added successfully'");
+        if ($employee === null) return JsonResponse::error(message: 'Failed to add Employee');
+        else {
+            $mailSent = $this->emailService->sendAccountRelatedMail(
+                toEmail: $employee->email,
+                subject: 'Account created',
+                details: $employee
+            );
+            if (!$mailSent) return JsonResponse::error(message: 'Employee added but failed to send mail');
+            return JsonResponse::success(message: "Employee $employee->username added successfully'");
+        }
     }
 
     public function show(int $employeeId)
@@ -55,19 +65,19 @@ class EmployeeController extends Controller
     public function update(UpdateEmployeeRequest $request, $id)
     {
         $employee = $this->employeeRepo->getById($id);
-        if (!$employee) return JsonReponse::error(message: 'Invalid Employee Id');
+        if (!$employee) return JsonResponse::error(message: 'Invalid Employee Id');
         else {
             $validatedData = $request->validated();
             $isUpdated = $this->employeeRepo->updateEmployee($employee, $validatedData);
-            if ($isUpdated)  return JsonReponse::success(message: 'Data updated successfully');
-            else return JsonReponse::error(message: 'Failed to update');
+            if ($isUpdated)  return JsonResponse::success(message: 'Data updated successfully');
+            else return JsonResponse::error(message: 'Failed to update');
         }
     }
 
     public function modifyProfile(UpdateProfileRequest $request, int $id)
     {
         $user = $this->employeeRepo->getById($id);
-        if (!$user)  return JsonReponse::error(message: 'Invalid user');
+        if (!$user)  return JsonResponse::error(message: 'Invalid user');
         else {
             $validatedData = $request->validated();
             if ($request->hasFile('profile_image')) {
@@ -78,18 +88,24 @@ class EmployeeController extends Controller
             if ($isUpdated !== null) {
                 Session::put('username', $isUpdated->username);
                 Session::put('profile_image', $isUpdated->detail->profile_image ?? null);
-                return JsonReponse::success(message: 'Profile updated successfully');
-            } else return JsonReponse::error(message: 'Failed to update profile');
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Profile updated successfully'
+                ]);
+            } else  return response()->json([
+                'success' => false,
+                'message' => 'Failed to update profile'
+            ]);
         }
     }
 
     public function delete(int $employeeId)
     {
         $employee = $this->employeeRepo->getById($employeeId);
-        if (!$employee)   return JsonReponse::error(message: 'Invalid Employee Id');
+        if (!$employee)   return JsonResponse::error(message: 'Invalid Employee Id');
         $deleted = $this->employeeRepo->deleteEmployee($employee);
-        if ($deleted) return JsonReponse::success(message: 'Employee deleted successfully');
-        else return JsonReponse::error(message: 'Failed to delete employee');
+        if ($deleted) return JsonResponse::success(message: 'Employee deleted successfully');
+        else return JsonResponse::error(message: 'Failed to delete employee');
     }
 
     public function task(int $id)
