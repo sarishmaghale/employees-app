@@ -2,9 +2,11 @@
 
 namespace App\Repositories;
 
-use App\Models\Otp;
 use Exception;
+use App\Models\Otp;
+use Illuminate\Support\Str;
 use PHPMailer\PHPMailer\PHPMailer;
+use Illuminate\Support\Facades\URL;
 
 class EmailRepository
 {
@@ -83,11 +85,12 @@ class EmailRepository
             ->first();
         if (!$validRequest) {
             return false;
+        } else {
+            $validRequest->update([
+                'isUsed' => true
+            ]);
+            return true;
         }
-        $validRequest->update([
-            'isUsed' => true
-        ]);
-        return true;
     }
 
     public function sendOtpMail($email, $otpCode)
@@ -101,5 +104,49 @@ class EmailRepository
         } catch (Exception $e) {
             return false;
         }
+    }
+
+    public function sendResetLinkMail($email)
+    {
+        try {
+            $token = Str::random(60);
+            Otp::where('email', $email)->delete();
+            Otp::create([
+                'email' => $email,
+                'code' => $token,
+                'isUsed' => false,
+                'expres_at' => now()->addHour(),
+                'created_at' => now()
+            ]);
+            $resetUrl = URL::to('/reset-password') . '?token=' . $token . '&email=' . urlencode($email);
+
+            $mail = $this->setUpMailer();
+            $mail->addAddress($email);
+            $mail->Subject = 'Password Reset';
+            $mail->Body = "
+            <p>You requested to reset your password.</p>
+            <p>
+                <a href='{$resetUrl}'
+                   style='padding:10px 15px;background:#4f46e5;color:#fff;text-decoration:none;border-radius:4px;'>
+                    Reset Password
+                </a>
+            </p>
+            <p>This link will expire in 1 hour.</p>";
+            $mail->send();
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    public function verifyResetLink($email, $token)
+    {
+        $isValid =  Otp::where('email', $email)
+            ->where('code', $token)
+            ->where('isUsed', false)
+            ->where('expires_at', '>', now())
+            ->first();
+        if ($isValid) return true;
+        return false;
     }
 }

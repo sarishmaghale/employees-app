@@ -64,6 +64,11 @@
 <body>
 
     <div class="login-card">
+        @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
         <h2>Login</h2>
         <form id="LoginForm">
             @csrf
@@ -82,7 +87,7 @@
                     <input type="checkbox" class="form-check-input" id="rememberMe">
                     <label class="form-check-label" for="rememberMe">Remember me</label>
                 </div>
-                <a href="#" class="forgot-password">Forgot password?</a>
+                <button type="button" id="showForgetPasswordModal" class="forgot-password">Forgot password?</button>
             </div>
             <button type="submit" class="btn btn-login w-100">Login</button>
         </form>
@@ -93,24 +98,20 @@
     </div>
 
     @include('partial-views.otpModal-partial')
+    @include('partial-views.forgetPasswordModal-partial')
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('js/spinner.js') }}"></script>
     <script>
         $(document).ready(function() {
-            const spinner = document.getElementById("globalSpinner");
             const form = document.getElementById("LoginForm");
             const submitBtn = form.querySelector("[type='submit']");
 
             form.addEventListener("submit", async function(e) {
-                e.preventDefault(); // prevent default form submission
-
-                // Disable button and show spinner
-                submitBtn.disabled = true;
-                const originalText = submitBtn.innerHTML;
-                submitBtn.innerHTML =
-                    `<span class="spinner-border spinner-border-sm me-2" role="status"></span>`;
-
+                e.preventDefault();
+                showSpinner(submitBtn)
                 const formData = new FormData(this);
                 formData.append('_token', '{{ csrf_token() }}');
 
@@ -123,25 +124,30 @@
                     dataType: "json",
                     success: function(response) {
                         if (response.success) {
-                            console.log(response.data);
-                            $("#loginEmai").val(response.data);
-                            $('#otpModal').modal('show');
-                            // window.location.href = "{{ route('dashboard') }}";
+                            if (response.role === 'admin') window.location.href =
+                                "{{ route('dashboard') }}";
+                            else {
+                                $("#loginEmai").val(response.data);
+                                $('#otpModal').modal('show');
+                            }
                         } else {
+                            console.log('error shown in main')
                             alert(response.message);
-                            // Re-enable button
-                            submitBtn.disabled = false;
-                            submitBtn.innerHTML = originalText;
+                            hideSpinner(submitBtn);
                         }
                     },
                     error: function(xhr) {
                         console.error('Server error', xhr.responseText);
                         // Re-enable button
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = originalText;
+                        hideSpinner(submitBtn);
                     }
                 });
             });
+
+            $(document).on('click', '#showForgetPasswordModal', function() {
+                console.log('call to modal')
+                $("#forgetPasswordModal").modal('show');
+            })
         });
     </script>
     @stack('scripts')

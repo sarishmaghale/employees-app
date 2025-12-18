@@ -11,6 +11,9 @@ use App\Http\Controllers\CalendarController;
 Route::get('/login', [AuthenticateController::class, 'index'])->name('login');
 Route::post('/login', [AuthenticateController::class, 'login'])->name('login.request');
 Route::post('/verify', [AuthenticateController::class, 'verifyLogin'])->name('login.verify');
+Route::post('/initiate-reset', [AuthenticateController::class, 'initiatePasswordReset'])->name('password.initiate');
+Route::get('/reset-password', [AuthenticateController::class, 'showResetForm'])->name('password.reset.form');
+Route::post('/reset-password', [AuthenticateController::class, 'resetPassword'])->name('password.reset');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('dashboard');

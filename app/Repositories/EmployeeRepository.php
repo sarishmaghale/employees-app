@@ -34,9 +34,11 @@ class EmployeeRepository
         return Employee::with('detail')->find($employeeId);
     }
 
-    public function getByEmail(string $email): Employee
+    public function getByEmail(string $email): ?Employee
     {
-        return Employee::with('detail')->where('email', $email)->first();
+        $employee = Employee::with('detail')->where('email', $email)->first();
+        if ($employee) return $employee;
+        return null;
     }
     public function getAll(): Collection
     {
@@ -74,15 +76,23 @@ class EmployeeRepository
                 'password' => $password
             ]);
             if ($profile->detail) {
-                $detailData = [
-                    'address' => $personalInfo['address'],
-                    'phone' => $personalInfo['phone'],
-                    'dob' => $personalInfo['dob'],
-                ];
-                if (!empty($personalInfo['profile_image'])) {
-                    $detailData['profile_image'] = $personalInfo['profile_image'];
+                if (
+                    !empty($personalInfo['address']) &&
+                    !empty($personalInfo['phone']) &&
+                    !empty($personalInfo['dob'])
+                ) {
+                    $detailData = [
+                        'address' => $personalInfo['address'],
+                        'phone' => $personalInfo['phone'],
+                        'dob' => $personalInfo['dob'],
+                    ];
+
+
+                    if (!empty($personalInfo['profile_image'])) {
+                        $detailData['profile_image'] = $personalInfo['profile_image'];
+                    }
+                    $profile->detail->update($detailData);
                 }
-                $profile->detail->update($detailData);
             }
             return Employee::with('detail')->find($profile->id);
         });

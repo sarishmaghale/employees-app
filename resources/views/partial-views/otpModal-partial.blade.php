@@ -21,6 +21,8 @@
                              style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 12px; font-size: 14px;">
                      </div>
                  </form>
+                 <div id="otpError" class="text-danger mb-3" style="display:none; font-size:13px;"></div>
+
              </div>
 
              <div class="modal-footer"
@@ -44,6 +46,7 @@
              $(document).on('click', '#verifyOtp', function(e) {
                  e.preventDefault();
                  const btn = this;
+                 showSpinner(btn)
                  const form = document.getElementById('verifyLoginForm');
                  const modal = $('#otpModal');
                  const formData = new FormData(form);
@@ -58,10 +61,13 @@
                          if (response.success) {
                              window.location.href = "{{ route('dashboard') }}"
                          } else {
-                             Swal.fire('Error', response.message, 'error');
+                             console.log('error shown in partial')
+                             hideSpinner(btn)
+                             $('#otpError').text(response.message).show();
                          }
                      },
                      error: function(xhr) {
+                         hideSpinner(btn)
                          console.error('Error:' + xhr.responseText);
                      }
                  });
