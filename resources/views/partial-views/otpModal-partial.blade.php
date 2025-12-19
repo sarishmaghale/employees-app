@@ -14,11 +14,27 @@
                      <input type="hidden" name="email" id="loginEmai">
                      <div class="mb-4">
                          <label class="form-label"
-                             style="font-size: 13px; color: #999; font-weight: 500; margin-bottom: 8px;">
-                             OTP:</label>
-                         <input type="text" class="form-control" name="otp" id="login_otp"
-                             placeholder="Enter OTP"
-                             style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 12px; font-size: 14px;">
+                             style="font-size: 13px; color: #999; font-weight: 500; margin-bottom: 12px; display: block;">
+                             Enter 6-digit OTP:
+                         </label>
+
+                         <div class="d-flex justify-content-between" id="otp-inputs">
+                             <input type="text" class="form-control otp-input" maxlength="1" inputmode="numeric"
+                                 autocomplete="one-time-code"
+                                 style="width: 45px; height: 50px; text-align: center; font-size: 20px; font-weight: 600; border: 1px solid #e0e0e0; border-radius: 8px;">
+                             <input type="text" class="form-control otp-input" maxlength="1" inputmode="numeric"
+                                 style="width: 45px; height: 50px; text-align: center; font-size: 20px; font-weight: 600; border: 1px solid #e0e0e0; border-radius: 8px;">
+                             <input type="text" class="form-control otp-input" maxlength="1" inputmode="numeric"
+                                 style="width: 45px; height: 50px; text-align: center; font-size: 20px; font-weight: 600; border: 1px solid #e0e0e0; border-radius: 8px;">
+                             <input type="text" class="form-control otp-input" maxlength="1" inputmode="numeric"
+                                 style="width: 45px; height: 50px; text-align: center; font-size: 20px; font-weight: 600; border: 1px solid #e0e0e0; border-radius: 8px;">
+                             <input type="text" class="form-control otp-input" maxlength="1" inputmode="numeric"
+                                 style="width: 45px; height: 50px; text-align: center; font-size: 20px; font-weight: 600; border: 1px solid #e0e0e0; border-radius: 8px;">
+                             <input type="text" class="form-control otp-input" maxlength="1" inputmode="numeric"
+                                 style="width: 45px; height: 50px; text-align: center; font-size: 20px; font-weight: 600; border: 1px solid #e0e0e0; border-radius: 8px;">
+                         </div>
+
+                         <input type="hidden" name="otp" id="login_otp">
                      </div>
                  </form>
                  <div id="otpError" class="text-danger mb-3" style="display:none; font-size:13px;"></div>
@@ -42,6 +58,46 @@
  @push('scripts')
      <script>
          $(document).ready(function() {
+
+             const $inputs = $('.otp-input');
+
+             function updateHiddenOtp() {
+                 let otp = '';
+                 $inputs.each(function() {
+                     otp += $(this).val();
+                 });
+                 $('#login_otp').val(otp);
+             }
+
+             // Auto move forward
+             $inputs.on('input', function() {
+                 const $this = $(this);
+                 const value = $this.val().replace(/\D/g, '');
+                 $this.val(value);
+                 if (value && $this.next('.otp-input').length) {
+                     $this.next('.otp-input').focus();
+                 }
+                 updateHiddenOtp();
+             });
+
+             // Backspace → move back
+             $inputs.on('keydown', function(e) {
+                 if (e.key === 'Backspace' && !$(this).val()) {
+                     $(this).prev('.otp-input').focus();
+                 }
+             });
+
+             // Paste full OTP
+             $inputs.on('paste', function(e) {
+                 e.preventDefault();
+                 const pasteData = e.originalEvent.clipboardData.getData('text').replace(/\D/g,
+                     '');
+                 $inputs.each(function(i) {
+                     $(this).val(pasteData[i] || '');
+                 });
+                 updateHiddenOtp();
+                 $inputs.eq(Math.min(pasteData.length, $inputs.length - 1)).focus();
+             });
 
              $(document).on('click', '#verifyOtp', function(e) {
                  e.preventDefault();

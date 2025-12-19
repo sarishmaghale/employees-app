@@ -64,11 +64,6 @@
 <body>
 
     <div class="login-card">
-        @if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
         <h2>Login</h2>
         <form id="LoginForm">
             @csrf
@@ -84,8 +79,8 @@
             </div>
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="form-check">
-                    <input type="checkbox" class="form-check-input" id="rememberMe">
-                    <label class="form-check-label" for="rememberMe">Remember me</label>
+                    <input type="checkbox" class="form-check-input" id="showPassword">
+                    <label class="form-check-label" for="showPassword">Show Password</label>
                 </div>
                 <button type="button" id="showForgetPasswordModal" class="forgot-password">Forgot password?</button>
             </div>
@@ -104,6 +99,7 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('js/spinner.js') }}"></script>
+    <script src="{{ asset('js/validation.js') }}"></script>
     <script>
         $(document).ready(function() {
             const form = document.getElementById("LoginForm");
@@ -124,7 +120,9 @@
                     dataType: "json",
                     success: function(response) {
                         if (response.success) {
-                            if (response.role === 'admin') window.location.href =
+                            if (response.redirect) {
+                                window.location.href = response.redirect;
+                            } else if (response.role === 'admin') window.location.href =
                                 "{{ route('dashboard') }}";
                             else {
                                 $("#loginEmai").val(response.data);
@@ -132,13 +130,12 @@
                             }
                         } else {
                             console.log('error shown in main')
-                            alert(response.message);
+                            Swal.fire('Error', response.message, 'error');
                             hideSpinner(submitBtn);
                         }
                     },
                     error: function(xhr) {
                         console.error('Server error', xhr.responseText);
-                        // Re-enable button
                         hideSpinner(submitBtn);
                     }
                 });
@@ -149,6 +146,13 @@
                 $("#forgetPasswordModal").modal('show');
             })
         });
+        @if (session('success'))
+            Swal.fire('Success', `{{ session('success') }}`, 'success');
+        @endif
+
+        @if (session('error'))
+            Swal.fire('Error', '{{ session('error') }}', 'error');
+        @endif
     </script>
     @stack('scripts')
 </body>

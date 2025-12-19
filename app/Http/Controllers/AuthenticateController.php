@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\JsonResponse;
-use App\Repositories\EmailRepository;
-use App\Repositories\EmployeeRepository;
+use App\Mail\LoginOtpMail;
 use Illuminate\Http\Request;
+use App\Helpers\JsonResponse;
+use App\Mail\ResetPasswordMail;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Repositories\EmailRepository;
 use Illuminate\Support\Facades\Session;
+use App\Repositories\EmployeeRepository;
 
 class AuthenticateController extends Controller
 {
@@ -21,6 +24,28 @@ class AuthenticateController extends Controller
         return view('login');
     }
 
+    public function newPassword(Request $request)
+    {
+        $email = $request->query('email');
+        return view('create-new-password', compact('email'));
+    }
+
+    public function saveNewPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:employees,email',
+            'password' => 'required|confirmed',
+        ]);
+        $user = $this->repo->getByEmail($request->email);
+        $updatedData = [
+            'username' => $user->username,
+            'password' => $request->password
+        ];
+        $this->repo->updateProfile($user, $updatedData);
+        $this->repo->activateAccount($user);
+        return redirect()->route('login')->with('success', 'Password set successfully');
+    }
+
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -31,10 +56,20 @@ class AuthenticateController extends Controller
         if (Auth::validate($credentials)) {
             $getUser = $this->repo->getByEmail($requestedEmail);
             if ($getUser->role !== 'admin') {
+                if (!$getUser->isActive) {
+                    return response()->json([
+                        'success' => true,
+                        'redirect' => route('password.new', ['email' => $requestedEmail])
+                    ]);
+                }
                 $otpCode = $this->emailService->createOtpForLogIn($requestedEmail);
                 if ($otpCode) {
-                    $this->emailService->sendOtpMail($requestedEmail, $otpCode);
-                    return JsonResponse::success(message: 'Valid credentials', data: $requestedEmail);
+                    try {
+                        Mail::to($requestedEmail)->send(new LoginOtpMail($otpCode));
+                        return JsonResponse::success(message: 'Valid credentials', data: $requestedEmail);
+                    } catch (\Throwable $e) {
+                        return JsonResponse::error(message: 'Invalid OTP');
+                    }
                 } else {
                     return JsonResponse::error(message: 'Failed to generate OTP');
                 }
@@ -80,14 +115,17 @@ class AuthenticateController extends Controller
 
     public function initiatePasswordReset(Request $request)
     {
+        $request->validate([
+            'email' => 'required|email|exists:employees,email'
+        ]);
         $email = $request->input('email');
-        $emailExists = $this->repo->getByEmail($email);
-        if ($emailExists) {
-            $mailSent = $this->emailService->sendResetLinkMail($email);
-            if ($mailSent) return JsonResponse::success(message: 'Your password reset link sent to your email address successfully!');
-            else return JsonResponse::error(message: 'Failed to send mail');
-        } else {
-            return JsonResponse::error(message: 'Invalid email');
+
+        $url = $this->emailService->generateResetLink($email);
+        try {
+            Mail::to($email)->send(new ResetPasswordMail($url));
+            return JsonResponse::success(message: 'Your password reset link sent to your email address successfully!');
+        } catch (\Throwable $e) {
+            return JsonResponse::error(message: 'Failed to send mail');
         }
     }
 
@@ -102,7 +140,7 @@ class AuthenticateController extends Controller
         $request->validate([
             'email' => 'required|email',
             'token' => 'required',
-            'password' => 'required'
+            'password' => 'required|confirmed'
         ]);
         $valid = $this->emailService->verifyResetLink($request->email, $request->token);
         if ($valid) {
@@ -112,15 +150,15 @@ class AuthenticateController extends Controller
                 'password' => $request->password,
             ];
             $isUpdated = $this->repo->updateProfile($user, $updatedData);
-            if ($isUpdated) return redirect('login')->with('success', 'Password Reset successfull');
-            else return redirect('reset-password')->with('error', 'Password reset failed');
-        } else return redirect('reset-password')->with('error', 'Invalid credentials');
+            if ($isUpdated) return JsonResponse::success(message: 'Password reset successfull');
+            else return JsonResponse::error(message: 'Password reset failed');
+        } else return JsonResponse::error(message: 'Invalid or expired link');
     }
     public function logout(Request $request)
     {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return view('login');
+        return redirect('login');
     }
 }

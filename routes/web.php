@@ -7,10 +7,13 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AuthenticateController;
 use App\Http\Controllers\CalendarController;
+use PharIo\Manifest\Author;
 
 Route::get('/login', [AuthenticateController::class, 'index'])->name('login');
 Route::post('/login', [AuthenticateController::class, 'login'])->name('login.request');
 Route::post('/verify', [AuthenticateController::class, 'verifyLogin'])->name('login.verify');
+Route::get('/set-new-password', [AuthenticateController::class, 'newPassword'])->name('password.new');
+Route::post('/set-new-password', [AuthenticateController::class, 'saveNewPassword'])->name('password.save-new');
 Route::post('/initiate-reset', [AuthenticateController::class, 'initiatePasswordReset'])->name('password.initiate');
 Route::get('/reset-password', [AuthenticateController::class, 'showResetForm'])->name('password.reset.form');
 Route::post('/reset-password', [AuthenticateController::class, 'resetPassword'])->name('password.reset');

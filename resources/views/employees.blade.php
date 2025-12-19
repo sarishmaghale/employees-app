@@ -130,6 +130,7 @@
             $(document).on('click', '.add-task-btn', function() {
                 const employeeId = $(this).data('employee-id');
                 $('#addTaskForm #employee_id').val(employeeId);
+                $('#add_task_employee').val(employeeId);
                 $('#addTaskModal').modal('show');
             })
         });

@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 
-use App\Helpers\JsonResponse;
-use App\Http\Requests\StoreTaskRequest;
-use App\Repositories\EmailRepository;
-use App\Repositories\TaskRepository;
 use Illuminate\Http\Request;
+use App\Helpers\JsonResponse;
+use App\Mail\TaskAssignedMail;
+use App\Repositories\TaskRepository;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Repositories\EmailRepository;
+use App\Http\Requests\StoreTaskRequest;
 
 class TaskController extends Controller
 {
@@ -38,13 +40,12 @@ class TaskController extends Controller
         $validatedData['employee_id'] = $request->employee_id ?: Auth::user()->id;
         $task = $this->taskRepo->addTask($validatedData);
         if ($task !== null) {
-            $mailSent = $this->emailService->sendTaskAssignedMail(
-                toEmail: $task->employee->email,
-                subject: 'New Task assigned',
-                taskInfo: $task
-            );
-            if (!$mailSent) return JsonResponse::error(message: 'Task added but failed to send email');
-            return JsonResponse::success(message: 'Task added successfully', data: $task);
+            try {
+                Mail::to($task->employee->email)->send(new TaskAssignedMail(type: 0, task: $task));
+                return JsonResponse::success(message: 'Task added successfully', data: $task);
+            } catch (\Throwable $e) {
+                return JsonResponse::error(message: 'Failed to send mail');
+            }
         }
         return JsonResponse::error(message: 'Failed to add');
     }
@@ -73,15 +74,15 @@ class TaskController extends Controller
         $isUpdated = $this->taskRepo->updateTask($validatedData, $task);
         if ($isUpdated) {
             $updatedtask = $this->taskRepo->getById($id);
-            $mailSent = $this->emailService->sendTaskAssignedMail(
-                toEmail: $task->employee->email,
-                subject: 'Task updated',
-                taskInfo: $updatedtask,
-            );
-
-            if (!$mailSent) return JsonResponse::error(message: 'Task added but failed to send email');
-
-            return JsonResponse::success(message: 'Task updated successfully');
+            try {
+                Mail::to($task->employee->email)->send(new TaskAssignedMail(
+                    type: 1,
+                    task: $updatedtask
+                ));
+                return JsonResponse::success(message: 'Task updated successfully');
+            } catch (\Throwable $e) {
+                return JsonResponse::error(message: 'Task added but failed to send email');
+            }
         }
         return JsonResponse::error(message: 'Faied to update');
     }

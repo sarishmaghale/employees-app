@@ -3,14 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\JsonResponse;
-use App\Http\Requests\StoreEmployeeRequest;
-use App\Http\Requests\UpdateEmployeeRequest;
-use App\Http\Requests\UpdateProfileRequest;
-use App\Repositories\EmailRepository;
+use App\Mail\AccountCreatedMail;
+use App\Repositories\TaskRepository;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Repositories\EmailRepository;
 use Illuminate\Support\Facades\Session;
 use App\Repositories\EmployeeRepository;
-use App\Repositories\TaskRepository;
+use App\Http\Requests\StoreEmployeeRequest;
+use App\Http\Requests\UpdateProfileRequest;
+use App\Http\Requests\UpdateEmployeeRequest;
 
 class EmployeeController extends Controller
 {
@@ -37,13 +39,12 @@ class EmployeeController extends Controller
         $employee = $this->employeeRepo->storeEmployee($validatedData);
         if ($employee === null) return JsonResponse::error(message: 'Failed to add Employee');
         else {
-            $mailSent = $this->emailService->sendAccountRelatedMail(
-                toEmail: $employee->email,
-                subject: 'Account created',
-                details: $employee
-            );
-            if (!$mailSent) return JsonResponse::error(message: 'Employee added but failed to send mail');
-            return JsonResponse::success(message: "Employee $employee->username added successfully'");
+            try {
+                Mail::to($employee->email)->send(new AccountCreatedMail($employee));
+                JsonResponse::success(message: "Employee $employee->username added successfully'");
+            } catch (\Throwable $e) {
+                return JsonResponse::error(message: 'Employee added but failed to send mail');
+            }
         }
     }
 

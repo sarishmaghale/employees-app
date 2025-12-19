@@ -106,37 +106,20 @@ class EmailRepository
         }
     }
 
-    public function sendResetLinkMail($email)
+    public function generateResetLink($email)
     {
-        try {
-            $token = Str::random(60);
-            Otp::where('email', $email)->delete();
-            Otp::create([
-                'email' => $email,
-                'code' => $token,
-                'isUsed' => false,
-                'expres_at' => now()->addHour(),
-                'created_at' => now()
-            ]);
-            $resetUrl = URL::to('/reset-password') . '?token=' . $token . '&email=' . urlencode($email);
+        $token = Str::random(60);
+        Otp::where('email', $email)->delete();
+        Otp::create([
+            'email' => $email,
+            'code' => $token,
+            'isUsed' => false,
+            'expres_at' => now()->addHour(),
+            'created_at' => now()
+        ]);
+        $resetUrl = URL::to('/reset-password') . '?token=' . $token . '&email=' . urlencode($email);
 
-            $mail = $this->setUpMailer();
-            $mail->addAddress($email);
-            $mail->Subject = 'Password Reset';
-            $mail->Body = "
-            <p>You requested to reset your password.</p>
-            <p>
-                <a href='{$resetUrl}'
-                   style='padding:10px 15px;background:#4f46e5;color:#fff;text-decoration:none;border-radius:4px;'>
-                    Reset Password
-                </a>
-            </p>
-            <p>This link will expire in 1 hour.</p>";
-            $mail->send();
-            return true;
-        } catch (\Exception $e) {
-            return false;
-        }
+        return $resetUrl;
     }
 
     public function verifyResetLink($email, $token)

@@ -98,6 +98,11 @@ class EmployeeRepository
         });
     }
 
+    public function activateAccount(Employee $employee)
+    {
+        $employee->isActive = true;
+        $employee->save();
+    }
     public function deleteEmployee(Employee $employee): bool
     {
         $employee->update([

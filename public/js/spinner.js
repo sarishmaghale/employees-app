@@ -11,3 +11,7 @@
                     $btn.html($btn.data('originalText'));
                 }
             }
+
+$(document).ready(function(){
+
+});

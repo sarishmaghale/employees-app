@@ -18,7 +18,8 @@
                              Email:</label>
                          <input type="text" class="form-control" name="email" id="email_for_reset"
                              placeholder="Enter your email"
-                             style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 12px; font-size: 14px;">
+                             style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 12px; font-size: 14px;"
+                             required>
                      </div>
                  </form>
              </div>
@@ -38,6 +39,7 @@
  </div>
 
  @push('scripts')
+     <script src="{{ asset('js/validation.js') }}"></script>
      <script>
          $(document).on('click', '#sendResetLink', function(e) {
              console.log('form is send')
@@ -57,12 +59,14 @@
                      hideSpinner(btn)
                      if (response.success) {
                          Swal.fire('Success', response.message, 'success');
+                         $('#forgetPasswordModal').modal('hide');
                      } else {
                          Swal.fire('Error', response.message, 'error');
                      }
                  },
                  error: function(xhr) {
                      hideSpinner(btn)
+                     if (xhr.status === 422) handleValidationErrors(xhr, '#forgetPasswordForm');
                      console.error('Error:' + xhr.responseText);
                  }
              });

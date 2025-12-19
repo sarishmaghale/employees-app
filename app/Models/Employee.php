@@ -12,7 +12,8 @@ class Employee extends Authenticatable
         'password',
         'username',
         'role',
-        'isDeleted'
+        'isDeleted',
+        'isActive',
     ];
     public function detail()
     {
