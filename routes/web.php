@@ -7,6 +7,7 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AuthenticateController;
 use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\NotificationController;
 use PharIo\Manifest\Author;
 
 Route::get('/login', [AuthenticateController::class, 'index'])->name('login');
@@ -46,4 +47,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/task/update/{id}', [TaskController::class, 'update'])->name('task.update');
     Route::delete('/task/{id}', [TaskController::class, 'delete'])->name('task.destroy');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.all');
+    Route::post('/notification/{id}', [NotificationController::class, 'markAsRead'])->name('notification.read');
+    Route::post('/notification/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications-all-read');
 });

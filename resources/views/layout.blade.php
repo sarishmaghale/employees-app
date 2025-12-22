@@ -69,6 +69,58 @@
         </div>
 
         <div class="header-right">
+            <!-- Notification Icon -->
+            <div class="notification-menu" id="notificationMenu">
+                <button class="notification-btn">
+                    <i class="fas fa-bell"></i>
+                    @if (auth()->user()->unreadNotifications->count() > 0)
+                        <span class="notification-badge">{{ auth()->user()->unreadNotifications->count() }}</span>
+                    @endif
+                </button>
+
+                <div class="notification-dropdown">
+                    <div class="notification-header">
+                        <h6>Notifications</h6>
+                        {{-- <a href="javascript:void(0)" class="mark-all-read" id="markAllRead">Mark all as read</a> --}}
+                    </div>
+                    <div class="notification-list">
+                        @forelse(auth()->user()->notifications()->take(5)->get() as $notification)
+                            <a href="#" class="notification-item {{ $notification->read_at ? '' : 'unread' }}"
+                                data-notification-id="{{ $notification->id }}"
+                                data-task-id="{{ $notification->data['task_id'] ?? '' }}"
+                                data-task-type="{{ $notification->data['type'] }}"
+                                data-url="{{ route('notification.read', $notification->id) }}"
+                                data-task-url="{{ route('calendar.index') }}">
+                                <div class="notification-icon bg-primary">
+                                    @if ($notification->data['type'] === 'user_welcome')
+                                        <i class="fas fa-smile"></i>
+                                    @elseif($notification->data['type'] === 'task_deleted')
+                                        <i class="fas fa-trash"></i>
+                                    @else
+                                        <i class="fas fa-tasks"></i>
+                                    @endif
+
+                                </div>
+                                <div class="notification-content">
+                                    <p class="notification-text">
+                                        {{ $notification->data['message'] ?? 'New notification' }}</p>
+                                    <span
+                                        class="notification-time">{{ $notification->created_at->diffForHumans() }}</span>
+                                </div>
+                            </a>
+                        @empty
+                            <div class="notification-empty">
+                                <i class="fas fa-bell-slash"></i>
+                                <p>No notifications yet</p>
+                            </div>
+                        @endforelse
+                    </div>
+                    <div class="notification-footer">
+                        <a href="{{ route('notifications.all') }}" class="view-all">View all notifications</a>
+                    </div>
+                </div>
+            </div>
+
             <div class="user-menu" id="userMenu">
                 <div class="user-avatar">
                     <img class="img-radius" src="{{ asset('storage/' . session('profile_image')) }}"
@@ -100,10 +152,13 @@
         </div>
     </header>
 
+
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
         @yield('content')
     </div>
+
+    @include('partial-views.task-details')
 
     <div id="globalSpinner" class="d-none text-center mt-3">
         <div class="spinner-border text-primary" role="status">
@@ -116,6 +171,7 @@
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js'></script>
     <script src="{{ asset('js/script.js') }}"></script>
     <script src="{{ asset('js/validation.js') }}"></script>
+    <script src="{{ asset('js/notification.js') }}"></script>
     <script src="{{ asset('assets/flatpickr/flatpickr.min.js') }}"></script>
     @stack('scripts')
 </body>

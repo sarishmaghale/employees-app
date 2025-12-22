@@ -91,10 +91,9 @@
                               title: response.success ? 'Success' : 'Error',
                               text: response.message,
                               icon: response.success ? 'success' : 'error',
-                              confirmButtonText: 'OK,'
                           });
                           if (response.success) {
-                              $('#newEmployeeModal').modal('hide');
+
                               document.dispatchEvent(new Event('employees:refresh'));
                           }
                           hideSpinner(btn)

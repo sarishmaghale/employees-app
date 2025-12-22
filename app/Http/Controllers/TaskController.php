@@ -6,17 +6,23 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Helpers\JsonResponse;
 use App\Mail\TaskAssignedMail;
+use Illuminate\Support\Facades\Log;
 use App\Repositories\TaskRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Repositories\EmailRepository;
 use App\Http\Requests\StoreTaskRequest;
+use App\Repositories\EmployeeRepository;
+use App\Notifications\TaskUpdateNotification;
+use App\Notifications\TaskDeletedNotification;
+use App\Notifications\TaskAssignedNotification;
 
 class TaskController extends Controller
 {
     public function __construct(
         protected TaskRepository $taskRepo,
-        protected EmailRepository $emailService
+        protected EmailRepository $emailService,
+        protected EmployeeRepository $empRepo
     ) {}
 
     public function index()
@@ -39,8 +45,10 @@ class TaskController extends Controller
         $validatedData = $request->validated();
         $validatedData['employee_id'] = $request->employee_id ?: Auth::user()->id;
         $task = $this->taskRepo->addTask($validatedData);
+        $user = $this->empRepo->getByEmail($task->employee->email);
         if ($task !== null) {
             try {
+                if ($user) $user->notify(new TaskAssignedNotification($task));
                 Mail::to($task->employee->email)->send(new TaskAssignedMail(type: 0, task: $task));
                 return JsonResponse::success(message: 'Task added successfully', data: $task);
             } catch (\Throwable $e) {
@@ -72,12 +80,14 @@ class TaskController extends Controller
         $validatedData = $request->validated();
         $validatedData['employee_id'] = $request->employee_id ?: Auth::user()->id;
         $isUpdated = $this->taskRepo->updateTask($validatedData, $task);
+        $user = $this->empRepo->getByEmail($task->employee->email);
         if ($isUpdated) {
-            $updatedtask = $this->taskRepo->getById($id);
+            $updatedTask = $this->taskRepo->getById($id);
             try {
+                if ($user) $user->notify(new TaskUpdateNotification($updatedTask));
                 Mail::to($task->employee->email)->send(new TaskAssignedMail(
                     type: 1,
-                    task: $updatedtask
+                    task: $updatedTask
                 ));
                 return JsonResponse::success(message: 'Task updated successfully');
             } catch (\Throwable $e) {
@@ -93,6 +103,9 @@ class TaskController extends Controller
         if ($task === null) {
             return JsonResponse::error(message: 'Task not found');
         }
+        $taskTitle = $task->title;
+        $employee = $this->empRepo->getById($task->employee_id);
+        $employee->notify(new TaskDeletedNotification($taskTitle));
         $isDeleted = $this->taskRepo->deleteTask($task);
         if ($isDeleted) return JsonResponse::success(message: 'Deleted successfully');
         return JsonResponse::error(message: 'Failed to delete');

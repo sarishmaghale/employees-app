@@ -63,9 +63,9 @@ class TaskRepository
         return $tasks;
     }
 
-    public function getById(int $id): Task
+    public function getById(int $id): ?Task
     {
-        return Task::with('employee')
+        return Task::with(['employee', 'taskCategory'])
             ->find($id);
     }
 

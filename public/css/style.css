@@ -267,6 +267,317 @@
             color: var(--primary);
         }
 
+        /* Notification Menu */
+.notification-menu {
+    position: relative;
+    margin-right: 1.5rem;
+}
+
+.notification-btn {
+    position: relative;
+    background: none;
+    border: none;
+    color: var(--secondary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.notification-btn:hover {
+    background: var(--light);
+    color: var(--primary);
+}
+
+.notification-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: var(--danger);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.15rem 0.4rem;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.notification-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 380px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 1001;
+    max-height: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+.notification-menu.active .notification-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.notification-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.notification-header h6 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.mark-all-read {
+    font-size: 0.8rem;
+    color: var(--primary);
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+}
+
+.mark-all-read:hover {
+    opacity: 0.8;
+}
+
+.notification-list {
+    overflow-y: auto;
+    max-height: 350px;
+}
+
+.notification-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notification-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.notification-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.notification-list::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.notification-item {
+    display: flex;
+    padding: 1rem 1.25rem;
+    text-decoration: none;
+    color: var(--dark);
+    border-bottom: 1px solid #f8fafc;
+    transition: background-color 0.3s ease;
+    gap: 0.75rem;
+    position: relative;
+}
+
+.notification-item:hover {
+    background-color: var(--light);
+}
+
+.notification-item.unread {
+    background-color: #eff6ff;
+}
+
+.notification-item.unread::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background-color: var(--primary);
+}
+
+.notification-item.unread:hover {
+    background-color: #dbeafe;
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: white;
+}
+
+.notification-icon.bg-primary {
+    background-color: var(--primary);
+}
+
+.notification-icon.bg-success {
+    background-color: var(--success);
+}
+
+.notification-icon.bg-warning {
+    background-color: var(--warning);
+}
+
+.notification-icon.bg-info {
+    background-color: var(--info);
+}
+
+.notification-icon.bg-danger {
+    background-color: var(--danger);
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-text {
+    margin: 0 0 0.25rem 0;
+    font-size: 0.9rem;
+    color: var(--dark);
+    line-height: 1.4;
+}
+
+.notification-time {
+    font-size: 0.75rem;
+    color: var(--secondary);
+}
+
+.notification-empty {
+    padding: 3rem 2rem;
+    text-align: center;
+    color: var(--secondary);
+}
+
+.notification-empty i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.3;
+}
+
+.notification-empty p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.notification-footer {
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid #e2e8f0;
+    text-align: center;
+}
+
+.view-all {
+    font-size: 0.9rem;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.3s ease;
+}
+
+.view-all:hover {
+    opacity: 0.8;
+}
+
+/* Loading state */
+.notification-item.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .notification-dropdown {
+        width: 320px;
+        right: -50px;
+    }
+    
+    .notification-menu {
+        margin-right: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .notification-dropdown {
+        width: 280px;
+        right: -80px;
+    }
+    
+    .notification-menu {
+        margin-right: 0.5rem;
+    }
+    
+    .notification-header h6 {
+        font-size: 0.9rem;
+    }
+    
+    .mark-all-read {
+        font-size: 0.75rem;
+    }
+}
+.notifications-page-container {
+    position: static !important; /* override relative/absolute from navbar styles */
+    width: 100%;
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 10px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.05);
+}
+
+.notifications-page-container .notification-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    position: relative; /* reset if navbar styles had something */
+}
+
+.notifications-page-container .notification-item.unread {
+    background-color: #f0f8ff; /* light blue for unread */
+}
+
+.notifications-page-container .notification-icon {
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.notifications-page-container .notification-content {
+    flex: 1;
+}
+
+.notification-empty {
+    text-align: center;
+    color: #999;
+    padding: 50px 0;
+    font-size: 16px;
+}
+
+
         .badge {
             position: absolute;
             top: 5px;

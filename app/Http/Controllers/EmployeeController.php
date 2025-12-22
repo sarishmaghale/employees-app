@@ -13,6 +13,7 @@ use App\Repositories\EmployeeRepository;
 use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
+use App\Notifications\UserWelcomeNotification;
 
 class EmployeeController extends Controller
 {
@@ -40,8 +41,9 @@ class EmployeeController extends Controller
         if ($employee === null) return JsonResponse::error(message: 'Failed to add Employee');
         else {
             try {
+                $employee->notify(new UserWelcomeNotification($employee));
                 Mail::to($employee->email)->send(new AccountCreatedMail($employee));
-                JsonResponse::success(message: "Employee $employee->username added successfully'");
+                return JsonResponse::success(message: "Employee $employee->username added successfully'");
             } catch (\Throwable $e) {
                 return JsonResponse::error(message: 'Employee added but failed to send mail');
             }

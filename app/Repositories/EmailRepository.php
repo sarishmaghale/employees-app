@@ -118,7 +118,6 @@ class EmailRepository
             'created_at' => now()
         ]);
         $resetUrl = URL::to('/reset-password') . '?token=' . $token . '&email=' . urlencode($email);
-
         return $resetUrl;
     }
 
