@@ -17,8 +17,10 @@ class AccountCreatedMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(public Employee $details)
-    {
+    public function __construct(
+        public Employee $details,
+        public string $psw
+    ) {
         //
     }
 

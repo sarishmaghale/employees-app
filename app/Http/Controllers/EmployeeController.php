@@ -37,12 +37,13 @@ class EmployeeController extends Controller
     public function store(StoreEmployeeRequest $request)
     {
         $validatedData = $request->validated();
+        $password = $validatedData['password'];
         $employee = $this->employeeRepo->storeEmployee($validatedData);
         if ($employee === null) return JsonResponse::error(message: 'Failed to add Employee');
         else {
             try {
                 $employee->notify(new UserWelcomeNotification($employee));
-                Mail::to($employee->email)->send(new AccountCreatedMail($employee));
+                Mail::to($employee->email)->send(new AccountCreatedMail(details: $employee, psw: $password));
                 return JsonResponse::success(message: "Employee $employee->username added successfully'");
             } catch (\Throwable $e) {
                 return JsonResponse::error(message: 'Employee added but failed to send mail');
