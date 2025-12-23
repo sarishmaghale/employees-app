@@ -26,6 +26,9 @@ class StoreEmployeeRequest extends FormRequest
             'password' => 'required',
             'username' => 'required|string',
             'role' => 'required|string',
+            'address' => 'nullable',
+            'phone' => 'nullable|regex:/^[0-9]{10}$/',
+            'dob' => 'nullable|date',
         ];
     }
 
@@ -38,6 +41,7 @@ class StoreEmployeeRequest extends FormRequest
             'password' => 'Password is required',
             'username' => 'Please enter your username',
             'role' => 'Please select role',
+            'phone.regex' => 'Enter valid phone number'
         ];
     }
 }
