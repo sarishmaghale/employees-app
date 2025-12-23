@@ -2,6 +2,7 @@
 
 use App\Models\Task;
 use App\Models\Employee;
+use App\Models\EmployeeKanbanStatusLink;
 use App\Models\TaskCategory;
 use App\Models\TaskSubCategory;
 use App\Models\TaskCategoryLink;

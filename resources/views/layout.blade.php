@@ -36,7 +36,7 @@
             @if (session('role') === 'admin')
                 <div class="menu-label">Components</div>
 
-                <a href="{{ route('employees.index') }}" class="menu-item" data-title="Users">
+                <a href="{{ route('employees.index') }}" class="menu-item" data-title="Components">
                     <i class="fas fa-users"></i>
                     <span class="menu-text">Employees</span>
                 </a>
@@ -51,7 +51,12 @@
                 <i class="fas fa-tasks"></i>
                 <span class="menu-text">Tasks</span>
             </a>
+            <div class="menu-label">Kanban</div>
 
+            <a href="{{ route('kanban.index') }}" class="menu-item" data-title="Kanban">
+                <i class="fas fa-th-large"></i>
+                <span class="menu-text">Board</span>
+            </a>
         </nav>
     </aside>
 

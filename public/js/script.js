@@ -21,6 +21,14 @@ $(document).ready(function(){
 
     const currentPath = window.location.pathname;
 
+        if (window.innerWidth > 768) {
+        sidebar.classList.add('collapsed');
+        header.classList.add('expanded');
+        mainContent.classList.add('expanded');
+    } else {
+        sidebar.classList.remove('active');
+        sidebarOverlay.classList.remove('active');
+    }
     // Highlight active menu item based on current path
     menuItems.forEach(link => {
         const href = link.getAttribute('href');

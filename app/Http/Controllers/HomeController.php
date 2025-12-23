@@ -9,4 +9,9 @@ class HomeController extends Controller
     {
         return view('dashboard');
     }
+
+    public function kanban()
+    {
+        return view('kanban-board.index');
+    }
 }

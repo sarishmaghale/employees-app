@@ -7,6 +7,7 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AuthenticateController;
 use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\KanbanController;
 use App\Http\Controllers\NotificationController;
 use PharIo\Manifest\Author;
 
@@ -51,4 +52,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.all');
     Route::post('/notification/{id}', [NotificationController::class, 'markAsRead'])->name('notification.read');
     Route::post('/notification/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications-all-read');
+
+    Route::get('/kanban-board', [KanbanController::class, 'index'])->name('kanban.index');
+    Route::get('/kanban-board/{id}', [KanbanController::class, 'show'])->name('category-board');
+    Route::post('/board-status', [KanbanController::class, 'storeBoard'])->name('board.new');
 });

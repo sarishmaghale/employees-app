@@ -14,7 +14,9 @@ class Task extends Model
         'color',
         'employee_id',
         'category_id',
-        'badge'
+        'badge',
+        'status_link_id',
+        'position'
     ];
     public function employee()
     {
@@ -23,5 +25,9 @@ class Task extends Model
     public function taskCategory()
     {
         return $this->belongsTo(TaskCategory::class, 'category_id');
+    }
+    public function kanbanLinks()
+    {
+        return $this->belongsTo(EmployeeKanbanStatusLink::class, 'status_link_id');
     }
 }

@@ -26,4 +26,8 @@ class Employee extends Authenticatable
     {
         return $this->hasMany(Task::class, 'employee_id');
     }
+    public function kanbanLinks()
+    {
+        return $this->hasMany(EmployeeKanbanStatusLink::class);
+    }
 }
