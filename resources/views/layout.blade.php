@@ -19,7 +19,7 @@
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
+    <aside class="sidebar collapsed" id="sidebar">
         <div class="sidebar-header">
             <a href="#" class="sidebar-logo">
                 <i class="fas fa-layer-group"></i>
@@ -61,7 +61,7 @@
     </aside>
 
     <!-- Header -->
-    <header class="header" id="header">
+    <header class="header expanded" id="header">
         <div class="header-left">
             <button class="menu-toggle" id="menuToggle">
                 <i class="fas fa-bars"></i>
@@ -159,7 +159,7 @@
 
 
     <!-- Main Content -->
-    <div class="main-content" id="mainContent">
+    <div class="main-content expanded" id="mainContent">
         @yield('content')
     </div>
 
@@ -174,6 +174,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <script src="{{ asset('js/script.js') }}"></script>
     <script src="{{ asset('js/validation.js') }}"></script>
     <script src="{{ asset('js/notification.js') }}"></script>

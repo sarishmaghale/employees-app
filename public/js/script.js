@@ -21,7 +21,8 @@ $(document).ready(function(){
 
     const currentPath = window.location.pathname;
 
-        if (window.innerWidth > 768) {
+    // Set sidebar to collapsed by default on desktop
+    if (window.innerWidth > 768) {
         sidebar.classList.add('collapsed');
         header.classList.add('expanded');
         mainContent.classList.add('expanded');
@@ -29,6 +30,7 @@ $(document).ready(function(){
         sidebar.classList.remove('active');
         sidebarOverlay.classList.remove('active');
     }
+    
     // Highlight active menu item based on current path
     menuItems.forEach(link => {
         const href = link.getAttribute('href');
@@ -177,4 +179,3 @@ function fromCalendarEnd(dateStr) {
     d.setDate(d.getDate() - 1); 
     return d.toISOString().split('T')[0];
 }
-

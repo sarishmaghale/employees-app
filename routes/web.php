@@ -55,5 +55,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/kanban-board', [KanbanController::class, 'index'])->name('kanban.index');
     Route::get('/kanban-board/{id}', [KanbanController::class, 'show'])->name('category-board');
-    Route::post('/board-status', [KanbanController::class, 'storeBoard'])->name('board.new');
+    Route::post('/board-new', [KanbanController::class, 'storeBoard'])->name('board.new');
+    Route::get('/board-tasks/{id}', [KanbanController::class, 'showTasks'])->name('board.tasks');
+    Route::post('/board-tasks', [KanbanController::class, 'addTasks'])->name('board.tasks.save');
 });

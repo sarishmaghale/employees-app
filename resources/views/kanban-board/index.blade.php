@@ -13,7 +13,7 @@
 
                     @foreach (getTaskCategories() as $category)
                         <button class="kb-filter-btn" data-category-id="{{ $category->id }}"
-                            data-color="{{ $category->color }}">
+                            data-category-name="{{ $category->category_name }}">
                             <span class="kb-filter-dot" style="background: {{ $category->color }}"></span>
                             {{ $category->category_name }}
                         </button>
@@ -87,6 +87,7 @@
         </div>
     </div>
     @include('partial-views.add-kanban-card-partial')
+    @include('partial-views.add-board-task-partial')
 @endsection
 
 @push('scripts')
@@ -94,12 +95,19 @@
         $(document).ready(function() {
             const userId = @json(Auth::id());
             console.log('LoggedUser:', userId);
+            let activeCategoryId = null;
             $('.kb-filter-btn').on('click', function() {
                 $('.kb-filter-btn').removeClass('active');
                 $(this).addClass('active');
                 activeCategoryId = $(this).data('category-id');
+                let categoryName = $(this).data('category-name');
+                $('#addTaskToBoardModal').data('category-name', categoryName);
+                loadBoardData(activeCategoryId);
+            });
+
+            function loadBoardData(categoryId) {
                 $.ajax({
-                    url: `/kanban-board/${activeCategoryId}`,
+                    url: `/kanban-board/${categoryId}`,
                     type: "GET",
                     success: function(response) {
                         if (response.success) {
@@ -107,28 +115,77 @@
                             board.empty();
                             let columns = response.data;
                             console.log(columns);
+
                             columns.forEach(col => {
-                                let colHtml = ` <div class="kb-column">
-                            <div class="kb-column-header">
-                                <h2>${col.status.name}</h2>
-                           <span> 3 Tasks </span>
-                            </div>
-                          </div> `;
+                                let colHtml = `
+                                    <div class="kb-column">
+                                        <div class="kb-column-header">
+                                            <div class="kb-column-header-top">
+                                                <h2>${col.status.name}</h2>
+                                                <button class="kb-add-task-btn" data-status-id="${col.id}" data-category-id="${activeCategoryId}">
+                                                    + Add Task
+                                                </button>
+                                            </div>
+                                            <span>${col.tasks ? col.tasks.length : 0} Tasks</span>
+                                        </div>
+                                        <div class="kb-column-body">
+                                                ${col.tasks && col.tasks.length > 0 ? col.tasks.map(task => `
+                                                    <div class="kb-card">
+                                                        <h3>${task.title}</h3>
+                                                        <div class="kb-card-meta">
+                                                            <span class="kb-tag">${task.badge}</span>
+                                                            <span class="kb-date">Due: ${task.end}</span>
+                                                        </div>
+                                                    </div>
+                                                `).join('') : ''}
+                                        </div>
+                                    </div>`;
                                 board.append(colHtml);
                             });
-
-                        };
+                        }
                     },
                     error: function(xhr) {
                         console.error('Error:', xhr.responseText);
                     }
                 });
-            });
+
+            };
 
             $('.kb-add-card-global').on('click', function() {
                 $('#status_emp_id').val(userId);
                 $('#addNewStatusCardModal').modal('show');
             })
+
+            $(document).on('click', '.kb-add-task-btn', function() {
+                const status_id = $(this).data('status-id');
+                const categoryId = $(this).data('category-id');
+                $('#addTaskToBoardModal').data('status-id', status_id);
+                const categoryName = $('#addTaskToBoardModal').data('category-name');
+                $('.modal-title').text(categoryName + ' Tasks List');
+                $.ajax({
+                    url: `/board-tasks/${ categoryId}`,
+                    type: "GET",
+                    success: function(response) {
+                        const taskList = $('#board-taskList');
+                        taskList.empty();
+                        response.data.forEach(task => {
+                            taskList.append(` <li class = "list-group-item task-item"
+                                    data-task-id = "${task.id}" >
+                                        ${task.title} 
+                                        </li>`);
+                        });
+                        $('#addTaskToBoardModal').modal('show');
+                    },
+                    error: function(xhr) {
+                        console.error('Error:', xhr.responseText);
+                    }
+                })
+            });
+            document.addEventListener('board.refresh', function() {
+                loadBoardData(activeCategoryId);
+            })
+
+
         })
     </script>
 @endpush

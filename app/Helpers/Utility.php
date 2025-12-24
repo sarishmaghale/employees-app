@@ -58,3 +58,29 @@ if (!function_exists('countTasksStartingToday')) {
         return $taskCount;
     }
 }
+if (!function_exists('latest_notifications')) {
+    function latest_notifications(int $limit = 5)
+    {
+        if (!Auth::check()) {
+            return collect();
+        }
+
+        return Auth::user()
+            ->notifications()
+            ->orderBy('created_at', 'desc')
+            ->take($limit)
+            ->get();
+    }
+}
+if (!function_exists('unread_notifications_count')) {
+    function unread_notifications_count(): int
+    {
+        if (!Auth::check()) {
+            return 0;
+        }
+
+        return Auth::user()
+            ->unreadNotifications()
+            ->count();
+    }
+}

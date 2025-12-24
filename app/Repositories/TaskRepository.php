@@ -84,4 +84,28 @@ class TaskRepository
     {
         return $task->delete();
     }
+
+    public function getTaskForBoard(int $categoryId, int $employeeId): bool
+    {
+        return Task::where('employee_id', $employeeId)->where('category_id', $categoryId)
+            ->where('status_link_id', Null)->get();
+    }
+
+    public function assignTaskToBoard(int $taskId, int $statusLinkId)
+    {
+        $task = Task::find($taskId);
+        if ($task) {
+            $task->status_link_id = $statusLinkId;
+            $task->save();
+            return true;
+        }
+        return false;
+    }
+
+    public function updateTaskStatus(Task $task, int $boardId): bool
+    {
+        $task->status_link_id = $boardId;
+        $task->save();
+        return true;
+    }
 }

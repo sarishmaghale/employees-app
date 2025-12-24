@@ -1133,7 +1133,7 @@
         /* ===== BOARD ===== */
         .kb-board {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 1.5rem;
         }
 
@@ -1162,7 +1162,6 @@
 
         .kb-column-body {
             padding: 1rem;
-            min-height: 400px;
         }
 
         /* ===== COLUMN COLORS ===== */
@@ -1182,6 +1181,31 @@
     background: #e5e7eb;   /* light grey */
     color: #374151;        /* dark grey text */
     border-bottom: 1px solid #d1d5db;
+    
+}
+.kb-column-header-top h2 {
+    margin: 0;
+    font-size: 16px;
+}
+.kb-column-header-top {
+    display: flex;
+    justify-content: space-between; /* h2 left, button right */
+    align-items: center;
+    margin-bottom: 4px;
+}
+.kb-add-task-btn {
+    padding: 2px 6px;
+    border: 2px dashed #cfd3ff;
+    background: transparent;
+    color: #5c67f2;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.kb-add-task-btn:hover {
+    background: #f4f5ff;
 }
         /* ===== CARD ===== */
         .kb-card {

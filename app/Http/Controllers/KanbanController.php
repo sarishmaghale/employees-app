@@ -5,12 +5,16 @@ namespace App\Http\Controllers;
 use App\Helpers\JsonResponse;
 use App\Http\Requests\StoreBoardRequest;
 use App\Repositories\KanbanRepository;
+use App\Repositories\TaskRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class KanbanController extends Controller
 {
-    public function __construct(protected KanbanRepository $boardHelper) {}
+    public function __construct(
+        protected KanbanRepository $boardHelper,
+        protected TaskRepository $taskHelper
+    ) {}
 
     public function index()
     {
@@ -38,5 +42,31 @@ class KanbanController extends Controller
         $result = $this->boardHelper->addNewBoard($data);
         if ($result) return JsonResponse::success(message: 'New Board added');
         else return JsonResponse::error(message: 'Failed to add board');
+    }
+
+    public function showTasks(int $categoryId)
+    {
+        $employee_id = Auth::id();
+        $tasks = $this->taskHelper->getTaskForBoard(employeeId: $employee_id, categoryId: $categoryId);
+        return JsonResponse::success(message: 'Tasks fetched', data: $tasks);
+    }
+
+
+    public function addTasks(Request $request)
+    {
+        $response = $this->taskHelper->assignTaskToBoard(
+            taskId: $request->task_id,
+            statusLinkId: $request->status_id
+        );
+        if ($response) return JsonResponse::success(message: 'Added');
+        else return JsonResponse::error(message: 'Failed to add');
+    }
+
+    public function moveTask(Request $request, int $taskId)
+    {
+        $task = $this->taskHelper->getById($taskId);
+        $result = $this->taskHelper->updateTaskStatus(task: $task, boardId: $request->status_id);
+        if ($result) return JsonResponse::success(message: 'Updated');
+        else return JsonResponse::error(message: 'Failed to save');
     }
 }
