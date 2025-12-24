@@ -4,7 +4,7 @@
     <div class="kb-wrapper">
         <div class="kb-container">
 
-            <h1 class="kb-title">Project Board</h1>
+            <h1 class="kb-title">Manage your work</h1>
 
             <!-- Category Filters -->
             <div class="kb-filters-wrapper">
@@ -45,49 +45,12 @@
                     </div>
                 </div> --}}
 
-                <!-- IN PROGRESS -->
-                {{-- <div class="kb-column in-progress">
-                    <div class="kb-column-header">
-                        <h2>In Progress</h2>
-                        <span>2 tasks</span>
-                    </div>
-
-                    <div class="kb-column-body">
-                        <div class="kb-card in-progress">
-                            <h3>Update documentation</h3>
-                            <p>Review and update API docs</p>
-                            <div class="kb-card-meta">
-                                <span class="kb-tag warning">Documentation</span>
-                                <span class="kb-date">Due: Dec 28</span>
-                            </div>
-                        </div>
-                    </div>
-                </div> --}}
-
-                <!-- DONE -->
-                {{-- <div class="kb-column done">
-                    <div class="kb-column-header">
-                        <h2>Done</h2>
-                        <span>4 tasks</span>
-                    </div>
-
-                    <div class="kb-column-body">
-                        <div class="kb-card done">
-                            <h3>Write unit tests</h3>
-                            <p>Add test coverage</p>
-                            <div class="kb-card-meta">
-                                <span class="kb-tag success">Testing</span>
-                                <span class="kb-date">Completed: Dec 21</span>
-                            </div>
-                        </div>
-                    </div>
-                </div> --}}
-
             </div>
         </div>
     </div>
-    @include('partial-views.add-kanban-card-partial')
-    @include('partial-views.add-board-task-partial')
+    @include('kanban-board.add-kanban-card-partial')
+    @include('kanban-board.add-board-task-partial')
+    @include('partial-views.task-details')
 @endsection
 
 @push('scripts')
@@ -118,7 +81,7 @@
 
                             columns.forEach(col => {
                                 let colHtml = `
-                                    <div class="kb-column">
+                                    <div class="kb-column" >
                                         <div class="kb-column-header">
                                             <div class="kb-column-header-top">
                                                 <h2>${col.status.name}</h2>
@@ -128,20 +91,21 @@
                                             </div>
                                             <span>${col.tasks ? col.tasks.length : 0} Tasks</span>
                                         </div>
-                                        <div class="kb-column-body">
+                                        <div class="kb-column-body" data-link-id="${col.id}">
                                                 ${col.tasks && col.tasks.length > 0 ? col.tasks.map(task => `
-                                                    <div class="kb-card">
-                                                        <h3>${task.title}</h3>
-                                                        <div class="kb-card-meta">
-                                                            <span class="kb-tag">${task.badge}</span>
-                                                            <span class="kb-date">Due: ${task.end}</span>
-                                                        </div>
+                                                <div class="kb-card openTaskDetail" data-task-id="${task.id}">
+                                                    <h3>${task.title}</h3>
+                                                    <div class="kb-card-meta">
+                                                        <span class="kb-tag">${task.badge}</span>
+                                                        <span class="kb-date">Due: ${task.end}</span>
                                                     </div>
-                                                `).join('') : ''}
-                                        </div>
+                                                </div>
+                                            `).join('') : ''}
+</div>
                                     </div>`;
                                 board.append(colHtml);
                             });
+                            enableDragDrop();
                         }
                     },
                     error: function(xhr) {
@@ -168,12 +132,18 @@
                     success: function(response) {
                         const taskList = $('#board-taskList');
                         taskList.empty();
-                        response.data.forEach(task => {
-                            taskList.append(` <li class = "list-group-item task-item"
+                        let tasks = response.data;
+                        if (tasks.length === 0) taskList.append(
+                            `<li> No tasks assigned</li>`);
+                        else {
+                            tasks.forEach(task => {
+                                taskList.append(` <li class = "list-group-item task-item"
                                     data-task-id = "${task.id}" >
                                         ${task.title} 
                                         </li>`);
-                        });
+                            });
+                        }
+
                         $('#addTaskToBoardModal').modal('show');
                     },
                     error: function(xhr) {
@@ -181,11 +151,72 @@
                     }
                 })
             });
+
             document.addEventListener('board.refresh', function() {
                 loadBoardData(activeCategoryId);
+            });
+
+            function enableDragDrop() {
+                $('.kb-column-body').each(function() {
+
+                    new Sortable(this, {
+                        group: 'tasks',
+                        animation: 150,
+                        onEnd: function(event) {
+                            const taskId = $(event.item).data('task-id');
+                            const newStatusId = $(event.to).data('link-id');
+                            console.log('tsk', taskId)
+                            console.log('status', newStatusId)
+                            $.ajax({
+                                url: `/board-task-move`,
+                                type: "POST",
+                                data: {
+                                    _token: $('meta[name="csrf-token"]').attr(
+                                        'content'),
+                                    statusId: newStatusId,
+                                    taskId: taskId
+                                },
+                                success: function(response) {
+                                    if (response.success) {
+                                        Swal.fire('Success', response.message,
+                                            'success');
+
+                                    } else Swal.fire('Error', response.message,
+                                        'error');
+                                },
+                                error: function(xhr) {
+                                    Swal.fire('Error', 'Something went wrong',
+                                        'error');
+                                    console.error('Error:', xhr.responseText);
+                                }
+                            })
+                        }
+                    })
+
+                })
+            }
+
+            $(document).on('click', '.openTaskDetail', function() {
+                const taskId = $(this).data('task-id');
+                $.ajax({
+                    url: `/tasks/${taskId}`,
+                    type: "GET",
+                    dataType: 'json',
+                    success: function(response) {
+                        $('#taskTitle').text(response.data.title);
+                        $('#taskType').text(response.data.task_category.category_name);
+                        $('#taskStart').text(response.data.start);
+                        $('#taskEnd').text(response.data.end);
+                        $('#taskBadge').text(response.data.badge);
+                        const taskModal = new bootstrap.Modal(document.getElementById(
+                            'taskDetailsModal'));
+                        taskModal.show();
+                    },
+                    error: function(xhr) {
+                        console.error('Error', xhr.responseText);
+                    }
+                })
             })
-
-
         })
     </script>
 @endpush

@@ -58,4 +58,5 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/board-new', [KanbanController::class, 'storeBoard'])->name('board.new');
     Route::get('/board-tasks/{id}', [KanbanController::class, 'showTasks'])->name('board.tasks');
     Route::post('/board-tasks', [KanbanController::class, 'addTasks'])->name('board.tasks.save');
+    Route::post('/board-task-move', [KanbanController::class, 'moveTask'])->name('board-task.move');
 });

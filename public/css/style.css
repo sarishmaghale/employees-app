@@ -1162,6 +1162,7 @@
 
         .kb-column-body {
             padding: 1rem;
+            min-height: 80px;
         }
 
         /* ===== COLUMN COLORS ===== */

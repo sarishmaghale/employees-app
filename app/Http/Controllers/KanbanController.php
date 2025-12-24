@@ -62,10 +62,10 @@ class KanbanController extends Controller
         else return JsonResponse::error(message: 'Failed to add');
     }
 
-    public function moveTask(Request $request, int $taskId)
+    public function moveTask(Request $request)
     {
-        $task = $this->taskHelper->getById($taskId);
-        $result = $this->taskHelper->updateTaskStatus(task: $task, boardId: $request->status_id);
+        $task = $this->taskHelper->getById($request->taskId);
+        $result = $this->taskHelper->updateTaskStatus(task: $task, boardId: $request->statusId);
         if ($result) return JsonResponse::success(message: 'Updated');
         else return JsonResponse::error(message: 'Failed to save');
     }

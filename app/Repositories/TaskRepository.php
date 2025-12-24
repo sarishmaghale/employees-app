@@ -85,13 +85,13 @@ class TaskRepository
         return $task->delete();
     }
 
-    public function getTaskForBoard(int $categoryId, int $employeeId): bool
+    public function getTaskForBoard(int $categoryId, int $employeeId): Collection
     {
         return Task::where('employee_id', $employeeId)->where('category_id', $categoryId)
             ->where('status_link_id', Null)->get();
     }
 
-    public function assignTaskToBoard(int $taskId, int $statusLinkId)
+    public function assignTaskToBoard(int $taskId, int $statusLinkId): bool
     {
         $task = Task::find($taskId);
         if ($task) {
