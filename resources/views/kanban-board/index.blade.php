@@ -1,52 +1,54 @@
 @extends('layout')
+@push('styles')
+    <style>
+        #selectedUser.has-value {
+            border: 2px solid var(--primary);
+            background: #f0f4ff;
+            color: var(--primary-dark);
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+    </style>
+@endpush
 
 @section('content')
-    <div class="kb-wrapper">
-        <div class="kb-container">
+    <h1 class="kb-title">Manage your work</h1>
 
-            <h1 class="kb-title">Manage your work</h1>
+    <div class="kb-filters-wrapper">
+        <div class="kb-filters-wrapper-inner">
+            <!-- Left Side - Filter Buttons -->
+            <div class="kb-filters">
+                @forelse(getTaskCategories() as $category)
+                    <button class="kb-filter-btn" data-category-id="{{ $category->id }}"
+                        data-category-name="{{ $category->category_name }}">
+                        <span class="kb-filter-dot" style="background: {{ $category->color }}">
+                        </span>
+                        {{ $category->category_name }}
+                    </button>
+                @empty
+                @endforelse
 
-            <!-- Category Filters -->
-            <div class="kb-filters-wrapper">
-
-                <div class="kb-filters">
-
-                    @foreach (getTaskCategories() as $category)
-                        <button class="kb-filter-btn" data-category-id="{{ $category->id }}"
-                            data-category-name="{{ $category->category_name }}">
-                            <span class="kb-filter-dot" style="background: {{ $category->color }}"></span>
-                            {{ $category->category_name }}
-                        </button>
-                    @endforeach
-                </div>
-                <div class="kb-add-card-top">
-                    <button class="kb-add-card-global">+ Add Card</button>
-                </div>
+                @if (Auth::user()->role === 'admin')
+                    <div class="kb-employee-select-wrapper">
+                        <select id="selectedUser" class="kb-employee-select">
+                            @forelse(getEmployees() as $employee)
+                                <option value="{{ $employee->id }}">{{ $employee->username }}</option>
+                            @empty
+                                <option value="">No employees found</option>
+                            @endforelse
+                        </select>
+                    </div>
+                @endif
             </div>
-            <!-- Kanban Board -->
-            <div class="kb-board">
 
-                <!-- TO DO -->
-                {{-- <div class="kb-column todo">
-                    <div class="kb-column-header">
-                        <h2>To Do</h2>
-                        <span>3 tasks</span>
-                    </div>
-
-                    <div class="kb-column-body">
-                        <div class="kb-card todo">
-                            <h3>Design new landing page</h3>
-                            <p>Create wireframes and mockups</p>
-                            <div class="kb-card-meta">
-                                <span class="kb-tag">Design</span>
-                                <span class="kb-date">Due: Dec 25</span>
-                            </div>
-                        </div>
-                    </div>
-                </div> --}}
-
+            <!-- Right Side - Action Buttons -->
+            <div class="kb-add-card-top">
+                <button class="kb-add-card-global">+ Add Card</button>
             </div>
         </div>
+    </div>
+    <div class="kb-board">
+
     </div>
     @include('kanban-board.add-kanban-card-partial')
     @include('kanban-board.add-board-task-partial')
@@ -56,9 +58,10 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-            const userId = @json(Auth::id());
+            let userId = @json(Auth::id());
             console.log('LoggedUser:', userId);
             let activeCategoryId = null;
+
             $('.kb-filter-btn').on('click', function() {
                 $('.kb-filter-btn').removeClass('active');
                 $(this).addClass('active');
@@ -67,10 +70,11 @@
                 $('#addTaskToBoardModal').data('category-name', categoryName);
                 loadBoardData(activeCategoryId);
             });
+            $('.kb-filter-btn').first().trigger('click');
 
             function loadBoardData(categoryId) {
                 $.ajax({
-                    url: `/kanban-board/${categoryId}`,
+                    url: `/kanban-board/${categoryId}?userId=${userId}`,
                     type: "GET",
                     success: function(response) {
                         if (response.success) {
@@ -93,15 +97,15 @@
                                         </div>
                                         <div class="kb-column-body" data-link-id="${col.id}">
                                                 ${col.tasks && col.tasks.length > 0 ? col.tasks.map(task => `
-                                                <div class="kb-card openTaskDetail" data-task-id="${task.id}">
-                                                    <h3>${task.title}</h3>
-                                                    <div class="kb-card-meta">
-                                                        <span class="kb-tag">${task.badge}</span>
-                                                        <span class="kb-date">Due: ${task.end}</span>
-                                                    </div>
-                                                </div>
-                                            `).join('') : ''}
-</div>
+                                                                                                        <div class="kb-card openTaskDetail" data-task-id="${task.id}">
+                                                                                                            <h3>${task.title}</h3>
+                                                                                                            <div class="kb-card-meta">
+                                                                                                                <span class="kb-tag">${task.badge}</span>
+                                                                                                                <span class="kb-date">Due: ${task.end}</span>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                         `).join('') : ''}
+                                       </div>
                                     </div>`;
                                 board.append(colHtml);
                             });
@@ -115,10 +119,21 @@
 
             };
 
+            $('#selectedUser').on('change', function() {
+                userId = $(this).val();
+                console.log('New selected user:', userId);
+                $(this).addClass('has-value');
+                if (activeCategoryId) {
+                    loadBoardData(activeCategoryId);
+                } else {
+                    $('.kb-filter-btn').first().trigger('click');
+                }
+            });
+
             $('.kb-add-card-global').on('click', function() {
                 $('#status_emp_id').val(userId);
                 $('#addNewStatusCardModal').modal('show');
-            })
+            });
 
             $(document).on('click', '.kb-add-task-btn', function() {
                 const status_id = $(this).data('status-id');
@@ -127,7 +142,7 @@
                 const categoryName = $('#addTaskToBoardModal').data('category-name');
                 $('.modal-title').text(categoryName + ' Tasks List');
                 $.ajax({
-                    url: `/board-tasks/${ categoryId}`,
+                    url: `/board-tasks/${categoryId}?userId=${userId}`,
                     type: "GET",
                     success: function(response) {
                         const taskList = $('#board-taskList');
@@ -216,7 +231,7 @@
                         console.error('Error', xhr.responseText);
                     }
                 })
-            })
+            });
         })
     </script>
 @endpush

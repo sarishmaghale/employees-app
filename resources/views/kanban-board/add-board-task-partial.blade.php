@@ -1,4 +1,4 @@
-,<style>
+<style>
     /* Modal body task list */
     #board-taskList {
         list-style: none;

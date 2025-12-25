@@ -5,7 +5,7 @@
 
              <div class="modal-header" style="border-bottom: 1px solid #e8e8e8; padding: 20px 24px;">
                  <h5 class="modal-title" style="font-weight: 600; color: #1a1a1a; font-size: 18px;">
-                     New Status Card
+                     New Board
                  </h5>
                  <button type="button" class="btn-close" data-bs-dismiss="modal" style="font-size: 12px;"></button>
              </div>
@@ -79,8 +79,12 @@
                      },
                      error: function(xhr) {
                          hideSpinner(btn);
-                         Swal.fire('Error', 'Something went wrong', 'error');
-                         console.error('Error:', xhr.responseText);
+                         if (xhr.status === 422) handleValidationErrors(xhr,
+                             '#addKanbanStatusForm');
+                         else {
+                             Swal.fire('Error', 'Something went wrong', 'error');
+                             console.error('Error:', xhr.responseText);
+                         }
                      }
                  })
              })

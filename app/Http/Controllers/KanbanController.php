@@ -27,9 +27,9 @@ class KanbanController extends Controller
 
         return view('kanban-board.index');
     }
-    public function show(int $categoryId)
+    public function show(int $categoryId, Request $request)
     {
-        $employee_id = Auth::id();
+        $employee_id = $request->userId ?: Auth::id();
         $columns = $this->boardHelper->fetchStatusByCategory(categoryId: $categoryId, employeeId: $employee_id);
         return response()->json([
             'success' => true,
@@ -44,9 +44,9 @@ class KanbanController extends Controller
         else return JsonResponse::error(message: 'Failed to add board');
     }
 
-    public function showTasks(int $categoryId)
+    public function showTasks(int $categoryId, Request $request)
     {
-        $employee_id = Auth::id();
+        $employee_id = $request->userId ?: Auth::id();
         $tasks = $this->taskHelper->getTaskForBoard(employeeId: $employee_id, categoryId: $categoryId);
         return JsonResponse::success(message: 'Tasks fetched', data: $tasks);
     }
