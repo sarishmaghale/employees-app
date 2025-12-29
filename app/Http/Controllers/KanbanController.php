@@ -62,37 +62,4 @@ class KanbanController extends Controller
         if ($result) return JsonResponse::success(message: 'Updated');
         else return JsonResponse::error(message: 'Failed to save');
     }
-
-    // Project Management System
-
-    public function pmsIndex()
-    {
-        $createdBoards = $this->boardHelper->getCreatedBoards(Auth::id());
-        $associatedBoards = $this->boardHelper->getAssociatedBoards(Auth::id());
-        return view('pms.index', compact('createdBoards', 'associatedBoards'));
-    }
-
-    public function pmsBoardIndex(PmsBoard $board)
-    {
-        return view('pms.created-boards', compact('board'));
-    }
-    public function pmsShowTasks(int $cardId)
-    {
-        $tasks = $this->boardHelper->getTasksByCard($cardId);
-        return response()->json($tasks);
-    }
-
-    public function pmsShowAssociatedBoards()
-    {
-        $userId = Auth::id();
-        $boards = $this->boardHelper->getAssociatedBoards($userId);
-        if ($boards) return JsonResponse::success(message: 'Loaded', data: $boards);
-        else return JsonResponse::error(message: 'Failed to load boards');
-    }
-
-    public function pmsShowCards(PmsBoard $board)
-    {
-        $cards = $board->cards;
-        return response()->json($cards);
-    }
 }

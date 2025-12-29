@@ -10,7 +10,7 @@
             <div class="row g-3">
                 @forelse($createdBoards as $board)
                     <div class="col-12 col-md-6 col-lg-4">
-                        <a href="{{ route('pms-board.show', $board) }}" class="text-decoration-none">
+                        <a href="{{ route('pms-board.show', $board->id) }}" class="text-decoration-none">
                             <div class="card h-100 shadow-sm overflow-hidden">
                                 <div class="card-img-top" style="height: 120px; background-color:#6366f1;"></div>
                                 <div class="card-body">
@@ -25,13 +25,13 @@
 
                 <!-- Create New Board -->
                 <div class="col-12 col-md-6 col-lg-4">
-                    <button onclick="createBoard()" class="btn w-100 h-100 p-0 border-0">
+                    <a href="" class="btn w-100 h-100 p-0 border-0">
                         <div class="card h-100 border-dashed" style="border: 2px dashed #dee2e6;">
                             <div class="card-body d-flex align-items-center justify-content-center">
                                 <span class="text-muted">+ Create new board</span>
                             </div>
                         </div>
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>

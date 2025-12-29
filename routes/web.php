@@ -9,6 +9,7 @@ use App\Http\Controllers\AuthenticateController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\KanbanController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PmsController;
 use PharIo\Manifest\Author;
 
 Route::get('/login', [AuthenticateController::class, 'index'])->name('login');
@@ -60,7 +61,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/board-tasks', [KanbanController::class, 'addTasks'])->name('board.tasks.save');
     Route::post('/board-task-move', [KanbanController::class, 'moveTask'])->name('board-task.move');
 
-    Route::get('/pms-workspace', [KanbanController::class, 'pmsIndex'])->name('pms.index');
-    Route::get('/pms-board/{board}', [KanbanController::class, 'pmsBoardIndex'])->name('pms-board.show');
-    Route::get('/pms-card-tasks/{cardId}', [KanbanController::class, 'pmsShowTasks'])->name('pms-card.task');
+    Route::get('/pms-workspace', [PmsController::class, 'index'])->name('pms.index');
+    Route::get('/pms-board/{id}', [PmsController::class, 'showBoard'])->name('pms-board.show');
+    Route::get('/pms-card-tasks/{cardId}', [PmsController::class, 'showTasks'])->name('pms-card.task');
+    Route::post('/pms-add-task', [PmsController::class, 'storeTask'])->name('pms-task.store');
+    Route::post('/pms-add-card', [PmsController::class, 'storeCard'])->name('pms-card.store');
+    Route::post('/pms-task-reorder', [PmsController::class, 'moveTask'])->name('pms-task.move');
+    Route::get('/pms-task-detail/{id}', [PmsController::class, 'showTaskDetail'])->name('pms-task.detail');
 });
