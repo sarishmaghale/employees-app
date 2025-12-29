@@ -5,6 +5,9 @@ namespace App\Repositories;
 use App\Models\KanbanStatus;
 use Illuminate\Support\Facades\DB;
 use App\Models\EmployeeKanbanStatusLink;
+use App\Models\PmsBoard;
+use App\Models\PmsCard;
+use App\Models\PmsTask;
 use Illuminate\Database\Eloquent\Collection;
 
 
@@ -37,5 +40,41 @@ class KanbanRepository
             ]);
             return $addedStatus;
         });
+    }
+
+
+    // Project Management System
+
+    public function getCreatedBoards(int $employeeId): Collection
+    {
+        return PmsBoard::with('cards', 'members')
+            ->where('created_by', $employeeId)->get();
+    }
+
+    public function getAssociatedBoards(int $employeeId): Collection
+    {
+        $boards = PmsBoard::select('pms_boards.*')
+            ->join('pms_board_members', 'pms_boards.id', '=', 'pms_board_members.board_id')
+            ->where('pms_board_members.employee_id', $employeeId)
+            ->where('pms_boards.created_by', '!=', $employeeId)
+            ->with('cards', 'members')
+            ->get();
+        return $boards;
+    }
+
+    public function createNewCard(array $data): PmsCard
+    {
+        return DB::transaction(function () use ($data) {
+            $result = PmsCard::create([
+                'title' => $data['title'],
+                'board_id' => $data['board_id']
+            ]);
+            return $result;
+        });
+    }
+
+    public function getTasksByCard(int $cardId): Collection
+    {
+        return PmsTask::with('employees')->where('card_id', $cardId)->get();
     }
 }

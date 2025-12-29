@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\JsonResponse;
 use App\Http\Requests\StoreBoardRequest;
+use App\Models\PmsBoard;
 use App\Repositories\KanbanRepository;
 use App\Repositories\TaskRepository;
 use Illuminate\Http\Request;
@@ -18,13 +19,6 @@ class KanbanController extends Controller
 
     public function index()
     {
-        // $employee_id = Auth::id();
-        // $category_id = 1;
-        // $columns = $this->boardHelper->getUserColumns(categoryId: $category_id, employeeId: $employee_id);
-        // foreach ($columns as $column) {
-        //     dd($column->status->name);
-        // }
-
         return view('kanban-board.index');
     }
     public function show(int $categoryId, Request $request)
@@ -51,7 +45,6 @@ class KanbanController extends Controller
         return JsonResponse::success(message: 'Tasks fetched', data: $tasks);
     }
 
-
     public function addTasks(Request $request)
     {
         $response = $this->taskHelper->assignTaskToBoard(
@@ -68,5 +61,38 @@ class KanbanController extends Controller
         $result = $this->taskHelper->updateTaskStatus(task: $task, boardId: $request->statusId);
         if ($result) return JsonResponse::success(message: 'Updated');
         else return JsonResponse::error(message: 'Failed to save');
+    }
+
+    // Project Management System
+
+    public function pmsIndex()
+    {
+        $createdBoards = $this->boardHelper->getCreatedBoards(Auth::id());
+        $associatedBoards = $this->boardHelper->getAssociatedBoards(Auth::id());
+        return view('pms.index', compact('createdBoards', 'associatedBoards'));
+    }
+
+    public function pmsBoardIndex(PmsBoard $board)
+    {
+        return view('pms.created-boards', compact('board'));
+    }
+    public function pmsShowTasks(int $cardId)
+    {
+        $tasks = $this->boardHelper->getTasksByCard($cardId);
+        return response()->json($tasks);
+    }
+
+    public function pmsShowAssociatedBoards()
+    {
+        $userId = Auth::id();
+        $boards = $this->boardHelper->getAssociatedBoards($userId);
+        if ($boards) return JsonResponse::success(message: 'Loaded', data: $boards);
+        else return JsonResponse::error(message: 'Failed to load boards');
+    }
+
+    public function pmsShowCards(PmsBoard $board)
+    {
+        $cards = $board->cards;
+        return response()->json($cards);
     }
 }

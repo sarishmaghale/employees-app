@@ -89,22 +89,23 @@
                                         <div class="kb-column-header">
                                             <div class="kb-column-header-top">
                                                 <h2>${col.status.name}</h2>
-                                                <button class="kb-add-task-btn" data-status-id="${col.id}" data-category-id="${activeCategoryId}">
-                                                    + Add Task
-                                                </button>
                                             </div>
                                             <span>${col.tasks ? col.tasks.length : 0} Tasks</span>
                                         </div>
                                         <div class="kb-column-body" data-link-id="${col.id}">
+                                             
                                                 ${col.tasks && col.tasks.length > 0 ? col.tasks.map(task => `
-                                                                                                        <div class="kb-card openTaskDetail" data-task-id="${task.id}">
-                                                                                                            <h3>${task.title}</h3>
-                                                                                                            <div class="kb-card-meta">
-                                                                                                                <span class="kb-tag">${task.badge}</span>
-                                                                                                                <span class="kb-date">Due: ${task.end}</span>
-                                                                                                            </div>
-                                                                                                        </div>
-                                                                                                         `).join('') : ''}
+                                                    <div class="kb-card openTaskDetail" data-task-id="${task.id}">
+                                                        <h3>${task.title}</h3>
+                                                        <div class="kb-card-meta">
+                                                            <span class="kb-tag">${task.badge}</span>
+                                                            <span class="kb-date">Due: ${task.end}</span>
+                                                        </div>
+                                                    </div>
+                                                        `).join('') : ''}
+                                                    <button class="kb-add-task-btn" data-status-id="${col.id}" data-category-id="${activeCategoryId}">
+                                                    + Add Task
+                                                </button>
                                        </div>
                                     </div>`;
                                 board.append(colHtml);

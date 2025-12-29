@@ -51,9 +51,15 @@
                 <i class="fas fa-tasks"></i>
                 <span class="menu-text">Tasks</span>
             </a>
-            <div class="menu-label">Kanban</div>
 
+            <div class="menu-label">Kanban</div>
             <a href="{{ route('kanban.index') }}" class="menu-item" data-title="Kanban">
+                <i class="fas fa-th-large"></i>
+                <span class="menu-text">Board</span>
+            </a>
+
+            <div class="menu-label">Project Management</div>
+            <a href="{{ route('pms.index') }}" class="menu-item" data-title="PMS">
                 <i class="fas fa-th-large"></i>
                 <span class="menu-text">Board</span>
             </a>

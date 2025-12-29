@@ -59,4 +59,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/board-tasks/{id}', [KanbanController::class, 'showTasks'])->name('board.tasks');
     Route::post('/board-tasks', [KanbanController::class, 'addTasks'])->name('board.tasks.save');
     Route::post('/board-task-move', [KanbanController::class, 'moveTask'])->name('board-task.move');
+
+    Route::get('/pms-workspace', [KanbanController::class, 'pmsIndex'])->name('pms.index');
+    Route::get('/pms-board/{board}', [KanbanController::class, 'pmsBoardIndex'])->name('pms-board.show');
+    Route::get('/pms-card-tasks/{cardId}', [KanbanController::class, 'pmsShowTasks'])->name('pms-card.task');
 });

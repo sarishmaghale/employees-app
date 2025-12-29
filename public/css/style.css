@@ -1171,18 +1171,18 @@
 /* ===== BOARD ===== */
 .kb-board {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, auto));
     gap: 1rem;
     padding-bottom: 2rem;
+    justify-content: start;
+    
 }
 
 /* ===== COLUMN ===== */
 .kb-column {
     background: #ebecf0;
     border-radius: 8px;
-    overflow: hidden;
     transition: all 0.2s ease;
-    max-height: calc(100vh - 200px);
     display: flex;
     flex-direction: column;
 }
@@ -1220,26 +1220,31 @@
 }
 
 .kb-add-task-btn {
-    padding: 6px 12px;
+    padding: 8px 12px;
     border: none;
-    background: #0079bf;
-    color: #ffffff;
-    font-weight: 600;
-    border-radius: 4px;
+    background: transparent;
+    font-weight: 700;
+    color: #172b4d;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 14px;
     transition: all 0.2s ease;
+    width: calc(100% - 1rem);
+    text-align: left;
+    display: flex;
+    align-items: center;
 }
 
 .kb-add-task-btn:hover {
-    background: #026aa7;
+    background: #091e4214;
+    color: #172b4d;
 }
 
 .kb-column-body {
     padding: 0.5rem;
     overflow-y: auto;
-    flex: 1;
-    min-height: 100px;
+    flex-grow: 1;
+    min-height: 80px;
     background: #c3c3c3;
 }
 
