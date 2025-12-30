@@ -68,4 +68,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/pms-add-card', [PmsController::class, 'storeCard'])->name('pms-card.store');
     Route::post('/pms-task-reorder', [PmsController::class, 'moveTask'])->name('pms-task.move');
     Route::get('/pms-task-detail/{id}', [PmsController::class, 'showTaskDetail'])->name('pms-task.detail');
+    Route::post('/pms-board/{id}/add-member', [PmsController::class, 'addMember']);
+    Route::post('/pms-add-board', [PmsController::class, 'storeBoard'])->name('pms-board.store');
 });

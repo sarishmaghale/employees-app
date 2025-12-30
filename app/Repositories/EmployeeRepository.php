@@ -46,6 +46,11 @@ class EmployeeRepository
             ->get();
     }
 
+    public function getEmployeeList(): Collection
+    {
+        return Employee::with('detail')->where('isDeleted', 0)->get();
+    }
+
     public function updateEmployee(Employee $model, array $employee,): bool
     {
         return DB::transaction(function () use ($model, $employee) {

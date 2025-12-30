@@ -14,7 +14,8 @@ class PmsTask extends Model
         'description',
         'position',
         'assigned_to',
-        'card_id'
+        'card_id',
+        'created_by'
     ];
 
     public function employees()
@@ -25,5 +26,10 @@ class PmsTask extends Model
     public function card()
     {
         return $this->belongsTo(PmsCard::class, 'card_id', 'id');
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(PmsComment::class, 'task_id');
     }
 }

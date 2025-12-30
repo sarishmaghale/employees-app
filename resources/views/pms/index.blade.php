@@ -25,13 +25,13 @@
 
                 <!-- Create New Board -->
                 <div class="col-12 col-md-6 col-lg-4">
-                    <a href="" class="btn w-100 h-100 p-0 border-0">
+                    <button type="button" id="pmsAddBoardBtn" class="btn w-100 h-100 p-0 border-0">
                         <div class="card h-100 border-dashed" style="border: 2px dashed #dee2e6;">
                             <div class="card-body d-flex align-items-center justify-content-center">
                                 <span class="text-muted">+ Create new board</span>
                             </div>
                         </div>
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
@@ -43,7 +43,7 @@
             <div class="row g-3">
                 @forelse($associatedBoards  as $board)
                     <div class="col-12 col-md-6 col-lg-4">
-                        <a href="" class="text-decoration-none">
+                        <a href="{{ route('pms-board.show', $board->id) }}" class="text-decoration-none">
                             <div class="card h-100 shadow-sm overflow-hidden">
                                 <div class="card-img-top position-relative"
                                     style="height: 120px; background-color: #10b981;">
@@ -64,9 +64,13 @@
 
     </div>
 
-    <script>
-        function createBoard() {
-
-        }
-    </script>
+    @include('pms.partial-add-board')
 @endsection
+
+@push('scripts')
+    <script>
+        $(document).on('click', '#pmsAddBoardBtn', function() {
+            $("#pmsAddNewBoardModal").modal('show');
+        });
+    </script>
+@endpush

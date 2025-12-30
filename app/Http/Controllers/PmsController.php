@@ -5,13 +5,17 @@ namespace App\Http\Controllers;
 use App\Helpers\JsonResponse;
 use App\Http\Requests\StorePmsTasKRequest;
 use App\Models\PmsBoard;
+use App\Repositories\EmployeeRepository;
 use Illuminate\Http\Request;
 use App\Repositories\PmsRepository;
 use Illuminate\Support\Facades\Auth;
 
 class PmsController extends Controller
 {
-    public function __construct(protected PmsRepository $pmsHelper) {}
+    public function __construct(
+        protected PmsRepository $pmsHelper,
+        protected EmployeeRepository $empHelper
+    ) {}
 
     public function index()
     {
@@ -22,9 +26,10 @@ class PmsController extends Controller
 
     public function showBoard(int $id)
     {
+        $employees = $this->empHelper->getEmployeeList();
         $board = $this->pmsHelper->getBoardDetails($id);
         if ($board) {
-            return view('pms.created-boards', compact('board'));
+            return view('pms.created-boards', compact('board', 'employees'));
         } else  abort(404);
     }
 
@@ -37,6 +42,7 @@ class PmsController extends Controller
     public function storeTask(StorePmsTasKRequest $request)
     {
         $data = $request->validated();
+        $data['created_by'] = Auth::id();
         $result = $this->pmsHelper->addTaskForCard($data);
         if ($result && $result->exists) return JsonResponse::success(message: 'Added', data: $result);
         else return JsonResponse::error(message: 'Failed to add');
@@ -64,7 +70,8 @@ class PmsController extends Controller
         $result = $this->pmsHelper->updateTaskOrder(
             $request->task_id,
             $request->new_card_id,
-            $request->position
+            $request->position,
+            Auth::id()
         );
         if (!$result) return JsonResponse::error(message: 'Failed to move task');
         else return JsonResponse::success(message: 'Task updated', data: $result);
@@ -75,5 +82,29 @@ class PmsController extends Controller
         $detail = $this->pmsHelper->getTaskDetails($id);
         if ($detail && $detail->exists) return JsonResponse::success(data: $detail);
         else return JsonResponse::error(message: 'Failed to fetch details');
+    }
+
+    public function addMember(Request $request, $id)
+    {
+        $result = $this->pmsHelper->addBoardMember(boardId: $id, employeeId: $request->employee_id);
+        if ($result['success']) {
+            return JsonResponse::success(message: $result['message']);
+        }
+
+        return JsonResponse::error(message: $result['message']);
+    }
+
+    public function storeBoard(Request $request)
+    {
+        $request->validate([
+            'board_name' => 'required',
+        ]);
+        $data = [
+            'board_name' => $request->board_name,
+            'employee_id' => Auth::id(),
+        ];
+        $result = $this->pmsHelper->addBoard($data);
+        if ($result && $result->exists) return JsonResponse::success(data: $result);
+        else return JsonResponse::error(message: 'failed to add');
     }
 }
