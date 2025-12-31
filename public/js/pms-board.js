@@ -96,7 +96,7 @@ function initializePmsBoard(boardId)
                             const newCardId = $(evt.to).data('card-id');
                             const newPosition = $(evt.to).children('.kb-card').index(evt.item) +
                                 1;
-                            console.log('function wotking');
+                            if (evt.from === evt.to) return;
 
                             $.ajax({
                                 url: `/pms-task-reorder`,
@@ -137,7 +137,6 @@ function initializePmsBoard(boardId)
             $(document).on('click', '.pms-task-item', function() {
                 const taskId = $(this).data('task-id');
                 const modal = $('#pmsEditTaskModal');
-
                 modal.modal('show');
 
                 // Load task details- triggering function inside edit modal

@@ -6,6 +6,8 @@ use App\Models\Employee;
 use Illuminate\Support\Facades\DB;
 use App\Models\PmsBoard;
 use App\Models\PmsCard;
+use App\Models\PmsChecklist;
+use App\Models\PmsChecklistItem;
 use App\Models\PmsComment;
 use App\Models\PmsTask;
 use Illuminate\Database\Eloquent\Collection;
@@ -72,11 +74,10 @@ class PmsRepository
                 'created_by' => $userId
             ]);
 
-            $user = Employee::where('id', $userId)->value('username') ?? 'Unknown';
             $card = PmsCard::where('id', $card_id)->value('title') ?? 'Unknown';
 
             $comment = PmsComment::create([
-                'comment' => $user . ' added this task to ' . $card,
+                'comment' => ' added this task to ' . $card,
                 'employee_id' => $userId,
                 'task_id' => $task->id
             ]);
@@ -93,7 +94,7 @@ class PmsRepository
         $card = PmsCard::create([
             'title' => $data['title'],
             'board_id' => $board_id,
-            'position' => $latestPosition
+            'position' => $position
         ]);
         return $card;
     }
@@ -139,7 +140,7 @@ class PmsRepository
 
     public function getTaskDetails(int $id): ?PmsTask
     {
-        return PmsTask::with('card', 'comments.employee')->find($id);
+        return PmsTask::with('card', 'comments.employee', 'checklists.items')->find($id);
     }
 
     public function addBoardMember(int $boardId, int $employeeId): array
@@ -155,7 +156,66 @@ class PmsRepository
         $board->members()->attach($employeeId);
         return [
             'success' => true,
-            'message' => 'Member added successfully.'
+            'message' => 'Member added successfully.',
+            'board' => $board
         ];
+    }
+
+    public function updateTaskDetails(array $data, int $taskId): bool
+    {
+        return DB::transaction(function () use ($data, $taskId) {
+            $existingDetail = PmsTask::find($taskId);
+            $taskData = collect($data)->except('checklist_items')->toArray();
+            $existingDetail->fill($taskData);
+            $existingDetail->save();
+
+            $items = $data['checklist_items'] ?? [];
+
+            if (!empty($items) && is_array($items)) {
+                foreach ($items as $item) {
+                    if (isset($item['id'], $item['completed'])) {
+                        PmsChecklistItem::where('id', $item['id'])
+                            ->update(['isCompleted' => $item['completed']]);
+                    }
+                }
+            }
+            return true;
+        });
+    }
+
+    public function addCommentToTask(array $data): ?Collection
+    {
+        $comment = PmsComment::create([
+            'comment' => $data['comment'],
+            'task_id' => $data['task_id'],
+            'employee_id' => $data['employee_id'],
+            'comment_type' => 1
+        ]);
+        if ($comment->exists()) {
+            $fetchComment = PmsComment::with('employee')
+                ->where('task_id', $data['task_id'])
+                ->get();
+            return $fetchComment;
+        } else return null;
+    }
+
+    public function addChecklist(array $data): ?PmsChecklist
+    {
+        $result = PmsChecklist::create([
+            'title' => $data['title'],
+            'task_id' => $data['task_id'],
+        ]);
+        if ($result && $result->exists()) return $result;
+        else return null;
+    }
+    public function addChecklistItem(array $data)
+    {
+        $item = PmsChecklistItem::create([
+            'checklist_id' => $data['checklist_id'],
+            'item_title' => $data['title'],
+            'isCompleted' => 0
+        ]);
+        if ($item && $item->exists()) return $item;
+        else return null;
     }
 }

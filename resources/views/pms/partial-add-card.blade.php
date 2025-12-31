@@ -45,6 +45,12 @@
          $(document).ready(function() {
              $(document).on('click', '#pmsSaveNewCardBtn', function(e) {
                  e.preventDefault();
+
+                 let cardValue = $('#pms_card_title').val().trim();
+                 if (cardValue === "") {
+                     $('#pms_card_title').addClass('is-invalid').focus();
+                     return;
+                 }
                  const btn = this;
                  showSpinner(btn);
                  const form = document.getElementById('pmsAddNewCardForm');
@@ -91,7 +97,15 @@
                          }
                      }
                  })
-             })
+             });
+
+             $(document).on('input', '#pms_card_title', function() {
+                 $(this).removeClass('is-invalid');
+             });
+
+             $('#pmsAddNewCardModal').on('hidden.bs.modal', function() {
+                 $('#pms_card_title').removeClass('is-invalid').val('');
+             });
          })
      </script>
  @endpush

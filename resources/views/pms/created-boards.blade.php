@@ -93,7 +93,6 @@
         </div>
     </div>
 
-
     <div class="kb-board">
         @forelse($board->cards as $card)
             <div class="kb-column" data-card-id="{{ $card->id }}">
@@ -121,7 +120,6 @@
                 </div>
             </div>
         @empty
-            No card yet
         @endforelse
     </div>
     @include('pms.partial-edit-task')

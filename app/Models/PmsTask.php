@@ -15,7 +15,8 @@ class PmsTask extends Model
         'position',
         'assigned_to',
         'card_id',
-        'created_by'
+        'created_by',
+        'checklist_items'
     ];
 
     public function employees()
@@ -31,5 +32,10 @@ class PmsTask extends Model
     public function comments()
     {
         return $this->hasMany(PmsComment::class, 'task_id');
+    }
+
+    public function checklists()
+    {
+        return $this->hasMany(PmsChecklist::class, 'task_id');
     }
 }

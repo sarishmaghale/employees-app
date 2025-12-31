@@ -70,4 +70,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pms-task-detail/{id}', [PmsController::class, 'showTaskDetail'])->name('pms-task.detail');
     Route::post('/pms-board/{id}/add-member', [PmsController::class, 'addMember']);
     Route::post('/pms-add-board', [PmsController::class, 'storeBoard'])->name('pms-board.store');
+    Route::post('/pms-update-task/{id}', [PmsController::class, 'updateTask'])->name('pms-task.update');
+    Route::post('/pms-task-comment', [PmsController::class, 'storeComment'])->name('pms-task-comment.store');
+    Route::post('/pms-checklist', [PmsController::class, 'createChecklist']);
+    Route::post('/pms-checklist-item', [PmsController::class, 'createChecklistItem']);
 });

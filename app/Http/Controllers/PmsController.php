@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\JsonResponse;
 use App\Http\Requests\StorePmsTasKRequest;
 use App\Models\PmsBoard;
+use App\Notifications\BoardMemberAddedNotification;
 use App\Repositories\EmployeeRepository;
 use Illuminate\Http\Request;
 use App\Repositories\PmsRepository;
@@ -86,8 +87,11 @@ class PmsController extends Controller
 
     public function addMember(Request $request, $id)
     {
+
         $result = $this->pmsHelper->addBoardMember(boardId: $id, employeeId: $request->employee_id);
         if ($result['success']) {
+            $employee = $this->empHelper->getById($request->employee_id);
+            $employee->notify(new BoardMemberAddedNotification($result['board']));
             return JsonResponse::success(message: $result['message']);
         }
 
@@ -106,5 +110,52 @@ class PmsController extends Controller
         $result = $this->pmsHelper->addBoard($data);
         if ($result && $result->exists) return JsonResponse::success(data: $result);
         else return JsonResponse::error(message: 'failed to add');
+    }
+
+    public function updateTask(Request $request, int $id)
+    {
+        $data = $request->only(['description', 'start_date', 'end_date', 'checklist_items']);
+        $result = $this->pmsHelper->updateTaskDetails($data, $id);
+        if ($result) return JsonResponse::success(message: 'Saved successfully');
+        else return JsonResponse::error(message: 'Failed to save');
+    }
+
+    public function storeComment(Request $request)
+    {
+        $request->validate([
+            'comment' => 'required',
+            'task_id' => 'required|exists:pms_tasks,id'
+        ]);
+        $data = [
+            'comment' => $request->comment,
+            'task_id' => $request->task_id,
+            'employee_id' => Auth::id(),
+        ];
+        $comments = $this->pmsHelper->addCommentToTask($data);
+        if ($comments->isNotEmpty()) return JsonResponse::success(data: $comments);
+        else return JsonResponse::error(message: 'Failed to post comment');
+    }
+
+    public function createChecklist(Request $request)
+    {
+        $data = [
+            'title' => $request->title,
+            'task_id' => $request->task_id,
+        ];
+        $result = $this->pmsHelper->addChecklist($data);
+        if ($result) return JsonResponse::success(data: $result);
+        else return JsonResponse::error(message: 'Faild to add checklist');
+    }
+
+    public function createChecklistItem(Request $request)
+    {
+        $data = [
+            'title' => $request->title,
+            'checklist_id' => $request->checklist_id,
+
+        ];
+        $result = $this->pmsHelper->addChecklistItem($data);
+        if ($result) return JsonResponse::success(data: $result);
+        else return JsonResponse::error(message: 'Faild to add checklist');
     }
 }

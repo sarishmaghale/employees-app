@@ -44,6 +44,13 @@
          $(document).ready(function() {
              $(document).on('click', '#pmsSaveNewBoardBtn', function(e) {
                  e.preventDefault();
+
+                 let boardValue = $('#pms_board_title').val().trim();
+                 if (boardValue === "") {
+                     $('#pms_board_title').addClass('is-invalid').focus();
+                     return;
+                 }
+
                  const btn = this;
                  showSpinner(btn);
                  const form = document.getElementById('pmsAddNewBoardForm');
@@ -77,7 +84,15 @@
                          }
                      }
                  })
-             })
+             });
+
+             $(document).on('input', '#pms_board_title', function() {
+                 $(this).removeClass('is-invalid');
+             });
+
+             $('#pmsAddNewBoardModal').on('hidden.bs.modal', function() {
+                 $('#pms_board_title').removeClass('is-invalid').val('');
+             });
          })
      </script>
  @endpush

@@ -10,7 +10,8 @@ class PmsComment extends Model
     protected $fillable = [
         'comment',
         'employee_id',
-        'task_id'
+        'task_id',
+        'comment_type'
     ];
 
     public function task()

@@ -169,13 +169,14 @@ function hideSpinner(target) {
     }
 }
 
-function toCalendarEnd(dateStr) {
-    const d = new Date(dateStr);
-    d.setDate(d.getDate() + 1); 
-    return d.toISOString().split('T')[0];
-}
-function fromCalendarEnd(dateStr) {
-    const d = new Date(dateStr);
-    d.setDate(d.getDate() - 1); 
-    return d.toISOString().split('T')[0];
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleString('en-GB', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    });
 }

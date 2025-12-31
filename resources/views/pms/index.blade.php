@@ -20,7 +20,6 @@
                         </a>
                     </div>
                 @empty
-                    No boards
                 @endforelse
 
                 <!-- Create New Board -->
@@ -57,7 +56,6 @@
                         </a>
                     </div>
                 @empty
-                    No board
                 @endforelse
             </div>
         </div>
