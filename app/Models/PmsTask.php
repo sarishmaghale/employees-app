@@ -16,12 +16,18 @@ class PmsTask extends Model
         'assigned_to',
         'card_id',
         'created_by',
-        'checklist_items'
+        'checklist_items',
+        'labels'
     ];
 
-    public function employees()
+    public function assignedEmployees()
     {
-        return $this->belongsTo(Employee::class, 'assigned_to', 'id');
+        return $this->belongsToMany(
+            Employee::class,
+            'pms_task_assignments',
+            'task_id',
+            'employee_id'
+        );
     }
 
     public function card()
@@ -31,11 +37,22 @@ class PmsTask extends Model
 
     public function comments()
     {
-        return $this->hasMany(PmsComment::class, 'task_id');
+        return $this->hasMany(PmsComment::class, 'task_id')
+            ->orderBy('created_at', 'desc');;
     }
 
     public function checklists()
     {
         return $this->hasMany(PmsChecklist::class, 'task_id');
+    }
+
+    public function labels()
+    {
+        return $this->belongsToMany(
+            PmsLabel::class,
+            'pms_task_labels',
+            'task_id',
+            'label_id'
+        );
     }
 }

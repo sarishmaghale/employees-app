@@ -30,4 +30,14 @@ class Employee extends Authenticatable
     {
         return $this->hasMany(EmployeeKanbanStatusLink::class);
     }
+
+    public function assignedTasks()
+    {
+        return $this->belongsToMany(
+            PmsTask::class,
+            'pms_task_assignments',
+            'employee_id',
+            'task_id'
+        );
+    }
 }

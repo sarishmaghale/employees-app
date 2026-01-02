@@ -3,13 +3,25 @@
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
 
-            <div class="modal-header">
-                <h5 class="modal-title" id="pmsEditTaskTitle">
-                    <i class="far fa-circle"></i> Details
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+            <div class="modal-header d-flex align-items-center justify-content-between">
 
+                <!-- Left: Title + Members -->
+                <div class="d-flex align-items-center gap-3">
+
+                    <h5 class="modal-title d-flex align-items-center gap-2 mb-0" id="pmsEditTaskTitle">
+                        <i class="far fa-circle"></i> Details
+                    </h5>
+
+                    <!-- Stacked Member Avatars -->
+                    <div class="d-flex align-items-center member-stack" id="assignedEmployeesContainer">
+
+                    </div>
+                </div>
+
+                <!-- Right: Close -->
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+
+            </div>
 
             <div class="modal-body">
                 <div class="row">
@@ -18,17 +30,78 @@
                     <div class="col-lg-6">
                         <form id="pmsEditTaskForm">
                             <input type="hidden" name="id" id="pms_edit_task_id">
-                            <div class="left-scrollable"
-                                style="max-height: 70vh; overflow-y: auto; padding-right: 0.5rem;">
 
-                                <!-- Action Buttons -->
-                                <div class="mb-3 d-flex gap-2 flex-wrap">
-                                    <button type="button" class="btn btn-link btn-sm" id="pmsAddChecklistBtn"><i
-                                            class="fas fa-plus"></i> Add
-                                        CheckList</button>
+                            <!-- Action Buttons -->
+                            <div class="mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+
+                                <!-- Left side actions -->
+                                <div class="d-flex align-items-center gap-2">
+                                    <button type="button" class="btn btn-link btn-sm" id="pmsAddChecklistBtn">
+                                        <i class="fas fa-plus"></i> Add CheckList
+                                    </button>
+
+                                    <!-- Add Member -->
+                                    <div class="dropdown">
+                                        <button type="button" class="btn btn-link btn-sm dropdown-toggle"
+                                            id="addTaskMemberBtn" data-bs-toggle="dropdown">
+                                            + Add Member
+                                        </button>
+
+                                        <ul class="dropdown-menu dropdown-menu-scroll">
+                                            @foreach ($boardMembers as $employee)
+                                                @php
+                                                    $profile = $employee->detail?->profile_image ?? null;
+                                                    $username = $employee->username ?? 'U';
+                                                @endphp
+
+                                                <li>
+                                                    <a class="dropdown-item add-task-member d-flex align-items-center gap-2"
+                                                        data-id="{{ $employee->id }}" href="#">
+                                                        @if ($profile)
+                                                            <img src="{{ asset('storage/' . $profile) }}"
+                                                                class="rounded-circle"
+                                                                style="width:32px;height:32px;object-fit:cover;">
+                                                        @else
+                                                            <div class="rounded-circle bg-warning text-white text-center"
+                                                                style="width:32px;height:32px;line-height:32px;font-weight:600;">
+                                                                {{ strtoupper(substr($username, 0, 1)) }}
+                                                            </div>
+                                                        @endif
+                                                        <span>{{ $username }}</span>
+                                                    </a>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+
+                                    <div class="dropdown">
+                                        <button type="button" class="btn btn-link btn-sm dropdown-toggle"
+                                            id="addTaskLabelBtn" data-bs-toggle="dropdown">
+                                            + Add Label
+                                        </button>
+
+                                        <div class="dropdown-menu dropdown-menu-scroll">
+                                            @forelse (getLabels() as $label)
+                                                <div class="form-check mb-1">
+                                                    <input class="form-check-input add-task-label-checkbox"
+                                                        type="checkbox" value="{{ $label->id }}"
+                                                        id="label{{ $label->id }}">
+                                                    <label class="form-check-label" for="label{{ $label->id }}"
+                                                        style="background-color: {{ $label->color }}; color:#fff; padding:2px 6px; border-radius:4px;">
+                                                        {{ $label->title }}
+                                                    </label>
+                                                </div>
+                                            @empty
+                                            @endforelse
+                                        </div>
+                                    </div>
 
                                 </div>
 
+                            </div>
+
+                            <div class="left-scrollable"
+                                style="max-height: 50vh; overflow-y: auto; padding-right: 0.5rem;">
                                 <!-- Description -->
                                 <div class="mb-3">
                                     <label for="pmsEditTaskDesc" class="form-label">Description</label>
@@ -54,7 +127,7 @@
                                 <div class="mb-3" id="taskChecklistContainer"></div>
 
                                 <!-- Save & Cancel Buttons -->
-                                <div class="d-flex gap-2 mb-3">
+                                <div class="d-flex gap-2 mb-1">
                                     <button type="submit" class="btn btn-primary" id="pmsUpdateTaskBtn">Save</button>
                                     <button type="button" class="btn btn-secondary"
                                         data-bs-dismiss="modal">Cancel</button>
@@ -72,6 +145,7 @@
                                 <textarea class="form-control flex-grow-1" name="comment" id="commentInput" rows="3"
                                     placeholder="Write a comment..." required></textarea>
 
+
                                 <button id="postCommentBtn" class="btn btn-primary ms-2 btn-circle"
                                     title="Post Comment">
                                     <i class="fas fa-paper-plane"></i>
@@ -80,7 +154,8 @@
                         </form>
 
                         <!-- Comments container -->
-                        <div id="commentsContainer"></div>
+                        <div id="commentsContainer" class="right-scrollable"
+                            style="max-height: 40vh; overflow-y: auto; "></div>
                     </div>
 
                 </div>
@@ -115,33 +190,13 @@
 @push('scripts')
     <script src="{{ asset('js/pms-task.js') }}"></script>
     <script>
-        function loadTaskDetails(taskId, modal) {
-            modal.find('#pms_edit_task_id').val(taskId);
-            console.log(taskId);
+        const modal = $('#pmsEditTaskModal');
 
-            $.ajax({
-                url: `/pms-task-detail/${taskId}`,
-                method: "GET",
-                success: function(response) {
-                    if (!response.success) {
-                        return Swal.fire("Error", response.message, "error");
-                    }
-
-                    const task = response.data;
-                    modal.find('#pmsEditTaskTitle').html(`<i class="far fa-circle"></i> ${task.title}`);
-                    modal.find('#pmsEditTaskDesc').val(task.description ?? "");
-                    modal.find('#pmsEditTaskStart').val(task.start_date ?? "");
-                    modal.find('#pmsEditTaskEnd').val(task.end_date ?? "");
-
-                    renderComments(task.comments ?? [], modal.find('#commentsContainer'));
-                    renderCheckList(task.checklists ?? []);
-                },
-                error: function(xhr) {
-                    Swal.fire("Error", "Failed to load task details", "error");
-                    console.error(xhr.responseText);
-                }
-            });
-        };
+        modal.on('shown.bs.modal', function() {
+            const taskId = modal.data('task-id');
+            console.log("Task ID in partial JS:", taskId);
+            initializeTaskDetails(taskId, modal);
+        });
 
         $(document).on('input', '#commentInput', function() {
             $(this).removeClass('is-invalid');

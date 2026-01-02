@@ -4,6 +4,7 @@ use App\Models\Task;
 use App\Models\Employee;
 use App\Models\EmployeeKanbanStatusLink;
 use App\Models\PmsBoard;
+use App\Models\PmsLabel;
 use App\Models\TaskCategory;
 use App\Models\TaskSubCategory;
 use App\Models\TaskCategoryLink;
@@ -49,6 +50,7 @@ if (!function_exists('countTasksEndingToday')) {
         return $taskCount;
     }
 }
+
 if (!function_exists('countTasksStartingToday')) {
     function countTasksStartingToday()
     {
@@ -59,6 +61,7 @@ if (!function_exists('countTasksStartingToday')) {
         return $taskCount;
     }
 }
+
 if (!function_exists('latest_notifications')) {
     function latest_notifications(int $limit = 5)
     {
@@ -73,6 +76,7 @@ if (!function_exists('latest_notifications')) {
             ->get();
     }
 }
+
 if (!function_exists('unread_notifications_count')) {
     function unread_notifications_count(): int
     {
@@ -83,5 +87,16 @@ if (!function_exists('unread_notifications_count')) {
         return Auth::user()
             ->unreadNotifications()
             ->count();
+    }
+}
+
+if (!function_exists('getLabels')) {
+    function getLabels()
+    {
+        static $labels = null;
+        if ($labels === null) {
+            $labels = PmsLabel::all();
+        }
+        return $labels;
     }
 }

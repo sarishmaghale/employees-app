@@ -1048,6 +1048,38 @@
             cursor: pointer;
         }
 
+        .member-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f0ad4e;
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: -8px;
+    border: 2px solid #fff;
+    cursor: pointer;
+}
+
+.member-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.member-avatar:first-child {
+    margin-left: 0;
+}
+
+.member-avatar.more-count {
+    background: #6c757d;
+    font-size: 12px;
+}
+
 /* ===== KANBAN WRAPPER ===== */
 .kb-wrapper {
     padding: 1.5rem;
@@ -1205,6 +1237,52 @@
     align-items: center;
     margin-bottom: 0.5rem;
 }
+/* Three-dot menu button in header (minimal impact on header height) */
+.kb-column-header-top .dropdown-toggle {
+    font-size: 1.1rem;
+    color: #495057;
+    padding: 0;           /* remove extra padding */
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    line-height: 1;       /* match the text height of the title */
+    display: flex;        /* align icon vertically */
+    align-items: center;  /* vertically center icon with title */
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+
+.kb-column-header-top .dropdown-toggle:hover {
+    color: #0d6efd; /* hover color */
+}
+
+/* Dropdown menu styling */
+.kb-column-header .dropdown-menu {
+    min-width: 110px;
+    padding: 0.25rem 0;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Dropdown items */
+.kb-column-header .dropdown-item {
+    padding: 0.35rem 1rem;
+    font-size: 0.85rem;
+    color: #495057;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.kb-column-header .dropdown-item:hover {
+    background: #f4f5f7;
+    color: #172b4d;
+}
+
+/* Hide default dropdown arrow (only three dots used) */
+.kb-column-header .dropdown-toggle::after {
+    display: none;
+}
+
 
 .kb-column-header-top h2 {
     margin: 0;
@@ -1311,7 +1389,6 @@
 
 /* ===== TAGS ===== */
 .kb-tag {
-    background: #545a7a;
     color: #ffffff;
     padding: 4px 10px;
     border-radius: 10px;
@@ -1333,7 +1410,6 @@
     content: "📅";
     font-size: 11px;
 }
-
 
 
 

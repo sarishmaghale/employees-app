@@ -28,11 +28,11 @@ class PmsRepository
 
     public function getAssociatedBoardList(int $employeeId): Collection
     {
-        $boards = PmsBoard::with('members')
+        $boards = PmsBoard::with('members', 'creator')
             ->whereHas('members', function ($q) use ($employeeId) {
                 $q->where('employee_id', $employeeId);
             })->where('created_by', '!=', $employeeId)
-            ->select('id', 'board_name')
+            ->select('id', 'board_name', 'created_by')
             ->get();
         return $boards;
     }
@@ -98,6 +98,7 @@ class PmsRepository
         ]);
         return $card;
     }
+
     public function addBoard(array $data): PmsBoard
     {
         return DB::transaction(function () use ($data) {
@@ -140,7 +141,13 @@ class PmsRepository
 
     public function getTaskDetails(int $id): ?PmsTask
     {
-        return PmsTask::with('card', 'comments.employee', 'checklists.items')->find($id);
+        return PmsTask::with(
+            'card',
+            'comments.employee',
+            'checklists.items',
+            'assignedEmployees.detail',
+            'labels'
+        )->find($id);
     }
 
     public function addBoardMember(int $boardId, int $employeeId): array
@@ -154,10 +161,33 @@ class PmsRepository
         }
 
         $board->members()->attach($employeeId);
+        $member = $board->members()
+            ->where('employee_id', $employeeId)
+            ->first();
         return [
             'success' => true,
             'message' => 'Member added successfully.',
-            'board' => $board
+            'board' => $member
+        ];
+    }
+
+    public function addTaskMember(int $taskId, int $employeeId): array
+    {
+        $task = PmsTask::find($taskId);
+        if ($task->assignedEmployees()->where('employee_id', $employeeId)->exists()) {
+            return [
+                'success' => false,
+                'message' => 'This member is already part of this task.'
+            ];
+        }
+
+        $task->assignedEmployees()->attach($employeeId);
+        $member = $task->assignedEmployees()
+            ->with('detail')->where('employee_id', $employeeId)->first();
+        return [
+            'success' => true,
+            'message' => 'Member added successfully.',
+            'member' => $member
         ];
     }
 
@@ -165,7 +195,8 @@ class PmsRepository
     {
         return DB::transaction(function () use ($data, $taskId) {
             $existingDetail = PmsTask::find($taskId);
-            $taskData = collect($data)->except('checklist_items')->toArray();
+            $taskData = collect($data)->except(['checklist_items', 'labels'])
+                ->toArray();
             $existingDetail->fill($taskData);
             $existingDetail->save();
 
@@ -179,11 +210,13 @@ class PmsRepository
                     }
                 }
             }
+            $labels = $data['labels'] ?? [];
+            $existingDetail->labels()->sync($labels);
             return true;
         });
     }
 
-    public function addCommentToTask(array $data): ?Collection
+    public function addCommentToTask(array $data): ?PmsComment
     {
         $comment = PmsComment::create([
             'comment' => $data['comment'],
@@ -192,10 +225,7 @@ class PmsRepository
             'comment_type' => 1
         ]);
         if ($comment->exists()) {
-            $fetchComment = PmsComment::with('employee')
-                ->where('task_id', $data['task_id'])
-                ->get();
-            return $fetchComment;
+            return $comment->load('employee');
         } else return null;
     }
 
@@ -208,7 +238,8 @@ class PmsRepository
         if ($result && $result->exists()) return $result;
         else return null;
     }
-    public function addChecklistItem(array $data)
+
+    public function addChecklistItem(array $data): ?PmsChecklistItem
     {
         $item = PmsChecklistItem::create([
             'checklist_id' => $data['checklist_id'],
@@ -217,5 +248,38 @@ class PmsRepository
         ]);
         if ($item && $item->exists()) return $item;
         else return null;
+    }
+
+    public function removeChecklistItem(int $id): bool
+    {
+        return DB::transaction(function () use ($id) {
+            PmsChecklistItem::where('checklist_id', $id)->delete();
+            PmsChecklist::find($id)->delete();
+            return true;
+        });
+    }
+
+    public function removeCard(int $id): bool
+    {
+        return DB::transaction(function () use ($id) {
+            $card = PmsCard::with([
+                'tasks.comments',
+                'tasks.checklists',
+                'tasks.labels',
+                'tasks'
+            ])->find($id);
+            if (!$card) return false;
+            foreach ($card->tasks as $task) {
+                $task->comments()->delete();
+                foreach ($task->checklists as $checklist) {
+                    $checklist->items()->delete();
+                    $checklist->delete();
+                }
+                $task->labels()->detach();
+                $task->delete();
+            }
+            $card->delete();
+            return true;
+        });
     }
 }

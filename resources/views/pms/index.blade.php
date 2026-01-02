@@ -47,7 +47,7 @@
                                 <div class="card-img-top position-relative"
                                     style="height: 120px; background-color: #10b981;">
                                     <span
-                                        class="badge bg-dark position-absolute top-0 end-0 m-2 small">{{ $board->owner_name ?? 'Owner' }}</span>
+                                        class="badge bg-dark position-absolute top-0 end-0 m-2 small">{{ $board->creator?->username ?? 'Unknown' }}</span>
                                 </div>
                                 <div class="card-body">
                                     <h5 class="card-title text-dark mb-0">{{ $board->board_name }}</h5>

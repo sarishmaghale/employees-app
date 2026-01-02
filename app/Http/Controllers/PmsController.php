@@ -85,14 +85,27 @@ class PmsController extends Controller
         else return JsonResponse::error(message: 'Failed to fetch details');
     }
 
-    public function addMember(Request $request, $id)
+    public function addBoardMember(Request $request, $id)
     {
 
         $result = $this->pmsHelper->addBoardMember(boardId: $id, employeeId: $request->employee_id);
         if ($result['success']) {
             $employee = $this->empHelper->getById($request->employee_id);
+            $member = $result['board'];
             $employee->notify(new BoardMemberAddedNotification($result['board']));
-            return JsonResponse::success(message: $result['message']);
+            return JsonResponse::success(message: $result['message'], data: $member);
+        }
+
+        return JsonResponse::error(message: $result['message']);
+    }
+
+    public function addTaskMember(Request $request, $id)
+    {
+
+        $result = $this->pmsHelper->addTaskMember(taskId: $id, employeeId: $request->employee_id);
+        if ($result['success']) {
+            $employee = $result['member'];
+            return JsonResponse::success(message: $result['message'], data: $employee);
         }
 
         return JsonResponse::error(message: $result['message']);
@@ -114,7 +127,7 @@ class PmsController extends Controller
 
     public function updateTask(Request $request, int $id)
     {
-        $data = $request->only(['description', 'start_date', 'end_date', 'checklist_items']);
+        $data = $request->only(['description', 'start_date', 'end_date', 'checklist_items', 'labels']);
         $result = $this->pmsHelper->updateTaskDetails($data, $id);
         if ($result) return JsonResponse::success(message: 'Saved successfully');
         else return JsonResponse::error(message: 'Failed to save');
@@ -131,8 +144,8 @@ class PmsController extends Controller
             'task_id' => $request->task_id,
             'employee_id' => Auth::id(),
         ];
-        $comments = $this->pmsHelper->addCommentToTask($data);
-        if ($comments->isNotEmpty()) return JsonResponse::success(data: $comments);
+        $comment = $this->pmsHelper->addCommentToTask($data);
+        if ($comment) return JsonResponse::success(data: $comment);
         else return JsonResponse::error(message: 'Failed to post comment');
     }
 
@@ -157,5 +170,19 @@ class PmsController extends Controller
         $result = $this->pmsHelper->addChecklistItem($data);
         if ($result) return JsonResponse::success(data: $result);
         else return JsonResponse::error(message: 'Faild to add checklist');
+    }
+
+    public function deleteChecklist(int $id)
+    {
+        $result = $this->pmsHelper->removeChecklistItem($id);
+        if ($result) return JsonResponse::success(message: 'Deleted!');
+        else return JsonResponse::error(message: 'Failed to delete!');
+    }
+
+    public function deleteCard(int $id)
+    {
+        $result = $this->pmsHelper->removeCard($id);
+        if ($result) return JsonResponse::success(message: 'Card deleted successfully!');
+        else return JsonResponse::error(message: 'Failed to delete');
     }
 }

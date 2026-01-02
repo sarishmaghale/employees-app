@@ -7,6 +7,7 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AuthenticateController;
 use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\ComponentController;
 use App\Http\Controllers\KanbanController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PmsController;
@@ -68,10 +69,18 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/pms-add-card', [PmsController::class, 'storeCard'])->name('pms-card.store');
     Route::post('/pms-task-reorder', [PmsController::class, 'moveTask'])->name('pms-task.move');
     Route::get('/pms-task-detail/{id}', [PmsController::class, 'showTaskDetail'])->name('pms-task.detail');
-    Route::post('/pms-board/{id}/add-member', [PmsController::class, 'addMember']);
+    Route::post('/pms-board/{id}/add-member', [PmsController::class, 'addBoardMember']);
+    Route::post('/pms-task/{id}/add-member', [PmsController::class, 'addTaskMember']);
     Route::post('/pms-add-board', [PmsController::class, 'storeBoard'])->name('pms-board.store');
     Route::post('/pms-update-task/{id}', [PmsController::class, 'updateTask'])->name('pms-task.update');
     Route::post('/pms-task-comment', [PmsController::class, 'storeComment'])->name('pms-task-comment.store');
     Route::post('/pms-checklist', [PmsController::class, 'createChecklist']);
     Route::post('/pms-checklist-item', [PmsController::class, 'createChecklistItem']);
+    Route::post('/checklist-delete/{id}', [PmsController::class, 'deleteChecklist']);
+    Route::post('/card-delete/{id}', [PmsController::class, 'deleteCard'])->name('pms-card.delete');
+
+    Route::get('/components-labels', [ComponentController::class, 'labels'])->name('components.labels');
+    Route::post('/components-labels', [ComponentController::class, 'storeLabel'])->name('components.labels-store');
+    Route::delete('/components-label/{id}', [ComponentController::class, 'deleteLabel'])->name('components.labels-delete');
+    Route::post('/components-label/{id}', [ComponentController::class, 'updateLabel'])->name('components.label-update');
 });

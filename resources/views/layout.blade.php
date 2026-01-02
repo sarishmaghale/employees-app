@@ -34,9 +34,7 @@
             </a>
 
             @if (session('role') === 'admin')
-                <div class="menu-label">Components</div>
-
-                <a href="{{ route('employees.index') }}" class="menu-item" data-title="Components">
+                <a href="{{ route('employees.index') }}" class="menu-item" data-title="Dashboard">
                     <i class="fas fa-users"></i>
                     <span class="menu-text">Employees</span>
                 </a>
@@ -60,8 +58,15 @@
 
             <div class="menu-label">Project Management</div>
             <a href="{{ route('pms.index') }}" class="menu-item" data-title="PMS">
-                <i class="fas fa-th-large"></i>
+                <i class="fas fa-columns"></i>
                 <span class="menu-text">Board</span>
+            </a>
+
+            <div class="menu-label">Components</div>
+
+            <a href="{{ route('components.labels') }}" class="menu-item" data-title="Components">
+                <i class="fas fa-tags"></i>
+                <span class="menu-text">Labels</span>
             </a>
         </nav>
     </aside>

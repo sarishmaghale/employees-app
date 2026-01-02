@@ -1,65 +1,309 @@
 
+function initializeTaskDetails(taskId,modal)
+{
+      modal.find('#pms_edit_task_id').val(taskId);
 
-function renderComments(comments, container) {
-    container.empty();
+        $.ajax({
+            url: `/pms-task-detail/${taskId}`,
+            method: "GET",
+            success: function(response) {
+                if (!response.success) {
+                    return Swal.fire("Error", response.message, "error");
+                }
 
-    if (comments.length > 0) {
-        comments.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        comments.forEach(comment => {
-            const createdAt = new Date(comment.created_at);
-            const formattedDate = formatDate(comment.created_at);
-            const commentHtml = `
-                <div class="d-flex align-items-start mb-2">
-                    <div class="rounded-circle bg-warning text-center me-2"
-                        style="width:32px; height:32px; line-height:32px;">
-                        ${comment.employee.username.charAt(0) || 'U'}
-                    </div>
+                const task = response.data;
+                modal.find('#pmsEditTaskTitle').html(`<i class="far fa-circle"></i> ${task.title}`);
+                modal.find('#pmsEditTaskDesc').val(task.description ?? "");
+                modal.find('#pmsEditTaskStart').val(task.start_date ?? "");
+                modal.find('#pmsEditTaskEnd').val(task.end_date ?? "");
 
-                    <div>
-                        <strong>${comment.employee.username}</strong>
-                        ${ comment.comment_type === 0 
-                            ? comment.comment 
-                            : `commented:<br/> ${comment.comment}`
-                        }
-                        <br>
-                        <small class="text-muted">${formattedDate}</small>
-                    </div>
-                </div>
-                `;
-
-            container.append(commentHtml);
+                renderComments(task.comments ?? []);
+                renderCheckList(task.checklists ?? []);
+                renderAssignedEmployee(task.assigned_employees ?? []);
+                populateTaskLabels(task.labels ?? []);
+            },
+            error: function(xhr) {
+                Swal.fire("Error", "Failed to load task details", "error");
+                console.error(xhr.responseText);
+            }
         });
-    }
+
+    //DB: update the details
+    $(document).off('click', '#pmsUpdateTaskBtn').on('click', '#pmsUpdateTaskBtn', function(e) {
+            e.preventDefault();
+            const btn = this;
+            showSpinner(btn);
+
+            const form = document.getElementById('pmsEditTaskForm');
+            const formData = new FormData(form);
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            formData.append('_token', csrfToken);
+
+            $('#taskChecklistContainer .checklist-block .checklist-items .form-check input[type="checkbox"]').each(
+                function(index) {
+                    const itemId = $(this).attr('id')?.replace('checkItem', '');
+                    const completed = $(this).is(':checked') ? 1 : 0;
+
+                    if (itemId) {
+                        formData.append(`checklist_items[${index}][id]`, itemId);
+                        formData.append(`checklist_items[${index}][completed]`, completed);
+                    }
+                });
+
+            let selectedLabelIds = [];
+                $('.add-task-label-checkbox:checked').each(function() {
+                    selectedLabelIds.push($(this).val());
+            });
+            selectedLabelIds.forEach((id, index) => {
+                formData.append(`labels[${index}]`, id);
+            });
+
+            $.ajax({
+                url: `/pms-update-task/${taskId}`,
+                method: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    hideSpinner(btn);
+                    Swal.fire({
+                        title: response.success ? 'Success' : 'Error',
+                        text: response.message,
+                        icon: response.success ? 'success' : 'error',
+                    });
+                },
+                error: function(xhr) {
+                    hideSpinner(btn);
+                    Swal.fire('Error', 'Something went wrong', 'error');
+                    console.error('Error: ', xhr.responseText);
+                }
+            })
+    });
+
+    //DB: saving comment 
+    $(document).off('click', '#pmsTaskCommentForm').on('submit', '#pmsTaskCommentForm', function(e) {
+        e.preventDefault();
+
+        let comment = $('#commentInput').val().trim();
+        if (comment === "") {
+            $('#commentInput').addClass('is-invalid').focus();
+            return;
+        }
+
+        const btn = document.getElementById('postCommentBtn');
+        showSpinner(btn);
+
+        $.ajax({
+            url: `/pms-task-comment`,
+            method: "POST",
+            data: {
+                _token: document.querySelector('meta[name="csrf-token"]').content,
+                comment: comment,
+                task_id: taskId
+            },
+            success: function(response) {
+                $('#commentInput').removeClass('is-invalid');
+                hideSpinner(btn);
+                if (response.success) {
+                    $('#commentInput').val('');
+                    renderComments(response.data, true);
+                } else Swal.fire('Error', response.message, 'error');
+            },
+            error: function(xhr) {
+                hideSpinner(btn);
+                Swal.fire("Error", 'Something went wrong', 'error');
+                console.error('Error:', xhr.responseText);
+            }
+        })
+
+    });
+
+    //DB: saving checklist for the task 
+    $(document).off('click', '#pmsAddChecklistForm').on('submit', '#pmsAddchecklistForm', function(e) {
+        e.preventDefault();
+        const title = $('#checklistTitleInput').val().trim();
+
+        if (!title) {
+            $('#checklistTitleInput').addClass('is-invalid').focus();
+            return;
+        }
+
+        $.ajax({
+            url: "/pms-checklist",
+            method: "POST",
+            data: {
+                _token: document.querySelector('meta[name="csrf-token"]').content,
+                title: title,
+                task_id: taskId
+            },
+            success: function(response) {
+                console.log(response.data);
+                if (response.success) {
+                    $('#pmsAddChecklistModal').modal('hide');
+                    renderCheckList(response.data, true);
+                } else Swal.fire('Error', response.message, 'error');
+            },
+            error: function(xhr) {
+                Swal.fire('Error', 'Something went wrong', 'error');
+                console.error('Error', xhr.responseText);
+            }
+        });
+    });
+
+    //Frontend: show field to add checkbox for checklist
+    $(document).off('click', '.addCheckboxBtn').on('click', '.addCheckboxBtn', function() {
+        const container = $(this).siblings('.checklist-items');
+        const uniqueId = Date.now();
+
+        container.append(`
+                <div class="form-check mb-1 d-flex align-items-center gap-2" data-value="">
+                    <input class="form-check-input" type="checkbox" id="checkItem${uniqueId}">
+                    <input type="text" class="form-control form-control-sm checklist-item-input" placeholder="Item name">
+                    <button type="button" class="btn btn-sm btn-success saveCheckboxBtn">Add</button>
+                </div>
+            `);
+    });
+
+    //DB: save checkbox item for checklist
+    $(document).off('click', '.saveCheckboxBtn').on('click', '.saveCheckboxBtn', function() {
+        const btn = this;
+        const parent = $(this).closest('.form-check');
+        const input = parent.find('.checklist-item-input');
+        const value = input.val().trim();
+
+        if (!value) {
+            input.addClass('is-invalid').focus();
+            return;
+        }
+        showSpinner(btn);
+        const checklistId = parent.closest('.checklist-block').data('id');
+
+        $.ajax({
+            url: "/pms-checklist-item",
+            method: "POST",
+            data: {
+                _token: document.querySelector('meta[name="csrf-token"]').content,
+                checklist_id: checklistId,
+                title: value
+            },
+            success: function(response) {
+                hideSpinner(btn);
+                if (response.success) {
+                    const checkbox = parent.find('input[type="checkbox"]');
+                    parent.attr('data-value', value);
+                    parent.html(`
+                <input class="form-check-input" type="checkbox" id="checkItem${response.data.id}" ${response.data.completed ? 'checked' : ''}>
+                <label class="form-check-label">${response.data.item_title}</label>
+            `);
+                } else Swal.fire('Error', response.message, 'error');
+            },
+            error: function(xhr) {
+                hideSpinner(btn);
+                Swal.fire('Error', 'Something went wrong', 'error');
+                console.error('Error:', xhr.responseText);
+            }
+        });
+
+    });
+
+    //DB: saving new employee as member to task
+    $(document).off('click', '.add-task-member').on('click', '.add-task-member', function(e) {
+                    e.preventDefault();
+                    let employeeId = $(this).data('id');
+                    $.ajax({
+                        url: `/pms-task/${taskId}/add-member`,
+                        type: "POST",
+                        data: {
+                            employee_id: employeeId,
+                            _token: document.querySelector('meta[name="csrf-token"]').content,
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire('Success', response.message, 'success');
+                                const members= response.data;
+                                renderAssignedEmployee(members,true);
+                            } else {
+                                Swal.fire('Error', response.message, 'warning');
+                            }
+                        },
+                        error: function(xhr) {
+                            Swal.fire('Error', 'Something went wrong', 'error');
+                            console.error('Error:', xhr.responseText);
+                        }
+                    })
+    });
 }
 
-function renderCheckList(checklists, append = false) {
-    const container = $('#taskChecklistContainer');
-    if (!append) container.empty();
-    if (!checklists) return;
+    function renderComments(comments, append=false) {
+         const container = $('#commentsContainer');
+        if (!append) container.empty();
+        if (!comments) return;
+        if (!Array.isArray(comments)) comments = [comments];
+            let html = '';
+            comments.forEach(comment => {
+                const formattedDate = formatDate(comment.created_at);
+                html += `
+                    <div class="d-flex align-items-start mb-2">
+                        <div class="rounded-circle bg-warning text-center me-2"
+                            style="width:32px; height:32px; line-height:32px;">
+                            ${comment.employee.username.charAt(0) || 'U'}
+                        </div>
 
-    if (!Array.isArray(checklists)) checklists = [checklists];
+                        <div>
+                            <strong>${comment.employee.username}</strong>
+                            ${ comment.comment_type === 0 
+                                ? comment.comment 
+                                : `commented:<br/> ${comment.comment}`
+                            }
+                            <br>
+                            <small class="text-muted">${formattedDate}</small>
+                        </div>
+                    </div>
+                    `;
 
-    let checklistHtml = '';
+            });
+         if (append) container.prepend(html);
+        else  container.append(html);   
+    }
 
-    if (checklists && checklists.length > 0) {
-        checklists.forEach(checklist => {
-             const totalItems = checklist.items?.length || 0;
-        const completedItems = checklist.items?.filter(item => item.isCompleted).length || 0;
-        const percentage = totalItems ? Math.round((completedItems / totalItems) * 100) : 0;
+    function renderCheckList(checklists, append = false) {
+        const container = $('#taskChecklistContainer');
+        if (!append) container.empty();
+        if (!checklists) return;
+
+        if (!Array.isArray(checklists)) checklists = [checklists];
+
+        let checklistHtml = '';
+
+        if (checklists && checklists.length > 0) {
+            checklists.forEach(checklist => {
+                const totalItems = checklist.items?.length || 0;
+            const completedItems = checklist.items?.filter(item => item.isCompleted).length || 0;
+            const percentage = totalItems ? Math.round((completedItems / totalItems) * 100) : 0;
             checklistHtml += `
                 <div class="mb-3 checklist-block" data-id="${checklist.id}">
-                    <h6>${checklist.title}</h6>
-                     <div class="text-end small text-muted checklist-percentage">
-                    ${percentage}% completed
-                </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <h6 class="mb-0">${checklist.title}</h6>
+                        <button type="button" class="btn btn-link btn-sm p-0 text-danger deleteChecklistBtn" data-checklist-id="${checklist.id}">
+                            Delete Item
+                        </button>
+                    </div>
+
+                    <div class="small text-muted mb-2">
+                        ${percentage}% completed
+                    </div>
+
                     <div class="checklist-items">
                         ${checklist.items && checklist.items.length > 0
                             ? checklist.items.map(item => `
-                            <div class="form-check mb-1">
-                                <input class="form-check-input" type="checkbox" id="checkItem${item.id}" ${item.isCompleted ? 'checked' : ''}>
-                                <label class="form-check-label">${item.item_title}</label>
-                            </div>
-                        `).join('')
+                                <div class="form-check mb-1 d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <input class="form-check-input" type="checkbox" id="checkItem${item.id}" ${item.isCompleted ? 'checked' : ''}>
+                                        <label class="form-check-label">${item.item_title}</label>
+                                    </div>
+                                </div>
+                            `).join('')
                             : ''
                         }
                     </div>
@@ -69,189 +313,75 @@ function renderCheckList(checklists, append = false) {
                     </button>
                 </div>
                 `;
+            });
+        }
+        if (append) container.prepend(checklistHtml); 
+        else container.append(checklistHtml);  
+    }
+
+    function renderAssignedEmployee(employees,append=false)
+    {
+        const container = $('#assignedEmployeesContainer');
+        if (!append) container.empty();
+         if (!Array.isArray(employees)) employees = [employees];
+        if(employees && employees.length>0)
+        {
+            employees.forEach(employee=>{
+                const profile=employee.detail?.profile_image??null;
+                const username= employee.username??'U';
+                const avatarHtml= profile
+                ? `<img src="/storage/${profile}" alt="${username}">`
+                : `<span>${username.charAt(0).toUpperCase()}</span>`;
+                container.append(`
+                <div class="member-avatar" title="${username}">
+                    ${avatarHtml}
+                </div>
+            `);
+            });
+        }
+
+    }
+
+    function populateTaskLabels(taskLabels) {
+        $('.task-label-checkbox').prop('checked', false);
+
+        const labelIds = taskLabels.map(label => label.id);
+
+        labelIds.forEach(id => {
+            $(`#label${id}`).prop('checked', true);
         });
     }
-    container.append(checklistHtml);
-}
 
-
-//activates after save button from edit page- update the details
-$(document).on('click', '#pmsUpdateTaskBtn', function(e) {
-        e.preventDefault();
-        const btn = this;
-        showSpinner(btn);
-        const task = $('#pms_edit_task_id').val();
-        const form = document.getElementById('pmsEditTaskForm');
-        const formData = new FormData(form);
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        formData.append('_token', csrfToken);
-
-        $('#taskChecklistContainer .checklist-block .checklist-items .form-check input[type="checkbox"]').each(
-            function(index) {
-                const itemId = $(this).attr('id')?.replace('checkItem', '');
-                const completed = $(this).is(':checked') ? 1 : 0;
-
-                if (itemId) {
-                    formData.append(`checklist_items[${index}][id]`, itemId);
-                    formData.append(`checklist_items[${index}][completed]`, completed);
+    $(document).on('click','.deleteChecklistBtn',function(){
+        const checklistId= $(this).data('checklist-id');
+        const csrf=document.querySelector('meta[name="csrf-token"]').content;
+        Swal.fire({
+            title:'Are you sure?',
+            text:'This will delete the checklist!',
+            icon:'warning',
+            showCancelButton:true,
+            confirmButtonText:'Yes, delete it!'
+        }).then((result)=>{
+            if(result.isConfirmed){
+                $.post(`/checklist-delete/${checklistId}`,
+                    { _token:csrf},
+                    function(response){
+                if (response.success) {
+                    $(`.checklist-block[data-id="${checklistId}"]`).remove();
+                    Swal.fire('Deleted!', response.message, 'success');
+                } else {
+                    Swal.fire('Error', response.message, 'error');
                 }
-            });
-
-        $.ajax({
-            url: `/pms-update-task/${task}`,
-            method: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                hideSpinner(btn);
-                Swal.fire({
-                    title: response.success ? 'Success' : 'Error',
-                    text: response.message,
-                    icon: response.success ? 'success' : 'error',
-                });
-            },
-            error: function(xhr) {
-                hideSpinner(btn);
-                Swal.fire('Error', 'Something went wrong', 'error');
-                console.error('Error: ', xhr.responseText);
+                    }
+                );
             }
-        })
-});
-
-//saving comment to db
-$(document).on('submit', '#pmsTaskCommentForm', function(e) {
-    e.preventDefault();
-
-    let comment = $('#commentInput').val().trim();
-    if (comment === "") {
-        $('#commentInput').addClass('is-invalid').focus();
-        return;
-    }
-
-    const btn = document.getElementById('postCommentBtn');
-    showSpinner(btn);
-    const container = $('#commentsContainer');
-    const task = $('#pms_edit_task_id').val();
-
-    $.ajax({
-        url: `/pms-task-comment`,
-        method: "POST",
-        data: {
-                _token: document.querySelector('meta[name="csrf-token"]').content,
-            comment: comment,
-            task_id: task
-        },
-        success: function(response) {
-            $('#commentInput').removeClass('is-invalid');
-            hideSpinner(btn);
-            if (response.success) {
-                $('#commentInput').val('');
-                renderComments(response.data, container);
-            } else Swal.fire('Error', response.message, 'error');
-        },
-        error: function(xhr) {
-            hideSpinner(btn);
-            Swal.fire("Error", 'Something went wrong', 'error');
-            console.error('Error:', xhr.responseText);
-        }
-    })
-
-});
-
-//saving checklist for the task 
-$(document).on('submit', '#pmsAddchecklistForm', function(e) {
-    e.preventDefault();
-    const title = $('#checklistTitleInput').val().trim();
-
-    if (!title) {
-        $('#checklistTitleInput').addClass('is-invalid').focus();
-        return;
-    }
-    const taskId = $('#pms_edit_task_id').val();
-
-    $.ajax({
-        url: "/pms-checklist",
-        method: "POST",
-        data: {
-            _token: document.querySelector('meta[name="csrf-token"]').content,
-            title: title,
-            task_id: taskId
-        },
-        success: function(response) {
-            console.log(response.data);
-            if (response.success) {
-                $('#pmsAddChecklistModal').modal('hide');
-                renderCheckList(response.data, true);
-            } else Swal.fire('Error', response.message, 'error');
-        },
-        error: function(xhr) {
-            Swal.fire('Error', 'Something went wrong', 'error');
-            console.error('Error', xhr.responseText);
-        }
-    });
-});
-
-//show field to add checkbox for checklist
-$(document).on('click', '.addCheckboxBtn', function() {
-    const container = $(this).siblings('.checklist-items');
-    const uniqueId = Date.now();
-
-    container.append(`
-            <div class="form-check mb-1 d-flex align-items-center gap-2" data-value="">
-                <input class="form-check-input" type="checkbox" id="checkItem${uniqueId}">
-                <input type="text" class="form-control form-control-sm checklist-item-input" placeholder="Item name">
-                <button type="button" class="btn btn-sm btn-success saveCheckboxBtn">Save</button>
-            </div>
-        `);
-});
-
-//save checkbox item for checklist in db
-$(document).on('click', '.saveCheckboxBtn', function() {
-    const btn = this;
-    const parent = $(this).closest('.form-check');
-    const input = parent.find('.checklist-item-input');
-    const value = input.val().trim();
-
-    if (!value) {
-        input.addClass('is-invalid').focus();
-        return;
-    }
-    showSpinner(btn);
-    const checklistId = parent.closest('.checklist-block').data('id');
-
-    $.ajax({
-        url: "/pms-checklist-item",
-        method: "POST",
-        data: {
-            _token: document.querySelector('meta[name="csrf-token"]').content,
-            checklist_id: checklistId,
-            title: value
-        },
-        success: function(response) {
-            hideSpinner(btn);
-            if (response.success) {
-                const checkbox = parent.find('input[type="checkbox"]');
-                parent.attr('data-value', value);
-                parent.html(`
-            <input class="form-check-input" type="checkbox" id="checkItem${response.data.id}" ${response.data.completed ? 'checked' : ''}>
-            <label class="form-check-label">${response.data.item_title}</label>
-        `);
-            } else Swal.fire('Error', response.message, 'error');
-        },
-        error: function(xhr) {
-            hideSpinner(btn);
-            Swal.fire('Error', 'Something went wrong', 'error');
-            console.error('Error:', xhr.responseText);
-        }
+        });
     });
 
-});
-
-$('#pmsEditTaskModal').on('hidden.bs.modal', function() {
-    $(this).find('#pmsEditTaskForm')[0].reset();
-    $('#commentInput').removeClass('is-invalid').val('');
-    $('#pmsEditTaskTitle').html('<i class="far fa-circle"></i> Details');
-    $('#taskChecklistContainer').empty();
-    $('#commentsContainer').empty();
-});
+        $('#pmsEditTaskModal').on('hidden.bs.modal', function() {
+        $(this).find('#pmsEditTaskForm')[0].reset();
+        $('#commentInput').removeClass('is-invalid').val('');
+        $('#pmsEditTaskTitle').html('<i class="far fa-circle"></i> Details');
+        $('#taskChecklistContainer').empty();
+        $('#commentsContainer').empty();
+    });

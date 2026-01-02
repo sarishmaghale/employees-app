@@ -22,7 +22,7 @@
                         <i class="fas fa-users"></i>
                     </button>
 
-                    <ul class="dropdown-menu dropdown-menu-scroll" aria-labelledby="membersBtn">
+                    <ul id="boardMembersDropdown" class="dropdown-menu dropdown-menu-scroll" aria-labelledby="membersBtn">
                         @foreach ($board->members as $member)
                             @php
                                 $profile = $member->detail?->profile_image ?? null;
@@ -96,48 +96,73 @@
     <div class="kb-board">
         @forelse($board->cards as $card)
             <div class="kb-column" data-card-id="{{ $card->id }}">
+
+                <!-- Column Header -->
                 <div class="kb-column-header">
+
+                    <!-- Top row: title + 3-dot menu -->
                     <div class="kb-column-header-top">
                         <h2>{{ $card->title }}</h2>
-                    </div>
-                    <span class="task-count">{{ $card->tasks->count() }}
-                        Tasks</span>
 
+                        <!-- Three-dot menu (only in header) -->
+                        <div class="dropdown">
+                            <button class="btn btn-link p-0 dropdown-toggle" type="button"
+                                id="cardMenu{{ $card->id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="cardMenu{{ $card->id }}">
+                                <li><a class="dropdown-item deleteCardBtn" href="#"
+                                        data-card-id="{{ $card->id }}" data-board-id="{{ $board->id }}">Delete</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Task count below title -->
+                    <span class="task-count">{{ $card->tasks->count() }} Tasks</span>
                 </div>
+
+                <!-- Column Body -->
                 <div class="kb-column-body" data-card-id="{{ $card->id }}">
                     @foreach ($card->tasks as $task)
                         <div class="kb-card pms-task-item" data-task-id="{{ $task->id }}">
                             <h3>{{ $task->title }}</h3>
                             <div class="kb-card-meta">
-                                <span class="kb-tag"></span>
+                                @forelse($task->labels as $label)
+                                    <span class="kb-tag"
+                                        style="background: {{ $label->color }}">{{ $label->title }}</span>
+                                @empty
+                                @endforelse
                                 <span class="kb-date">Due: {{ $task->end_date ?? 'N/A' }}</span>
                             </div>
                         </div>
                     @endforeach
+
                     <button class="kb-add-task-btn initiatePmsAddTaskBtn" data-card-id="{{ $card->id }}">
                         + Add Task
                     </button>
                 </div>
+
             </div>
-        @empty
-        @endforelse
-    </div>
-    @include('pms.partial-edit-task')
-    @include('pms.partial-add-card', ['boardId' => $board->id])
-
-    <div id="inline-task-template" style="display:none;">
-        <div class="inline-task-form" style="margin-top:6px;">
-            <input type="text" name="title" class="form-control inline-task-input" style="margin-bottom:6px;"
-                placeholder="Task title" />
-            <button type="button" class="btn btn-primary btn-save-task">Save</button>
-            <button type="button" class="btn btn-secondary btn-cancel-task">Cancel</button>
+            @empty
+                <p>No cards found.</p>
+            @endforelse
         </div>
-    </div>
-@endsection
 
-@push('scripts')
-    <script src="{{ asset('js/pms-board.js') }}"></script>
-    <script>
-        initializePmsBoard({{ $board->id }});
-    </script>
-@endpush
+
+        @include('pms.partial-edit-task', ['boardMembers' => $board->members]) @include('pms.partial-add-card', ['boardId' => $board->id]) <div id="inline-task-template" style="display:none;">
+            <div class="inline-task-form" style="margin-top:6px;">
+                <input type="text" name="title" class="form-control inline-task-input" style="margin-bottom:6px;"
+                    placeholder="Task title" />
+                <button type="button" class="btn btn-primary btn-save-task">Save</button>
+                <button type="button" class="btn btn-secondary btn-cancel-task">Cancel</button>
+            </div>
+        </div>
+    @endsection
+
+    @push('scripts')
+        <script src="{{ asset('js/pms-board.js') }}"></script>
+        <script>
+            initializePmsBoard({{ $board->id }});
+        </script>
+    @endpush

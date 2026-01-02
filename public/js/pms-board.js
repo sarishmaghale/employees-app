@@ -1,6 +1,5 @@
 function initializePmsBoard(boardId)
 {
-    $(document).ready(function() {
 
             function renderTaskCard(task) {
                 return (
@@ -19,8 +18,34 @@ function initializePmsBoard(boardId)
                 column.find('.task-count').text(`${count} Tasks`);
             }
 
+            function updateBoardMember(member)
+            {
+                if (!member) return;
+                if (Array.isArray(member)) member = member[0];
+                const $dropdown = $('#boardMembersDropdown');
+
+                const profile = member.detail?.profile_image ?? null;
+                const username = member.username ?? 'U';
+
+                const memberHtml = `
+                    <li>
+                        <a href="#" class="dropdown-item d-flex align-items-center gap-2">
+                            ${profile 
+                                ? `<img src="/storage/${profile}" alt="${username}" class="rounded-circle" style="width:32px; height:32px; object-fit:cover;">`
+                                : `<div class="rounded-circle bg-warning text-center" style="width:32px; height:32px; line-height:32px; font-weight:600; color:#fff;">
+                                    ${username.charAt(0).toUpperCase()}
+                                </div>`
+                            }
+                            <span>${username}</span>
+                        </a>
+                    </li>
+                `;
+
+                $dropdown.append(memberHtml);
+            }
+
             //show input for adding new task
-            $(document).on('click', '.initiatePmsAddTaskBtn', function() {
+            $(document).off('click', '.initiatePmsAddTaskBtn').on('click', '.initiatePmsAddTaskBtn', function() {
                 const btn = $(this);
                 const cardId = btn.data('card-id');
 
@@ -31,14 +56,14 @@ function initializePmsBoard(boardId)
                 form.find('.inline-task-input').focus();
             });
 
-            $(document).on('click', '.btn-cancel-task', function() {
+            $(document).off('click', '.btn-cancel-task').on('click', '.btn-cancel-task', function() {
                 const form = $(this).closest('.inline-task-form');
                 form.prev('.initiatePmsAddTaskBtn').show();
                 form.remove();
             });
 
             //save new task to db
-            $(document).on('click', '.btn-save-task', function() {
+            $(document).off('click', '.btn-save-task').on('click', '.btn-save-task', function() {
                 const btn = $(this);
                 const cardId = btn.data('card-id');
                 const form = btn.closest('.inline-task-form');
@@ -124,27 +149,26 @@ function initializePmsBoard(boardId)
                             });
                         }
                     })
-                })
+                });
             }
 
             //open modal to fill details for adding new card
-            $(document).on('click', '#pmsAddCardBtn', function() {
+            
+            $(document).off('click', '#pmsAddCardBtn').on('click', '#pmsAddCardBtn', function() {
                 $("#pmsAddNewCardModal").modal('show');
                 $('#pmsAddNewCardModal').find('#pms_card_board_id').val(boardId);
             });
 
             //open modal to edit task
-            $(document).on('click', '.pms-task-item', function() {
+            $(document).off('click', '.pms-task-item').on('click', '.pms-task-item', function() {
                 const taskId = $(this).data('task-id');
                 const modal = $('#pmsEditTaskModal');
                 modal.modal('show');
-
-                // Load task details- triggering function inside edit modal
-                loadTaskDetails(taskId, modal);
+                modal.data('task-id', taskId);
             });
 
             //add new member to the opened board
-            $(document).on('click', '.add-board-member', function(e) {
+            $(document).off('click', '.add-board-member').on('click', '.add-board-member', function(e) {
                 e.preventDefault();
                 let employeeId = $(this).data('id');
                 $.ajax({
@@ -156,6 +180,7 @@ function initializePmsBoard(boardId)
                     },
                     success: function(response) {
                         if (response.success) {
+                            updateBoardMember(response.data);
                             Swal.fire('Success', response.message, 'success');
                         } else {
                             Swal.fire('Error', response.message, 'warning');
@@ -167,8 +192,38 @@ function initializePmsBoard(boardId)
                     }
                 })
             })
-
             //acticate drag and drop for tasks
             enableTaskDragOver();
-        });
+        
 }
+
+        $(document).on('click','.deleteCardBtn',function(){
+        const cardId= $(this).data('card-id');
+        const boardId= $(this).data('board-id');
+        const csrf=document.querySelector('meta[name="csrf-token"]').content;
+        Swal.fire({
+            title:'Are you sure?',
+            text:'This will delete the checklist!',
+            icon:'warning',
+            showCancelButton:true,
+            confirmButtonText:'Yes, delete it!'
+        }).then((result)=>{
+            if(result.isConfirmed){
+                $.post(`/card-delete/${cardId}`,
+                    { _token:csrf},
+                    function(response){
+                if (response.success) {
+                    Swal.fire('Deleted!', response.message, 'success')
+                        .then(() => {
+                            
+                            location.reload();
+                        });
+
+                } else {
+                    Swal.fire('Error', response.message, 'error');
+                }
+                    }
+                );
+            }
+        });
+    });
