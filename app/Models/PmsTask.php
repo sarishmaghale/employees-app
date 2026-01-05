@@ -55,4 +55,8 @@ class PmsTask extends Model
             'label_id'
         );
     }
+    public function files()
+    {
+        return $this->hasMany(PmsTaskFile::class, 'task_id');
+    }
 }

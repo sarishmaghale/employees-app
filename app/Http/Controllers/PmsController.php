@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Helpers\JsonResponse;
 use App\Http\Requests\StorePmsTasKRequest;
-use App\Models\PmsBoard;
 use App\Notifications\BoardMemberAddedNotification;
 use App\Repositories\EmployeeRepository;
 use Illuminate\Http\Request;
@@ -44,7 +43,7 @@ class PmsController extends Controller
     {
         $data = $request->validated();
         $data['created_by'] = Auth::id();
-        $result = $this->pmsHelper->addTaskForCard($data);
+        $result = $this->pmsHelper->saveTaskForCard($data);
         if ($result && $result->exists) return JsonResponse::success(message: 'Added', data: $result);
         else return JsonResponse::error(message: 'Failed to add');
     }
@@ -56,7 +55,7 @@ class PmsController extends Controller
             'board_id' => 'required|exists:pms_boards,id'
         ]);
         $data = $request->only(['title', 'board_id']);
-        $result = $this->pmsHelper->addCard($data);
+        $result = $this->pmsHelper->saveCard($data);
         if ($result && $result->exists) return JsonResponse::success(data: $result);
         else return JsonResponse::error(message: 'failed to add');
     }
@@ -88,7 +87,7 @@ class PmsController extends Controller
     public function addBoardMember(Request $request, $id)
     {
 
-        $result = $this->pmsHelper->addBoardMember(boardId: $id, employeeId: $request->employee_id);
+        $result = $this->pmsHelper->saveBoardMember(boardId: $id, employeeId: $request->employee_id);
         if ($result['success']) {
             $employee = $this->empHelper->getById($request->employee_id);
             $member = $result['board'];
@@ -102,7 +101,7 @@ class PmsController extends Controller
     public function addTaskMember(Request $request, $id)
     {
 
-        $result = $this->pmsHelper->addTaskMember(taskId: $id, employeeId: $request->employee_id);
+        $result = $this->pmsHelper->saveTaskMember(taskId: $id, employeeId: $request->employee_id);
         if ($result['success']) {
             $employee = $result['member'];
             return JsonResponse::success(message: $result['message'], data: $employee);
@@ -120,7 +119,7 @@ class PmsController extends Controller
             'board_name' => $request->board_name,
             'employee_id' => Auth::id(),
         ];
-        $result = $this->pmsHelper->addBoard($data);
+        $result = $this->pmsHelper->saveBoard($data);
         if ($result && $result->exists) return JsonResponse::success(data: $result);
         else return JsonResponse::error(message: 'failed to add');
     }
@@ -144,7 +143,7 @@ class PmsController extends Controller
             'task_id' => $request->task_id,
             'employee_id' => Auth::id(),
         ];
-        $comment = $this->pmsHelper->addCommentToTask($data);
+        $comment = $this->pmsHelper->saveCommentToTask($data);
         if ($comment) return JsonResponse::success(data: $comment);
         else return JsonResponse::error(message: 'Failed to post comment');
     }
@@ -154,8 +153,9 @@ class PmsController extends Controller
         $data = [
             'title' => $request->title,
             'task_id' => $request->task_id,
+            'employee_id' => Auth::id()
         ];
-        $result = $this->pmsHelper->addChecklist($data);
+        $result = $this->pmsHelper->saveChecklist($data);
         if ($result) return JsonResponse::success(data: $result);
         else return JsonResponse::error(message: 'Faild to add checklist');
     }
@@ -167,7 +167,7 @@ class PmsController extends Controller
             'checklist_id' => $request->checklist_id,
 
         ];
-        $result = $this->pmsHelper->addChecklistItem($data);
+        $result = $this->pmsHelper->saveChecklistItem($data);
         if ($result) return JsonResponse::success(data: $result);
         else return JsonResponse::error(message: 'Faild to add checklist');
     }
@@ -184,5 +184,28 @@ class PmsController extends Controller
         $result = $this->pmsHelper->removeCard($id);
         if ($result) return JsonResponse::success(message: 'Card deleted successfully!');
         else return JsonResponse::error(message: 'Failed to delete');
+    }
+
+    public function uploadTaskFile(Request $request)
+    {
+        $request->validate([
+            'task_id' => 'required|exists:pms_tasks,id',
+            'file'    => 'required|file|max:10240',
+        ]);
+        $data = [
+            'task_id' => $request->task_id,
+            'file' => $request->file('file'),
+            'employee_id' => Auth::id()
+        ];
+        $taskFile = $this->pmsHelper->saveTaskFile($data);
+        if ($taskFile && $taskFile->exists) return JsonResponse::success(message: 'File uploaded', data: $taskFile);
+        else return JsonResponse::error(message: 'Failed to upload file');
+    }
+
+    public function deleteTaskFile(int $fileId)
+    {
+        $result = $this->pmsHelper->removeTaskFile($fileId);
+        if ($result) return JsonResponse::success(message: 'File deleted');
+        else return JsonResponse::error(message: 'Failed to delete file');
     }
 }

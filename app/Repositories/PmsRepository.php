@@ -2,16 +2,17 @@
 
 namespace App\Repositories;
 
-use App\Models\Employee;
-use Illuminate\Support\Facades\DB;
-use App\Models\PmsBoard;
 use App\Models\PmsCard;
+use App\Models\PmsTask;
+use App\Models\PmsBoard;
+use App\Models\PmsComment;
+use App\Models\PmsTaskFile;
 use App\Models\PmsChecklist;
 use App\Models\PmsChecklistItem;
-use App\Models\PmsComment;
-use App\Models\PmsTask;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Collection;
-
+use Illuminate\Support\Facades\Storage;
 
 class PmsRepository
 {
@@ -42,7 +43,7 @@ class PmsRepository
         return PmsBoard::with('cards.tasks', 'members')->find($boardId);
     }
 
-    public function createNewCard(array $data): PmsCard
+    public function saveNewCard(array $data): PmsCard
     {
         return DB::transaction(function () use ($data) {
             $result = PmsCard::create([
@@ -59,7 +60,7 @@ class PmsRepository
             ->orderBy('position', 'asc')->get();
     }
 
-    public function addTaskForCard(array $data): PmsTask
+    public function saveTaskForCard(array $data): PmsTask
     {
         return DB::transaction(function () use ($data) {
             $card_id = $data['card_id'];
@@ -86,7 +87,7 @@ class PmsRepository
         });
     }
 
-    public function addCard(array $data): PmsCard
+    public function saveCard(array $data): PmsCard
     {
         $board_id = $data['board_id'];
         $latestPosition = PmsCard::where('board_id', $board_id)->max('position');
@@ -99,7 +100,7 @@ class PmsRepository
         return $card;
     }
 
-    public function addBoard(array $data): PmsBoard
+    public function saveBoard(array $data): PmsBoard
     {
         return DB::transaction(function () use ($data) {
             $board = PmsBoard::create([
@@ -146,11 +147,12 @@ class PmsRepository
             'comments.employee',
             'checklists.items',
             'assignedEmployees.detail',
-            'labels'
+            'labels',
+            'files'
         )->find($id);
     }
 
-    public function addBoardMember(int $boardId, int $employeeId): array
+    public function saveBoardMember(int $boardId, int $employeeId): array
     {
         $board = PmsBoard::find($boardId);
         if ($board->members()->where('employee_id', $employeeId)->exists()) {
@@ -171,7 +173,7 @@ class PmsRepository
         ];
     }
 
-    public function addTaskMember(int $taskId, int $employeeId): array
+    public function saveTaskMember(int $taskId, int $employeeId): array
     {
         $task = PmsTask::find($taskId);
         if ($task->assignedEmployees()->where('employee_id', $employeeId)->exists()) {
@@ -181,14 +183,21 @@ class PmsRepository
             ];
         }
 
-        $task->assignedEmployees()->attach($employeeId);
-        $member = $task->assignedEmployees()
-            ->with('detail')->where('employee_id', $employeeId)->first();
-        return [
-            'success' => true,
-            'message' => 'Member added successfully.',
-            'member' => $member
-        ];
+        return DB::transaction(function () use ($task, $employeeId) {
+            $task->assignedEmployees()->attach($employeeId);
+            $member = $task->assignedEmployees()
+                ->with('detail')->where('employee_id', $employeeId)->first();
+            PmsComment::create([
+                'comment' => "added {$member->detail->name} to this task",
+                'employee_id' => Auth::id(),
+                'task_id' => $task->id
+            ]);
+            return [
+                'success' => true,
+                'message' => 'Member added successfully.',
+                'member' => $member
+            ];
+        });
     }
 
     public function updateTaskDetails(array $data, int $taskId): bool
@@ -216,7 +225,7 @@ class PmsRepository
         });
     }
 
-    public function addCommentToTask(array $data): ?PmsComment
+    public function saveCommentToTask(array $data): ?PmsComment
     {
         $comment = PmsComment::create([
             'comment' => $data['comment'],
@@ -229,33 +238,50 @@ class PmsRepository
         } else return null;
     }
 
-    public function addChecklist(array $data): ?PmsChecklist
+    public function saveChecklist(array $data): ?PmsChecklist
     {
-        $result = PmsChecklist::create([
-            'title' => $data['title'],
-            'task_id' => $data['task_id'],
-        ]);
-        if ($result && $result->exists()) return $result;
-        else return null;
+        return DB::transaction(function () use ($data) {
+            $result = PmsChecklist::create([
+                'title' => $data['title'],
+                'task_id' => $data['task_id'],
+            ]);
+            PmsComment::create([
+                'comment' => "added checklist: '{$result['title']}' to this card",
+                'employee_id' => $data['employee_id'],
+                'task_id' => $result['task_id']
+            ]);
+
+            if ($result && $result->exists()) return $result;
+        });
     }
 
-    public function addChecklistItem(array $data): ?PmsChecklistItem
+    public function saveChecklistItem(array $data): ?PmsChecklistItem
     {
-        $item = PmsChecklistItem::create([
-            'checklist_id' => $data['checklist_id'],
-            'item_title' => $data['title'],
-            'isCompleted' => 0
-        ]);
-        if ($item && $item->exists()) return $item;
-        else return null;
+        return DB::transaction(function () use ($data) {
+            $item = PmsChecklistItem::create([
+                'checklist_id' => $data['checklist_id'],
+                'item_title' => $data['title'],
+                'isCompleted' => 0
+            ]);
+            if ($item && $item->exists()) return $item;
+        });
     }
 
     public function removeChecklistItem(int $id): bool
     {
         return DB::transaction(function () use ($id) {
-            PmsChecklistItem::where('checklist_id', $id)->delete();
-            PmsChecklist::find($id)->delete();
-            return true;
+            $checklist = PmsChecklist::find($id);
+            if ($checklist) {
+                $authUser = Auth::id();
+                PmsComment::create([
+                    'comment' => "deleted checklist: '{$checklist['title']}' from this card",
+                    'employee_id' => $authUser,
+                    'task_id' => $checklist['task_id']
+                ]);
+                PmsChecklistItem::where('checklist_id', $id)->delete();
+                $checklist->delete();
+                return true;
+            }
         });
     }
 
@@ -266,6 +292,7 @@ class PmsRepository
                 'tasks.comments',
                 'tasks.checklists',
                 'tasks.labels',
+                'tasks.files',
                 'tasks'
             ])->find($id);
             if (!$card) return false;
@@ -275,11 +302,53 @@ class PmsRepository
                     $checklist->items()->delete();
                     $checklist->delete();
                 }
+                foreach ($task->files as $file) {
+                    $file->delete();
+                }
                 $task->labels()->detach();
                 $task->delete();
             }
             $card->delete();
             return true;
         });
+    }
+
+    public function saveTaskFile(array $data): PmsTaskFile
+    {
+        return DB::transaction(function () use ($data) {
+            $file = $data['file'];
+            $originalName = $file->getClientOriginalName();
+            $filePath = $file->store('taskFiles', 'public');
+
+            $addedFile = PmsTaskFile::create([
+                'task_id'     => $data['task_id'],
+                'employee_id' => $data['employee_id'],
+                'file_path'   => $filePath,
+                'file_name' => $originalName
+            ]);
+            PmsComment::create([
+                'comment' => "attached '{$originalName}' to this card",
+                'employee_id' => $addedFile['employee_id'],
+                'task_id' => $addedFile['task_id']
+            ]);
+            return $addedFile;
+        });
+    }
+
+    public function removeTaskFile(int $fileId): bool
+    {
+        $taskFile = PmsTaskFile::findOrFail($fileId);
+        $fileName = $taskFile->file_name;
+
+        if (Storage::disk('public')->exists($taskFile->file_path)) {
+            Storage::disk('public')->delete($taskFile->file_path);
+        }
+        PmsComment::create([
+            'comment' => 'removed file- ' . $fileName . ' from this card',
+            'employee_id' => Auth::id(),
+            'task_id' => $taskFile['task_id']
+        ]);
+
+        return $taskFile->delete();
     }
 }

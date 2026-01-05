@@ -78,6 +78,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/pms-checklist-item', [PmsController::class, 'createChecklistItem']);
     Route::post('/checklist-delete/{id}', [PmsController::class, 'deleteChecklist']);
     Route::post('/card-delete/{id}', [PmsController::class, 'deleteCard'])->name('pms-card.delete');
+    Route::post('/pms-task-upload-file', [PmsController::class, 'uploadTaskFile']);
+    Route::delete('/pms-task-file/{id}', [PmsController::class, 'deleteTaskFile'])->name('pms-task-file.delete');
 
     Route::get('/components-labels', [ComponentController::class, 'labels'])->name('components.labels');
     Route::post('/components-labels', [ComponentController::class, 'storeLabel'])->name('components.labels-store');

@@ -32,17 +32,20 @@
                             <input type="hidden" name="id" id="pms_edit_task_id">
 
                             <!-- Action Buttons -->
-                            <div class="mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                            <div class="mb-3 d-flex align-items-center justify-content-between flex-wrap gap-1">
 
                                 <!-- Left side actions -->
-                                <div class="d-flex align-items-center gap-2">
-                                    <button type="button" class="btn btn-link btn-sm" id="pmsAddChecklistBtn">
+                                <div class="d-flex align-items-center gap-1">
+                                    <button type="button"
+                                        class="btn btn-link btn-sm py-0 px-1 d-flex align-items-center"
+                                        id="pmsAddChecklistBtn">
                                         <i class="fas fa-plus"></i> Add CheckList
                                     </button>
 
                                     <!-- Add Member -->
                                     <div class="dropdown">
-                                        <button type="button" class="btn btn-link btn-sm dropdown-toggle"
+                                        <button type="button"
+                                            class="btn btn-link btn-sm py-0 px-1 d-flex align-items-center dropdown-toggle"
                                             id="addTaskMemberBtn" data-bs-toggle="dropdown">
                                             + Add Member
                                         </button>
@@ -74,8 +77,10 @@
                                         </ul>
                                     </div>
 
+                                    {{-- Add Label --}}
                                     <div class="dropdown">
-                                        <button type="button" class="btn btn-link btn-sm dropdown-toggle"
+                                        <button type="button"
+                                            class="btn btn-link btn-sm py-0 px-1 d-flex align-items-center dropdown-toggle"
                                             id="addTaskLabelBtn" data-bs-toggle="dropdown">
                                             + Add Label
                                         </button>
@@ -96,6 +101,14 @@
                                         </div>
                                     </div>
 
+                                    {{-- Attach file --}}
+                                    <div>
+                                        <label for="pmsTaskAttachment"
+                                            class="btn btn-link btn-sm py-0 px-1 d-flex align-items-center">
+                                            <i class="fas fa-paperclip"></i> Attach File
+                                        </label>
+                                        <input type="file" id="pmsTaskAttachment" class="d-none" multiple>
+                                    </div>
                                 </div>
 
                             </div>
@@ -108,6 +121,12 @@
                                     <textarea class="form-control" id="pmsEditTaskDesc" rows="4" name="description"
                                         placeholder="Add a more detailed description..."></textarea>
                                 </div>
+                                <!-- File Attachments -->
+                                <div class="mb-3" id="selectedFilesContainer"
+                                    style="font-size:0.9em; color:#555; display: none;">
+                                    <!-- Files will be appended here dynamically -->
+                                </div>
+
 
                                 <!-- Dates in same line -->
                                 <div class="mb-3 row g-2">

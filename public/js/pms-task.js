@@ -21,6 +21,8 @@ function initializeTaskDetails(taskId,modal)
                 renderCheckList(task.checklists ?? []);
                 renderAssignedEmployee(task.assigned_employees ?? []);
                 populateTaskLabels(task.labels ?? []);
+                console.log(task.files);
+                renderTaskFiles(task.files ?? []);
             },
             error: function(xhr) {
                 Swal.fire("Error", "Failed to load task details", "error");
@@ -118,6 +120,58 @@ function initializeTaskDetails(taskId,modal)
 
     });
 
+ const fileInput = $('#pmsTaskAttachment');
+const container = $('#selectedFilesContainer');
+
+fileInput.on('change', function() {
+    if (this.files.length === 0) return;
+
+    const file = this.files[0];
+    const tempId = `new-${Date.now()}`; // temporary ID for UI
+
+    // Show uploading placeholder
+    const uploadingHtml = `
+        <div class="task-file d-flex align-items-center justify-content-between mb-2" id="${tempId}">
+            <div class="d-flex align-items-center gap-2">
+                <span>Uploading ${file.name}...</span>
+            </div>
+        </div>
+    `;
+    container.append(uploadingHtml);
+    container.show();
+
+    // Prepare FormData
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+    formData.append('task_id', $('#pms_edit_task_id').val());
+
+    $.ajax({
+        url: '/pms-task-upload-file', 
+        method: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            $(`#${tempId}`).remove();
+
+            if (response.success) {
+                const savedFile = response.data;
+                renderTaskFiles([savedFile], true); 
+            } else {
+                Swal.fire('Error', response.message, 'error');
+            }
+        },
+        error: function(xhr) {
+            $(`#${tempId}`).remove();
+            Swal.fire('Error', 'File upload failed', 'error');
+            console.error(xhr.responseText);
+        }
+    });
+});
+
+    
+ 
     //DB: saving checklist for the task 
     $(document).off('click', '#pmsAddChecklistForm').on('submit', '#pmsAddchecklistForm', function(e) {
         e.preventDefault();
@@ -352,6 +406,95 @@ function initializeTaskDetails(taskId,modal)
         });
     }
 
+    function renderTaskFiles(files, append = false) { 
+    const container = $('#selectedFilesContainer');
+
+    if (!append) container.empty(); 
+
+     if (!files || files.length === 0) {
+        container.hide(); 
+        return;
+    }
+ container.show();
+    files.forEach(file => {
+        const filePath = file.file_path;
+        const fileName=file.file_name;
+        const fileId = file.id;
+        const fileExtension = filePath.split('.').pop().toLowerCase();
+
+        let fileHtml = '';
+
+        if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'].includes(fileExtension)) {
+            // Image preview
+            fileHtml = `<img src="/storage/${filePath}" alt="${fileName}" class="task-img-preview me-2" style="max-height:80px; border-radius:4px;">`;
+        } else if (fileExtension === 'pdf') {
+            // PDF icon + link
+            fileHtml = `
+                <a href="/storage/${filePath}" target="_blank" class="d-flex align-items-center gap-1">
+                    <i class="fas fa-file-pdf text-danger"></i> ${fileName}
+                </a>`;
+        } else {
+            // Generic file icon + link
+            fileHtml = `
+                <a href="/storage/${filePath}" target="_blank" class="d-flex align-items-center gap-1">
+                    <i class="fas fa-file text-secondary"></i> ${fileName}
+                </a>`;
+        }
+
+        container.append(`
+            <div class="task-file d-flex align-items-center justify-content-between mb-2" data-id="${fileId}">
+                <div class="d-flex align-items-center">
+                    ${fileHtml}
+                </div>
+                <div>
+                    <button type="button" class="btn btn-link btn-sm p-0 text-danger remove-file-btn">Remove</button>
+                </div>
+            </div>
+        `);
+    });
+    }
+
+   $(document).on('click', '.remove-file-btn', function () {
+    const fileRow = $(this).closest('.task-file');
+    const fileId = fileRow.data('id');
+
+    Swal.fire({
+        title: 'Remove file?',
+        text: 'This action cannot be undone.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, remove it',
+    }).then((result) => {
+        if (!result.isConfirmed) return;
+
+        $.ajax({
+            url: `/pms-task-file/${fileId}`,
+            type: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function (res) {
+                if (!res.success) {
+                    return Swal.fire('Error', res.message, 'error');
+                }
+
+                // Remove from UI
+                fileRow.fadeOut(200, function () {
+                    $(this).remove();
+                });
+
+                Swal.fire('Deleted!', res.message, 'success');
+            },
+            error: function (xhr) {
+                Swal.fire('Error', 'Failed to remove file', 'error');
+                console.error(xhr.responseText);
+            }
+        });
+    });
+});
+
+
+
     $(document).on('click','.deleteChecklistBtn',function(){
         const checklistId= $(this).data('checklist-id');
         const csrf=document.querySelector('meta[name="csrf-token"]').content;
@@ -384,4 +527,5 @@ function initializeTaskDetails(taskId,modal)
         $('#pmsEditTaskTitle').html('<i class="far fa-circle"></i> Details');
         $('#taskChecklistContainer').empty();
         $('#commentsContainer').empty();
+        $('#selectedFilesContainer').empty();
     });

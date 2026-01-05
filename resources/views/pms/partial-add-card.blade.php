@@ -83,7 +83,7 @@
                 </div>`;
                              boardDiv.append(cardHtml);
                              $('#pmsAddNewCardModal').modal('hide');
-                             form[0].reset();
+                             $('#pmsAddNewCardForm')[0].reset();
 
                          } else Swal.fire('Error', response.message, 'error');
                      },
