@@ -120,57 +120,54 @@ function initializeTaskDetails(taskId,modal)
 
     });
 
- const fileInput = $('#pmsTaskAttachment');
-const container = $('#selectedFilesContainer');
+    const fileInput = $('#pmsTaskAttachment');
+    const container = $('#selectedFilesContainer');
 
-fileInput.on('change', function() {
-    if (this.files.length === 0) return;
+    fileInput.on('change', function() {
+        if (this.files.length === 0) return;
 
-    const file = this.files[0];
-    const tempId = `new-${Date.now()}`; // temporary ID for UI
+        const file = this.files[0];
+        const tempId = `new-${Date.now()}`; // temporary ID for UI
 
-    // Show uploading placeholder
-    const uploadingHtml = `
-        <div class="task-file d-flex align-items-center justify-content-between mb-2" id="${tempId}">
-            <div class="d-flex align-items-center gap-2">
-                <span>Uploading ${file.name}...</span>
+        const uploadingHtml = `
+            <div class="task-file d-flex align-items-center justify-content-between mb-2" id="${tempId}">
+                <div class="d-flex align-items-center gap-2">
+                    <span>Uploading ${file.name}...</span>
+                </div>
             </div>
-        </div>
-    `;
-    container.append(uploadingHtml);
-    container.show();
+        `;
+        container.append(uploadingHtml);
+        container.show();
 
-    // Prepare FormData
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
-    formData.append('task_id', $('#pms_edit_task_id').val());
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+        formData.append('task_id', $('#pms_edit_task_id').val());
 
-    $.ajax({
-        url: '/pms-task-upload-file', 
-        method: 'POST',
-        data: formData,
-        processData: false,
-        contentType: false,
-        success: function(response) {
-            $(`#${tempId}`).remove();
+        $.ajax({
+            url: '/pms-task-upload-file', 
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                $(`#${tempId}`).remove();
 
-            if (response.success) {
-                const savedFile = response.data;
-                renderTaskFiles([savedFile], true); 
-            } else {
-                Swal.fire('Error', response.message, 'error');
+                if (response.success) {
+                    const savedFile = response.data;
+                    renderTaskFiles([savedFile], true); 
+                } else {
+                    Swal.fire('Error', response.message, 'error');
+                }
+            },
+            error: function(xhr) {
+                $(`#${tempId}`).remove();
+                Swal.fire('Error', 'File upload failed', 'error');
+                console.error(xhr.responseText);
             }
-        },
-        error: function(xhr) {
-            $(`#${tempId}`).remove();
-            Swal.fire('Error', 'File upload failed', 'error');
-            console.error(xhr.responseText);
-        }
+        });
     });
-});
 
-    
  
     //DB: saving checklist for the task 
     $(document).off('click', '#pmsAddChecklistForm').on('submit', '#pmsAddchecklistForm', function(e) {
@@ -264,6 +261,16 @@ fileInput.on('change', function() {
     $(document).off('click', '.add-task-member').on('click', '.add-task-member', function(e) {
                     e.preventDefault();
                     let employeeId = $(this).data('id');
+                    Swal.fire({
+                        title:'Adding Member..',
+                        toast:true,
+                        position:'top-end',
+                        showConfirmButton:false,
+                        allowOutsideClick:false,
+                        didOpen: () => {
+                                Swal.showLoading(); // show spinner
+                        }
+                    });
                     $.ajax({
                         url: `/pms-task/${taskId}/add-member`,
                         type: "POST",
@@ -272,8 +279,9 @@ fileInput.on('change', function() {
                             _token: document.querySelector('meta[name="csrf-token"]').content,
                         },
                         success: function(response) {
+                            Swal.close(); 
                             if (response.success) {
-                                Swal.fire('Success', response.message, 'success');
+                                Swal.fire('Added', response.message, 'success');
                                 const members= response.data;
                                 renderAssignedEmployee(members,true);
                             } else {
@@ -281,10 +289,39 @@ fileInput.on('change', function() {
                             }
                         },
                         error: function(xhr) {
+                            Swal.close(); 
                             Swal.fire('Error', 'Something went wrong', 'error');
                             console.error('Error:', xhr.responseText);
                         }
                     })
+    });
+
+    $(document).off('click','#pmsDeleteTaskBtn').on('click','#pmsDeleteTaskBtn',function(){
+        const csrf=document.querySelector('meta[name="csrf-token"]').content;
+       console.log(taskId);
+        Swal.fire({
+            title:'Are you sure?',
+            text:'This will delete the task card!!',
+            icon:'warning',
+            showCancelButton:true,
+            confirmButtonText:'Yes, delete it!'
+        }).then((result)=>{
+            if(result.isConfirmed){
+                $.post(`/pms-delete-task/${taskId}`,
+                    { _token:csrf},
+                    function(response){
+                if (response.success) {
+                    Swal.fire('Deleted!', response.message, 'success').
+                    then(()=>{
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire('Error', response.message, 'error');
+                }
+                    }
+                );
+            }
+        });
     });
 }
 
@@ -524,8 +561,9 @@ fileInput.on('change', function() {
         $('#pmsEditTaskModal').on('hidden.bs.modal', function() {
         $(this).find('#pmsEditTaskForm')[0].reset();
         $('#commentInput').removeClass('is-invalid').val('');
-        $('#pmsEditTaskTitle').html('<i class="far fa-circle"></i> Details');
+        $('#pmsEditTaskTitle').empty();
         $('#taskChecklistContainer').empty();
         $('#commentsContainer').empty();
         $('#selectedFilesContainer').empty();
+        $('#assignedEmployeesContainer').empty();
     });

@@ -64,20 +64,26 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/pms-workspace', [PmsController::class, 'index'])->name('pms.index');
     Route::get('/pms-board/{id}', [PmsController::class, 'showBoard'])->name('pms-board.show');
+    Route::post('/pms-board/{id}/add-member', [PmsController::class, 'addBoardMember']);
+    Route::post('/pms-add-board', [PmsController::class, 'storeBoard'])->name('pms-board.store');
+
+    Route::get('/pms-table/{id}', [PmsController::class, 'tableView'])->name('pms.table');
+
     Route::get('/pms-card-tasks/{cardId}', [PmsController::class, 'showTasks'])->name('pms-card.task');
-    Route::post('/pms-add-task', [PmsController::class, 'storeTask'])->name('pms-task.store');
     Route::post('/pms-add-card', [PmsController::class, 'storeCard'])->name('pms-card.store');
+    Route::post('/card-delete/{id}', [PmsController::class, 'deleteCard'])->name('pms-card.delete');
+
+    Route::post('/pms-add-task', [PmsController::class, 'storeTask'])->name('pms-task.store');
+    Route::post('/pms-delete-task/{id}', [PmsController::class, 'deleteTask']);
     Route::post('/pms-task-reorder', [PmsController::class, 'moveTask'])->name('pms-task.move');
     Route::get('/pms-task-detail/{id}', [PmsController::class, 'showTaskDetail'])->name('pms-task.detail');
-    Route::post('/pms-board/{id}/add-member', [PmsController::class, 'addBoardMember']);
     Route::post('/pms-task/{id}/add-member', [PmsController::class, 'addTaskMember']);
-    Route::post('/pms-add-board', [PmsController::class, 'storeBoard'])->name('pms-board.store');
     Route::post('/pms-update-task/{id}', [PmsController::class, 'updateTask'])->name('pms-task.update');
+
     Route::post('/pms-task-comment', [PmsController::class, 'storeComment'])->name('pms-task-comment.store');
     Route::post('/pms-checklist', [PmsController::class, 'createChecklist']);
     Route::post('/pms-checklist-item', [PmsController::class, 'createChecklistItem']);
     Route::post('/checklist-delete/{id}', [PmsController::class, 'deleteChecklist']);
-    Route::post('/card-delete/{id}', [PmsController::class, 'deleteCard'])->name('pms-card.delete');
     Route::post('/pms-task-upload-file', [PmsController::class, 'uploadTaskFile']);
     Route::delete('/pms-task-file/{id}', [PmsController::class, 'deleteTaskFile'])->name('pms-task-file.delete');
 

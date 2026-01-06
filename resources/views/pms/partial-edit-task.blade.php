@@ -9,7 +9,7 @@
                 <div class="d-flex align-items-center gap-3">
 
                     <h5 class="modal-title d-flex align-items-center gap-2 mb-0" id="pmsEditTaskTitle">
-                        <i class="far fa-circle"></i> Details
+                        <i class="far fa-circle"></i>
                     </h5>
 
                     <!-- Stacked Member Avatars -->
@@ -146,10 +146,18 @@
                                 <div class="mb-3" id="taskChecklistContainer"></div>
 
                                 <!-- Save & Cancel Buttons -->
-                                <div class="d-flex gap-2 mb-1">
-                                    <button type="submit" class="btn btn-primary" id="pmsUpdateTaskBtn">Save</button>
-                                    <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Cancel</button>
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary"
+                                            id="pmsUpdateTaskBtn">Save</button>
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Cancel</button>
+                                    </div>
+
+                                    <button type="button" class="btn btn-danger btn-sm ms-auto"
+                                        id="pmsDeleteTaskBtn">
+                                        <i class="fas fa-trash-alt"></i> Delete Task
+                                    </button>
                                 </div>
 
                             </div>

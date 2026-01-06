@@ -30,18 +30,35 @@ class PmsRepository
     public function getAssociatedBoardList(int $employeeId): Collection
     {
         $boards = PmsBoard::with('members', 'creator')
-            ->whereHas('members', function ($q) use ($employeeId) {
-                $q->where('employee_id', $employeeId);
-            })->where('created_by', '!=', $employeeId)
+            ->whereRelation('members', 'employee_id', $employeeId)
+            ->where('created_by', '!=', $employeeId)
             ->select('id', 'board_name', 'created_by')
             ->get();
         return $boards;
     }
 
-    public function getBoardDetails(int $boardId): PmsBoard
+    public function getBoardDetails(int $boardId): ?PmsBoard
     {
-        return PmsBoard::with('cards.tasks', 'members')->find($boardId);
+        $employeeId = Auth::id();
+
+        return PmsBoard::with([
+            'members',
+            'cards.tasks.checklists.items',
+            'cards.tasks' => function ($query) use ($employeeId, $boardId) {
+                $query->when(
+                    PmsBoard::where('id', $boardId)
+                        ->where('created_by', '!=', $employeeId)
+                        ->exists(),
+                    fn($q) =>  $q->where('created_by', $employeeId)
+                        ->orWhereRelation('assignedEmployees', 'employee_id', $employeeId)
+                )->withCount([
+                    'checklistItems as total_items',
+                    'checklistItems as completed_items' => fn($q) => $q->where('isCompleted', true)
+                ]);
+            }
+        ])->find($boardId);
     }
+
 
     public function saveNewCard(array $data): PmsCard
     {
@@ -56,7 +73,9 @@ class PmsRepository
 
     public function getTasksByCard(int $cardId): Collection
     {
-        return PmsTask::with('employees')->where('card_id', $cardId)
+        return PmsTask::with('assignedEmployees')
+            ->where('card_id', $cardId)
+            ->whereRelation('assignedEmployees', 'employee_id', Auth::id())
             ->orderBy('position', 'asc')->get();
     }
 
@@ -78,7 +97,7 @@ class PmsRepository
             $card = PmsCard::where('id', $card_id)->value('title') ?? 'Unknown';
 
             $comment = PmsComment::create([
-                'comment' => ' added this task to ' . $card,
+                'comment' => ' created this task to ' . $card,
                 'employee_id' => $userId,
                 'task_id' => $task->id
             ]);
@@ -188,19 +207,20 @@ class PmsRepository
             $member = $task->assignedEmployees()
                 ->with('detail')->where('employee_id', $employeeId)->first();
             PmsComment::create([
-                'comment' => "added {$member->detail->name} to this task",
+                'comment' => "added {$member->username} as a member to this task",
                 'employee_id' => Auth::id(),
                 'task_id' => $task->id
             ]);
             return [
                 'success' => true,
                 'message' => 'Member added successfully.',
-                'member' => $member
+                'member' => $member,
+                'task' => $task
             ];
         });
     }
 
-    public function updateTaskDetails(array $data, int $taskId): bool
+    public function updateTaskDetails(array $data, int $taskId): ?PmsTask
     {
         return DB::transaction(function () use ($data, $taskId) {
             $existingDetail = PmsTask::find($taskId);
@@ -221,7 +241,7 @@ class PmsRepository
             }
             $labels = $data['labels'] ?? [];
             $existingDetail->labels()->sync($labels);
-            return true;
+            return $existingDetail;
         });
     }
 
@@ -350,5 +370,35 @@ class PmsRepository
         ]);
 
         return $taskFile->delete();
+    }
+
+    public function removeTask(int $id): bool
+    {
+        return DB::transaction(function () use ($id) {
+            $task = PmsTask::with([
+                'comments',
+                'checklists',
+                'files',
+                'labels',
+                'assignedEmployees'
+            ])->find($id);
+            if (!$task) return false;
+
+            $task->checklists->each(function ($checklist) {
+                $checklist->items()->delete();
+                $checklist->delete();
+            });
+
+            $task->files->each->delete();
+            $task->comments->each->delete();
+
+            if ($task->assignedEmployees) {
+                $task->assignedEmployees()->detach();
+            }
+            $task->labels()->detach();
+
+            $task->delete();
+            return true;
+        });
     }
 }

@@ -46,6 +46,17 @@ class PmsTask extends Model
         return $this->hasMany(PmsChecklist::class, 'task_id');
     }
 
+    public function checklistItems()
+    {
+        return $this->hasManyThrough(
+            PmsChecklistItem::class,
+            PmsChecklist::class,
+            'task_id',        // Foreign key on intermediate table
+            'checklist_id',   // Foreign key on final table
+            'id',             // Local key on tasks
+            'id'              // Local key on checklists
+        );
+    }
     public function labels()
     {
         return $this->belongsToMany(

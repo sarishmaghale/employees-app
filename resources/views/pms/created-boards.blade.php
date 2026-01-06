@@ -47,6 +47,10 @@
                     </ul>
                 </div>
 
+                <a href="{{ route('pms.table', ['id' => $board->id]) }}" class="btn btn-sm btn-outline-primary ms-2">
+                    Table View
+                </a>
+
             </div>
 
             <!-- Right Side - Action Buttons -->
@@ -134,6 +138,14 @@
                                 @empty
                                 @endforelse
                                 <span class="kb-date">Due: {{ $task->end_date ?? 'N/A' }}</span>
+
+                                @if ($task->total_items > 0)
+                                    <span class="kb-checklist-progress"
+                                        style="font-size:0.75em; color:#555; margin-left:6px;">
+                                        <i class="fas fa-regular fa-square-check"></i>
+                                        {{ $task->completed_items }}/{{ $task->total_items }}
+                                    </span>
+                                @endif
                             </div>
                         </div>
                     @endforeach

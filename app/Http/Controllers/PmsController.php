@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\JsonResponse;
-use App\Http\Requests\StorePmsTasKRequest;
-use App\Notifications\BoardMemberAddedNotification;
-use App\Repositories\EmployeeRepository;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Helpers\JsonResponse;
 use App\Repositories\PmsRepository;
 use Illuminate\Support\Facades\Auth;
+use App\Repositories\EmployeeRepository;
+use App\Http\Requests\StorePmsTasKRequest;
+use App\Jobs\SendTaskDueReminderMail;
+use App\Notifications\TaskMemberAddedNotification;
+use App\Notifications\BoardMemberAddedNotification;
 
 class PmsController extends Controller
 {
@@ -84,6 +87,13 @@ class PmsController extends Controller
         else return JsonResponse::error(message: 'Failed to fetch details');
     }
 
+    public function deleteTask(int $id)
+    {
+        $result = $this->pmsHelper->removeTask($id);
+        if ($result) return JsonResponse::success(message: 'Task deleted successfully');
+        else return JsonResponse::error(message: 'Failed to delete task');
+    }
+
     public function addBoardMember(Request $request, $id)
     {
 
@@ -104,6 +114,8 @@ class PmsController extends Controller
         $result = $this->pmsHelper->saveTaskMember(taskId: $id, employeeId: $request->employee_id);
         if ($result['success']) {
             $employee = $result['member'];
+            $task = $result['task'];
+            $employee->notify(new TaskMemberAddedNotification($task));
             return JsonResponse::success(message: $result['message'], data: $employee);
         }
 
@@ -128,8 +140,17 @@ class PmsController extends Controller
     {
         $data = $request->only(['description', 'start_date', 'end_date', 'checklist_items', 'labels']);
         $result = $this->pmsHelper->updateTaskDetails($data, $id);
-        if ($result) return JsonResponse::success(message: 'Saved successfully');
-        else return JsonResponse::error(message: 'Failed to save');
+        if ($result) {
+            if ($result->end_date) {
+                $sendAt = Carbon::parse($result->end_date)->subDay();
+                if ($sendAt->isPast()) {
+                    SendTaskDueReminderMail::dispatch($result->id);
+                } else {
+                    SendTaskDueReminderMail::dispatch($result->id)->delay($sendAt);
+                }
+            }
+            return JsonResponse::success(message: 'Saved successfully');
+        } else return JsonResponse::error(message: 'Failed to save');
     }
 
     public function storeComment(Request $request)
@@ -208,4 +229,10 @@ class PmsController extends Controller
         if ($result) return JsonResponse::success(message: 'File deleted');
         else return JsonResponse::error(message: 'Failed to delete file');
     }
+
+    // public function tableView(int $id)
+    // {
+    //     $boardData=$this->pmsHelper->getBoardDetails($id);
+    //     $tasks=$boardData->
+    // }
 }
