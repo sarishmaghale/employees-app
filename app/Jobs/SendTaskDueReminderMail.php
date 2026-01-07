@@ -39,11 +39,8 @@ class SendTaskDueReminderMail implements ShouldQueue
         if ($task->assignedEmployees) {
             foreach ($task->assignedEmployees as $employee) {
                 Mail::to($employee->email)
-                    ->send(new TaskDueReminderMail($task));
+                    ->queue(new TaskDueReminderMail($task));
             };
         }
-        $task->update([
-            'reminder_sent_at' => now(),
-        ]);
     }
 }

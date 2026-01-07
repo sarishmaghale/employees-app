@@ -454,7 +454,6 @@ function initializeTaskDetails(taskId,modal)
                     toast:true,
                     position:'top-end',
                     showConfirmButton:false,
-                    allowOutsideClick:false,
                     didOpen: () => {
                             Swal.showLoading(); // show spinner
                     }
