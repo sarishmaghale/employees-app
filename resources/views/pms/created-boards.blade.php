@@ -130,15 +130,33 @@
                 <div class="kb-column-body" data-card-id="{{ $card->id }}">
                     @foreach ($card->tasks as $task)
                         <div class="kb-card pms-task-item" data-task-id="{{ $task->id }}">
-                            <h3>{{ $task->title }}</h3>
+                            <div class="d-flex justify-content-between align-items-center mb-0">
+                                <!-- Task title -->
+                                <h3>{{ $task->title }}</h3>
+
+                                <!-- Assigned members stack -->
+                                <div class="d-flex align-items-center member-stack">
+                                    @foreach ($task->assignedEmployees as $employee)
+                                        @php
+                                            $profile = $employee->detail->profile_image ?? null;
+                                            $username = $employee->username ?? 'U';
+                                        @endphp
+                                        <div class="member-avatar" title="{{ $username }}" style="margin-left:-6px;">
+                                            @if ($profile)
+                                                <img src="{{ asset('storage/' . $profile) }}" alt="{{ $username }}">
+                                            @else
+                                                <span>{{ strtoupper($username[0]) }}</span>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
                             <div class="kb-card-meta">
                                 @forelse($task->labels as $label)
                                     <span class="kb-tag"
                                         style="background: {{ $label->color }}">{{ $label->title }}</span>
                                 @empty
                                 @endforelse
-                                <span class="kb-date">Due: {{ $task->end_date ?? 'N/A' }}</span>
-
                                 @if ($task->total_items > 0)
                                     <span class="kb-checklist-progress"
                                         style="font-size:0.75em; color:#555; margin-left:6px;">
@@ -146,6 +164,9 @@
                                         {{ $task->completed_items }}/{{ $task->total_items }}
                                     </span>
                                 @endif
+
+                                <span class="kb-date">Due: {{ $task->end_date ?? 'N/A' }}</span>
+
                             </div>
                         </div>
                     @endforeach
@@ -157,7 +178,6 @@
 
             </div>
             @empty
-                <p>No cards found.</p>
             @endforelse
         </div>
 

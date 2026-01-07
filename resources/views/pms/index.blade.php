@@ -10,14 +10,48 @@
             <div class="row g-3">
                 @forelse($createdBoards as $board)
                     <div class="col-12 col-md-6 col-lg-4">
-                        <a href="{{ route('pms-board.show', $board->id) }}" class="text-decoration-none">
-                            <div class="card h-100 shadow-sm overflow-hidden">
-                                <div class="card-img-top" style="height: 120px; background-color:#6366f1;"></div>
+                        <div class="card h-100 shadow-sm overflow-hidden position-relative">
+
+                            <a href="{{ route('pms-board.show', $board->id) }}" class="text-decoration-none d-block">
+                                <div class="card-img-top"
+                                    style="height: 120px; background-color:#6366f1; background-image: url('{{ $board->image ? asset('storage/' . $board->image) : '' }}');
+                                        background-size: cover;
+                                        background-position: center;">
+                                </div>
+
                                 <div class="card-body">
                                     <h5 class="card-title text-dark mb-0">{{ $board->board_name }}</h5>
                                 </div>
+                            </a>
+
+                            {{-- Three-dot dropdown --}}
+                            <div class="position-absolute top-0 end-0 m-2">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-light rounded-circle" type="button"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <form action="{{ route('pms-board.updateCover') }}" method="POST"
+                                                enctype="multipart/form-data" id="coverForm{{ $board->id }}">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="board_id" value="{{ $board->id }}">
+                                                <input type="file" name="cover_image" class="d-none" accept="image/*"
+                                                    onchange="document.getElementById('coverForm{{ $board->id }}').submit()">
+                                                <a class="dropdown-item" href="javascript:void(0)"
+                                                    onclick="document.querySelector('#coverForm{{ $board->id }} input[type=file]').click()">
+                                                    Edit Cover Image
+                                                </a>
+                                            </form>
+
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
-                        </a>
+
+                        </div>
                     </div>
                 @empty
                 @endforelse
@@ -33,6 +67,7 @@
                     </button>
                 </div>
             </div>
+
         </div>
 
         <!-- Associated Boards Section -->
@@ -44,10 +79,11 @@
                     <div class="col-12 col-md-6 col-lg-4">
                         <a href="{{ route('pms-board.show', $board->id) }}" class="text-decoration-none">
                             <div class="card h-100 shadow-sm overflow-hidden">
-                                <div class="card-img-top position-relative"
-                                    style="height: 120px; background-color: #10b981;">
-                                    <span
-                                        class="badge bg-dark position-absolute top-0 end-0 m-2 small">{{ $board->creator?->username ?? 'Unknown' }}</span>
+                                <div class="card-img-top"
+                                    style="height: 120px; background-color:#10b981; 
+                                        background-image: url('{{ $board->image ? asset('storage/' . $board->image) : '' }}');
+                                        background-size: cover;
+                                        background-position: center;">
                                 </div>
                                 <div class="card-body">
                                     <h5 class="card-title text-dark mb-0">{{ $board->board_name }}</h5>

@@ -64,15 +64,21 @@
                      contentType: false,
                      success: function(response) {
                          hideSpinner(btn);
-                         Swal.fire({
-                             title: response.success ? 'Success' : 'Error',
-                             text: response.message,
-                             icon: response.success ? 'success' : 'error',
-                         });
                          if (response.success) {
+
                              $('#pmsAddNewBoardModal').modal('hide');
-                             form[0].reset();
-                         }
+
+                             Swal.fire({
+                                 icon: 'success',
+                                 title: 'Success',
+                                 text: response.message,
+                                 timer: 1500,
+                                 showConfirmButton: false,
+                                 willClose: () => {
+                                     window.location.href = '/pms-workspace';
+                                 }
+                             });
+                         } else Swal.fire('Error', response.message, 'error');
                      },
                      error: function(xhr) {
                          hideSpinner(btn);

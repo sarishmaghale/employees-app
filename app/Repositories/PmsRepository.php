@@ -9,10 +9,11 @@ use App\Models\PmsComment;
 use App\Models\PmsTaskFile;
 use App\Models\PmsChecklist;
 use App\Models\PmsChecklistItem;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Collection;
 
 class PmsRepository
 {
@@ -23,7 +24,7 @@ class PmsRepository
     {
         return PmsBoard::with('members')
             ->where('created_by', $employeeId)
-            ->select('id', 'board_name')
+            ->select('id', 'board_name', 'image')
             ->get();
     }
 
@@ -32,7 +33,7 @@ class PmsRepository
         $boards = PmsBoard::with('members', 'creator')
             ->whereRelation('members', 'employee_id', $employeeId)
             ->where('created_by', '!=', $employeeId)
-            ->select('id', 'board_name', 'created_by')
+            ->select('id', 'board_name', 'created_by', 'image')
             ->get();
         return $boards;
     }
@@ -45,7 +46,10 @@ class PmsRepository
             'members',
             'cards.tasks.checklists.items',
             'cards.tasks' => function ($query) {
-                $query->withCount([
+                $query->with([
+                    'assignedEmployees:id,username',
+                    'assignedEmployees.detail:id,employee_id,profile_image'
+                ])->withCount([
                     'checklistItems as total_items',
                     'checklistItems as completed_items' => fn($q) => $q->where('isCompleted', true)
                 ]);
@@ -126,30 +130,36 @@ class PmsRepository
     }
 
     public function updateTaskOrder(
-        int $taskId,
-        int $newCardId,
-        ?int $position = null,
+        int $cardId,
+        array $positions,
         int $employeeId
-    ): ?PmsTask {
-        return DB::transaction(function () use ($taskId, $newCardId, $position, $employeeId) {
-            $task = PmsTask::find($taskId);
-            $oldCard = PmsCard::where('id', $task->card_id)->value('title');
-            if (!$task) return null;
-            if (!$position) {
-                $latest = PmsTask::where('card_id', $newCardId)->max('position');
-                $position = $latest ? $latest + 1 : 1;
+    ): bool {
+        return DB::transaction(function () use ($cardId, $positions, $employeeId) {
+            $movedTaskId = $positions[0]['task_id'] ?? null;
+            $task = PmsTask::find($movedTaskId);
+            $oldCardTitle = null;
+
+            if ($task && $task->card_id !== $cardId) {
+                $oldCardTitle = PmsCard::where('id', $task->card_id)->value('title');
             }
-            $task->update([
-                'card_id' => $newCardId,
-                'position' => $position
-            ]);
-            $newCard = PmsCard::where('id', $task->card_id)->value('title');
-            $comment = PmsComment::create([
-                'comment' => "moved this card from {$oldCard} to {$newCard}",
-                'employee_id' => $employeeId,
-                'task_id' => $task->id
-            ]);
-            return $task;
+
+            foreach ($positions as $item) {
+                PmsTask::where('id', $item['task_id'])->update([
+                    'card_id'    => $cardId,
+                    'position'   => $item['position'],
+                ]);
+            }
+            if ($task && $oldCardTitle) {
+                $newCardTitle = PmsCard::where('id', $cardId)->value('title');
+
+                PmsComment::create([
+                    'task_id'     => $task->id,
+                    'employee_id' => $employeeId,
+                    'comment'     => "moved this task from {$oldCardTitle} to {$newCardTitle}",
+                    'comment_type' => 1
+                ]);
+            }
+            return true;
         });
     }
 
@@ -228,8 +238,22 @@ class PmsRepository
             if (!empty($items) && is_array($items)) {
                 foreach ($items as $item) {
                     if (isset($item['id'], $item['completed'])) {
-                        PmsChecklistItem::where('id', $item['id'])
-                            ->update(['isCompleted' => $item['completed']]);
+                        $checkbox = PmsChecklistItem::find($item['id']);
+                        if ($checkbox) {
+                            $oldStatus = (bool) $checkbox->isCompleted;
+                            $newStatus = (bool)($item['completed']);
+                            if ($oldStatus !== $newStatus) {
+                                $checkbox->update([
+                                    'isCompleted' => $newStatus
+                                ]);
+                                $statusText = $newStatus ? 'completed' : 'unchecked';
+                                PmsComment::create([
+                                    'comment' => "{$statusText} '{$checkbox->item_title}' of this task",
+                                    'employee_id' => Auth::id(),
+                                    'task_id' => $taskId
+                                ]);
+                            }
+                        }
                     }
                 }
             }
@@ -400,5 +424,24 @@ class PmsRepository
             $task->delete();
             return true;
         });
+    }
+
+    public function updateCoverImage(int $boardId, UploadedFile $file): ?PmsBoard
+    {
+        $board = PmsBoard::find($boardId);
+        if (!$board) return null;
+
+        // Delete old cover if exists
+        if ($board->image && Storage::disk('public')->exists($board->image)) {
+            Storage::disk('public')->delete($board->image);
+        }
+
+        // Store new image
+        $filePath = $file->store('boards', 'public');
+
+        // Update board record
+        $board->update(['image' => $filePath]);
+
+        return $board;
     }
 }

@@ -7,7 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class PmsBoard extends Model
 {
     protected $table = 'pms_boards';
-    protected $fillable = ['board_name', 'created_by'];
+    protected $fillable = [
+        'board_name',
+        'created_by',
+        'image'
+    ];
 
     public function creator()
     {

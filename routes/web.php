@@ -66,6 +66,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pms-board/{id}', [PmsController::class, 'showBoard'])->name('pms-board.show');
     Route::post('/pms-board/{id}/add-member', [PmsController::class, 'addBoardMember']);
     Route::post('/pms-add-board', [PmsController::class, 'storeBoard'])->name('pms-board.store');
+    Route::patch('/pms-board/cover', [PmsController::class, 'updateCover'])->name('pms-board.updateCover');
 
     Route::get('/pms-table/{id}', [PmsController::class, 'tableView'])->name('pms.table');
 

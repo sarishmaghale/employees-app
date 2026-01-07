@@ -186,7 +186,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js'></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+
     <script src="{{ asset('js/script.js') }}"></script>
     <script src="{{ asset('js/validation.js') }}"></script>
     <script src="{{ asset('js/notification.js') }}"></script>

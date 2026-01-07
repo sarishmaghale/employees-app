@@ -66,14 +66,14 @@ class PmsController extends Controller
     public function moveTask(Request $request)
     {
         $request->validate([
-            'task_id' => 'required|exists:pms_tasks,id',
-            'new_card_id' => 'required|exists:pms_cards,id',
-            'position' => 'nullable|integer|min:1'
+            'positions' => 'required|array|min:1',
+            'card_id' => 'required|exists:pms_cards,id',
+            'positions.*.task_id' => 'required|exists:pms_tasks,id',
+            'positions.*.position' => 'required|integer|min:1',
         ]);
         $result = $this->pmsHelper->updateTaskOrder(
-            $request->task_id,
-            $request->new_card_id,
-            $request->position,
+            $request->card_id,
+            $request->positions,
             Auth::id()
         );
         if (!$result) return JsonResponse::error(message: 'Failed to move task');
@@ -232,9 +232,21 @@ class PmsController extends Controller
         else return JsonResponse::error(message: 'Failed to delete file');
     }
 
-    // public function tableView(int $id)
-    // {
-    //     $boardData=$this->pmsHelper->getBoardDetails($id);
-    //     $tasks=$boardData->
-    // }
+    public function updateCover(Request $request)
+    {
+        $request->validate([
+            'cover_image' => 'required|image', // max 2MB
+            'board_id'    => 'required|integer|exists:pms_boards,id',
+        ]);
+        $board = $this->pmsHelper->updateCoverImage(
+            $request->board_id,
+            $request->file('cover_image')
+        );
+
+        if (!$board) {
+            return redirect()->back()->with('error', 'Board not found!');
+        }
+
+        return redirect()->back();
+    }
 }

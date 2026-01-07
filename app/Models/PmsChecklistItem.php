@@ -9,7 +9,7 @@ class PmsChecklistItem extends Model
     protected $fillable = [
         'checklist_id',
         'item_title',
-        'completed'
+        'isCompleted'
     ];
 
     public function checklist()

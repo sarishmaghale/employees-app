@@ -77,6 +77,7 @@ function initializePmsBoard(boardId)
                     return;
                 }
 
+               
                 $.ajax({
                     url: `/pms-add-task`,
                     method: "POST",
@@ -86,6 +87,7 @@ function initializePmsBoard(boardId)
                         card_id: cardId
                     },
                     success: function(response) {
+                        hideSpinner(btn);
                         if (response.success) {
                             const addBtn = cardBody.find('.initiatePmsAddTaskBtn');
                             addBtn.before(renderTaskCard(response.data));
@@ -98,6 +100,7 @@ function initializePmsBoard(boardId)
                         }
                     },
                     error: function(xhr) {
+                        
                         if (xhr.status === 422) handleValidationErrors(xhr, form);
                         else {
                             Swal.fire('Error', 'Something went wrong', 'error');
@@ -117,22 +120,44 @@ function initializePmsBoard(boardId)
                         handle: '.kb-card',
                         filter: '.kb-add-task-btn',
                         onEnd: function(evt) {
-                            const taskId = $(evt.item).data('task-id');
-                            const newCardId = $(evt.to).data('card-id');
-                            const newPosition = $(evt.to).children('.kb-card').index(evt.item) +
-                                1;
-                            if (evt.from === evt.to) return;
+                            if ($(evt.item).hasClass('kb-add-task-btn')) return;
+                           const targetColumn = evt.to;
+                           const cardId = targetColumn.dataset.cardId;
 
+                            let positions = [];
+                            targetColumn.querySelectorAll('.kb-card').forEach((el, index) => {
+                            positions.push({
+                            task_id: el.dataset.taskId,
+                            position: index + 1
+                        });
+                        });
+                        
+                        if (
+                            evt.from === evt.to &&
+                            evt.oldIndex === evt.newIndex
+                        ) {
+                            return;
+                        }
+
+                             Swal.fire({
+                                title:'Moving task..',
+                                toast:true,
+                                position:'top-end',
+                                showConfirmButton:false,
+                                didOpen: () => {
+                                        Swal.showLoading(); // show spinner
+                                }
+                            });
                             $.ajax({
                                 url: `/pms-task-reorder`,
                                 type: "POST",
                                 data: {
                                     _token: document.querySelector('meta[name="csrf-token"]').content,
-                                    task_id: taskId,
-                                    new_card_id: newCardId,
-                                    position: newPosition
+                                    card_id: cardId,
+                                    positions: positions
                                 },
                                 success: function(response) {
+                                    Swal.close();
                                     if (response.success) {
                                         Swal.fire('Success', response.message,
                                             'success');
@@ -142,6 +167,7 @@ function initializePmsBoard(boardId)
                                     }
                                 },
                                 error: function(xhr) {
+                                    Swal.close();
                                     Swal.fire('Error', 'Something went wrong',
                                         'error');
                                     console.error(xhr.responseText);
