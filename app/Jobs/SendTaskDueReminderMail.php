@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\PmsTask;
 use App\Mail\TaskDueReminderMail;
 use App\Repositories\PmsRepository;
 use Illuminate\Support\Facades\Mail;
@@ -16,19 +17,33 @@ class SendTaskDueReminderMail implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected int $taskId) {}
+    public function __construct(
+        protected int $taskId,
+        protected string $reminderForDate
+    ) {}
 
     /**
      * Execute the job.
      */
-    public function handle(PmsRepository $repo): void
+    public function handle(): void
     {
-        $task = $repo->getTaskDetails($this->taskId);
+        $task = PmsTask::with('assignedEmployees:id,email')
+            ->find($this->taskId);
+
+        if (
+            $task->reminder_sent_at ||
+            $task->reminder_for_date !== $this->reminderForDate
+        ) {
+            return;
+        }
         if ($task->assignedEmployees) {
             foreach ($task->assignedEmployees as $employee) {
                 Mail::to($employee->email)
-                    ->queue(new TaskDueReminderMail($task));
+                    ->send(new TaskDueReminderMail($task));
             };
         }
+        $task->update([
+            'reminder_sent_at' => now(),
+        ]);
     }
 }

@@ -17,7 +17,9 @@ class PmsTask extends Model
         'card_id',
         'created_by',
         'checklist_items',
-        'labels'
+        'labels',
+        'reminder_sent_at',
+        'reminder_for_date'
     ];
 
     public function assignedEmployees()

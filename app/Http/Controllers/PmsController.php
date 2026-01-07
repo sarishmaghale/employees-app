@@ -143,10 +143,12 @@ class PmsController extends Controller
         if ($result) {
             if ($result->end_date) {
                 $sendAt = Carbon::parse($result->end_date)->subDay();
-                if ($sendAt->isPast()) {
-                    SendTaskDueReminderMail::dispatch($result->id);
-                } else {
-                    SendTaskDueReminderMail::dispatch($result->id)->delay($sendAt);
+                $job = SendTaskDueReminderMail::dispatch(
+                    taskId: $result->id,
+                    reminderForDate: $result->end_date
+                );
+                if (!$sendAt->isPast()) {
+                    $job->delay($sendAt);
                 }
             }
             return JsonResponse::success(message: 'Saved successfully');

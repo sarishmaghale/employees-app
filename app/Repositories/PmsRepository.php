@@ -223,11 +223,11 @@ class PmsRepository
     public function updateTaskDetails(array $data, int $taskId): ?PmsTask
     {
         return DB::transaction(function () use ($data, $taskId) {
-            $existingDetail = PmsTask::find($taskId);
+            $task = PmsTask::find($taskId);
             $taskData = collect($data)->except(['checklist_items', 'labels'])
                 ->toArray();
-            $existingDetail->fill($taskData);
-            $existingDetail->save();
+            $task->fill($taskData);
+            $task->save();
 
             $items = $data['checklist_items'] ?? [];
 
@@ -240,8 +240,14 @@ class PmsRepository
                 }
             }
             $labels = $data['labels'] ?? [];
-            $existingDetail->labels()->sync($labels);
-            return $existingDetail;
+            $task->labels()->sync($labels);
+            if ($task->end_date) {
+                $task->update([
+                    'reminder_for_date' => $task->end_date,
+                    'reminder_sent_at' => null
+                ]);
+            }
+            return $task;
         });
     }
 
