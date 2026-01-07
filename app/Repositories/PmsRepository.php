@@ -44,14 +44,8 @@ class PmsRepository
         return PmsBoard::with([
             'members',
             'cards.tasks.checklists.items',
-            'cards.tasks' => function ($query) use ($employeeId, $boardId) {
-                $query->when(
-                    PmsBoard::where('id', $boardId)
-                        ->where('created_by', '!=', $employeeId)
-                        ->exists(),
-                    fn($q) =>  $q->where('created_by', $employeeId)
-                        ->orWhereRelation('assignedEmployees', 'employee_id', $employeeId)
-                )->withCount([
+            'cards.tasks' => function ($query) {
+                $query->withCount([
                     'checklistItems as total_items',
                     'checklistItems as completed_items' => fn($q) => $q->where('isCompleted', true)
                 ]);
