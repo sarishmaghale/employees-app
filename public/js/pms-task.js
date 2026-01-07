@@ -377,6 +377,8 @@ function initializeTaskDetails(taskId,modal)
                     if (response.success) {
                         $('#pmsAddChecklistModal').modal('hide');
                         renderCheckList(response.data, true);
+                        initializeTaskDetails(taskId, $('#pmsEditTaskModal'));
+
                     } else Swal.fire('Error', response.message, 'error');
                 },
                 error: function(xhr) {
