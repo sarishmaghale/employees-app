@@ -468,7 +468,6 @@ function initializeTaskDetails(taskId,modal)
                     success: function(response) {
                         Swal.close(); 
                         if (response.success) {
-                            Swal.fire('Added', response.message, 'success');
                             const members= response.data;
                             renderAssignedEmployee(members,true);
                         } else {
@@ -498,6 +497,7 @@ function initializeTaskDetails(taskId,modal)
                             { _token:csrf},
                             function(response){
                         if (response.success) {
+                             $('#pmsEditTaskModal').modal('hide');
                             Swal.fire('Deleted!', response.message, 'success').
                             then(()=>{
                                 location.reload();

@@ -65,6 +65,9 @@ function initializePmsBoard(boardId)
             //save new task to db
             $(document).off('click', '.btn-save-task').on('click', '.btn-save-task', function() {
                 const btn = $(this);
+                if (btn.prop('disabled')) return;
+
+        btn.prop('disabled', true); 
                 const cardId = btn.data('card-id');
                 const form = btn.closest('.inline-task-form');
                 const input = form.find('.inline-task-input');
@@ -73,6 +76,7 @@ function initializePmsBoard(boardId)
                 const cardBody = column.find('.kb-column-body');
 
                 if (!title) {
+                    btn.prop('disabled', false); 
                     input.focus();
                     return;
                 }
@@ -95,12 +99,13 @@ function initializePmsBoard(boardId)
                             addBtn.show();
                             form.remove();
                         } else {
+                            btn.prop('disabled', false); 
                             Swal.fire('Error', response.message, 'error');
 
                         }
                     },
                     error: function(xhr) {
-                        
+                        btn.prop('disabled', false); 
                         if (xhr.status === 422) handleValidationErrors(xhr, form);
                         else {
                             Swal.fire('Error', 'Something went wrong', 'error');
