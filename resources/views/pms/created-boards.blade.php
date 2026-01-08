@@ -193,7 +193,7 @@
     @endsection
 
     @push('scripts')
-        <script src="{{ asset('js/pms-board.js') }}"></script>
+        <script src="{{ asset('js/pms/pms-board.js') }}"></script>
         <script>
             initializePmsBoard({{ $board->id }});
         </script>

@@ -60,7 +60,7 @@ function initializeTaskDetails(taskId,modal)
                         </button>
                     </div>
 
-                    <div class="small text-muted mb-2">
+                    <div class="small text-muted mb-2 percentage-text">
                         ${percentage}% completed
                     </div>
 
@@ -202,6 +202,15 @@ function initializeTaskDetails(taskId,modal)
             });
     }
 
+    function updateChecklistProgress(container)
+    {
+        const checkboxes= container.find('.checklist-items input[type="checkbox"]');
+                const total=checkboxes.length;
+                const checked=checkboxes.filter(':checked').length;
+                const percent= total? Math.round((checked/total)*100):0;
+                container.find('.percentage-text').text(`${percent}% completed`);
+    }
+
     function bindTaskEvents()
     {
         function getTaskId() {
@@ -252,7 +261,11 @@ function initializeTaskDetails(taskId,modal)
                             text: response.message,
                             icon: response.success ? 'success' : 'error',
                         });
-                        if(response.success) initializeTaskDetails(taskId, $('#pmsEditTaskModal'));
+                        if(response.success)
+                            {
+initializeTaskDetails(taskId, $('#pmsEditTaskModal'));
+renderTaskCard(response.data);
+                            } 
 
                     },
                     error: function(xhr) {
@@ -400,7 +413,15 @@ function initializeTaskDetails(taskId,modal)
                         <button type="button" class="btn btn-sm btn-success saveCheckboxBtn">Add</button>
                     </div>
                 `);
+                updateChecklistProgress($(this).closest('.checklist-block'));
         });
+
+        $(document).off('change','.checklist-items input[type="checkbox"]').on('change','.checklist-items input[type="checkbox"]',
+            function(){
+                const container=$(this).closest('.checklist-block');
+                updateChecklistProgress(container);
+            }
+        )
 
         //DB: save checkbox item for checklist
         $(document).off('click', '.saveCheckboxBtn').on('click', '.saveCheckboxBtn', function() {

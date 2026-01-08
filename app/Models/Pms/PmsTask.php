@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Pms;
 
+use App\Models\Employee;
 use Illuminate\Database\Eloquent\Model;
 
 class PmsTask extends Model
@@ -25,7 +26,7 @@ class PmsTask extends Model
     public function assignedEmployees()
     {
         return $this->belongsToMany(
-            Employee::class,
+            \App\Models\Employee::class,
             'pms_task_assignments',
             'task_id',
             'employee_id'

@@ -38,7 +38,7 @@ class TaskDueReminderNotification extends Notification
         return [
             'type' => 'task_due_reminder',
             'title' => 'Task Due Tomorrow',
-            'message' => "{$this->task->tile} due on {$this->task->end_date}"
+            'message' => "Reminder: Task '{$this->task->title}' due tomorrow on {$this->task->end_date}"
         ];
     }
 

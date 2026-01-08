@@ -3,8 +3,8 @@
 use App\Models\Task;
 use App\Models\Employee;
 use App\Models\EmployeeKanbanStatusLink;
-use App\Models\PmsBoard;
-use App\Models\PmsLabel;
+use App\Models\Pms\PmsBoard;
+use App\Models\Pms\PmsLabel;
 use App\Models\TaskCategory;
 use App\Models\TaskSubCategory;
 use App\Models\TaskCategoryLink;

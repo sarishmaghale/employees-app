@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Pms;
 
+use App\Models\Pms\PmsCard;
 use Illuminate\Database\Eloquent\Model;
 
 class PmsBoard extends Model
@@ -15,7 +16,7 @@ class PmsBoard extends Model
 
     public function creator()
     {
-        return $this->belongsTo(Employee::class, 'created_by', 'id');
+        return $this->belongsTo(\App\Models\Employee::class, 'created_by', 'id');
     }
 
     public function cards()
@@ -26,7 +27,7 @@ class PmsBoard extends Model
     public function members()
     {
         return $this->belongsToMany(
-            Employee::class,
+            \App\Models\Employee::class,
             'pms_board_members',
             'board_id',
             'employee_id'

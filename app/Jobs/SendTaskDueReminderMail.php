@@ -2,10 +2,8 @@
 
 namespace App\Jobs;
 
-use App\Models\PmsTask;
-use App\Models\Employee;
+use App\Models\Pms\PmsTask;
 use App\Mail\TaskDueReminderMail;
-use App\Repositories\PmsRepository;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

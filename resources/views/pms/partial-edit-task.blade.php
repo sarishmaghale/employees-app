@@ -215,7 +215,7 @@
 </div>
 
 @push('scripts')
-    <script src="{{ asset('js/pms-task.js') }}"></script>
+    <script src="{{ asset('js/pms/pms-task.js') }}"></script>
     <script>
         const modal = $('#pmsEditTaskModal');
 

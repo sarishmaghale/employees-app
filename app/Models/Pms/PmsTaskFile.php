@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Pms;
 
+use App\Models\Employee;
 use Illuminate\Database\Eloquent\Model;
 
 class PmsTaskFile extends Model
@@ -22,6 +23,6 @@ class PmsTaskFile extends Model
 
     public function employee()
     {
-        return $this->belongsTo(Employee::class, 'employee_id');
+        return $this->belongsTo(\App\Models\Employee::class, 'employee_id');
     }
 }
