@@ -129,6 +129,14 @@
                 <!-- Column Body -->
                 <div class="kb-column-body" data-card-id="{{ $card->id }}">
                     @foreach ($card->tasks as $task)
+                        @php
+                            $priorityColors = [
+                                '1' => '#dc3545',
+                                '2' => '#198754',
+                            ];
+                            $priority = $task->priority ?? '0';
+                            $bgColor = $priorityColors[$priority] ?? '#fff';
+                        @endphp
                         <div class="kb-card pms-task-item" data-task-id="{{ $task->id }}">
                             <div class="d-flex justify-content-between align-items-center mb-0">
                                 <!-- Task title -->
@@ -151,7 +159,10 @@
                                     @endforeach
                                 </div>
                             </div>
+
                             <div class="kb-card-meta">
+                                <span class="kb-tag" style="background:{{ $bgColor }}">
+                                </span>
                                 @forelse($task->labels as $label)
                                     <span class="kb-tag"
                                         style="background: {{ $label->color }}">{{ $label->title }}</span>
@@ -164,8 +175,10 @@
                                         {{ $task->completed_items }}/{{ $task->total_items }}
                                     </span>
                                 @endif
+                                @if ($task->end_date)
+                                    <span class="kb-date">Due: {{ $task->end_date ?? 'N/A' }}</span>
+                                @endif
 
-                                <span class="kb-date">Due: {{ $task->end_date ?? 'N/A' }}</span>
 
                             </div>
                         </div>

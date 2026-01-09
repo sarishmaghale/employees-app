@@ -20,7 +20,8 @@ class PmsTask extends Model
         'checklist_items',
         'labels',
         'reminder_sent_at',
-        'reminder_for_date'
+        'reminder_for_date',
+        'priority'
     ];
 
     public function assignedEmployees()

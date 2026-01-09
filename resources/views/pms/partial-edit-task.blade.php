@@ -10,6 +10,7 @@
 
                     <h5 class="modal-title d-flex align-items-center gap-2 mb-0" id="pmsEditTaskTitle">
                         <i class="far fa-circle"></i>
+
                     </h5>
 
                     <!-- Stacked Member Avatars -->
@@ -100,6 +101,26 @@
                                             @endforelse
                                         </div>
                                     </div>
+
+                                    <div class="dropdown">
+                                        <button
+                                            class="btn btn-link btn-sm py-0 px-1 d-flex align-items-center dropdown-toggle"
+                                            type="button" id="addTaskPriorityBtn" data-bs-toggle="dropdown"
+                                            aria-expanded="false">
+                                            + Add Priority
+                                        </button>
+
+                                        <ul class="dropdown-menu" aria-labelledby="addTaskPriorityBtn">
+                                            <li><a class="dropdown-item task-priority-option" href="#"
+                                                    data-value="1">High</a></li>
+                                            <li><a class="dropdown-item task-priority-option" href="#"
+                                                    data-value="2">Medium</a></li>
+                                            <li><a class="dropdown-item task-priority-option" href="#"
+                                                    data-value="0">Low</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <input type="hidden" name="priority" id="pmsTaskPriority" value="0">
 
                                     {{-- Attach file --}}
                                     <div>

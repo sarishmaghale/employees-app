@@ -216,6 +216,12 @@ function initializeTaskDetails(taskId,modal)
         function getTaskId() {
             return $('#pms_edit_task_id').val();
         }
+$(document).on('click', '.task-priority-option', function(e) {
+    e.preventDefault();
+    const selectedPriority = $(this).data('value');
+    $('#pmsTaskPriority').val(selectedPriority); // store for form submit
+    $('#addTaskPriorityBtn').text(selectedPriority); // update button text
+});
 
         //DB: update the details
         $(document).off('click', '#pmsUpdateTaskBtn').on('click', '#pmsUpdateTaskBtn', function(e) {
@@ -228,7 +234,10 @@ function initializeTaskDetails(taskId,modal)
                 const formData = new FormData(form);
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                 formData.append('_token', csrfToken);
+                const priority = $('#pmsTaskPriority').val();
+                formData.append('priority', priority);
 
+                //fetch the checklist-items state 
                 $('#taskChecklistContainer .checklist-block .checklist-items .form-check input[type="checkbox"]').each(
                     function(index) {
                         const itemId = $(this).attr('id')?.replace('checkItem', '');
@@ -240,6 +249,7 @@ function initializeTaskDetails(taskId,modal)
                         }
                     });
 
+                //fetch checked state of label   
                 let selectedLabelIds = [];
                     $('.add-task-label-checkbox:checked').each(function() {
                         selectedLabelIds.push($(this).val());

@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Pms;
 
+use App\Models\Pms\PmsCard;
 use App\Models\Pms\PmsBoard;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -53,6 +54,16 @@ class BoardRepository
                 'board_name' => $boardName,
                 'created_by' => Auth::id(),
             ]);
+            $cards = ['To Do', 'Progress', 'Completed'];
+            $position = 1;
+            foreach ($cards as $card) {
+                PmsCard::create([
+                    'title' => $card,
+                    'position' => $position,
+                    'board_id' => $board->id
+                ]);
+                $position++;
+            }
             $board->members()->attach(Auth::id());
             return $board;
         });

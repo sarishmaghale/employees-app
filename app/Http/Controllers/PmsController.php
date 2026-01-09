@@ -46,7 +46,7 @@ class PmsController extends Controller
         $request->validate([
             'board_name' => 'required',
         ]);
-        $result = $this->boardRepo->create($$request->input('board_name'));
+        $result = $this->boardRepo->create($request->input('board_name'));
         if ($result && $result->exists) return JsonResponse::success(data: $result);
         else return JsonResponse::error(message: 'failed to add');
     }
@@ -167,7 +167,7 @@ class PmsController extends Controller
 
     public function updateTask(Request $request, int $taskId)
     {
-        $data = $request->only(['description', 'start_date', 'end_date', 'checklist_items', 'labels']);
+        $data = $request->only(['description', 'priority', 'start_date', 'end_date', 'checklist_items', 'labels']);
         $result = $this->taskRepo->updateDetails($data, $taskId);
         if ($result) {
             if ($result->end_date) {

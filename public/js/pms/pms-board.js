@@ -7,7 +7,6 @@ function initializePmsBoard(boardId)
                     '<h3>' + task.title + '</h3>' +
                     '<div class="kb-card-meta">' +
                     '<span class="kb-tag"></span>' +
-                    '<span class="kb-date">Due: ' + (task.end_date || 'N/A') + '</span>' +
                     '</div>' +
                     '</div>'
                 );

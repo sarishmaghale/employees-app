@@ -2,7 +2,6 @@
 
 namespace App\Models\Pms;
 
-use App\Models\Pms\PmsCard;
 use Illuminate\Database\Eloquent\Model;
 
 class PmsBoard extends Model

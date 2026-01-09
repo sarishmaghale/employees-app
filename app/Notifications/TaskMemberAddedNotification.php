@@ -2,10 +2,8 @@
 
 namespace App\Notifications;
 
-use App\Models\PmsTask;
+use App\Models\Pms\PmsTask;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class TaskMemberAddedNotification extends Notification
