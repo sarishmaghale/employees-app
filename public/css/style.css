@@ -684,6 +684,7 @@
             padding: 30px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             min-height: calc(100vh - var(--header-height));
+            overflow-x: auto; 
         }
 
         .main-content.expanded {
@@ -903,12 +904,12 @@
 
         /* Button */
         .btn {
-            padding: 10px 20px;
+            padding: 6px 14px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 500;
+            font-size: 13px;
+            font-weight: 400;
             transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
@@ -917,12 +918,12 @@
         }
 
         .btn-primary {
-            background: var(--primary);
+            background:#0c4f8d;
             color: white;
         }
 
         .btn-primary:hover {
-            background: var(--primary-dark);
+            background: rgb(1, 98, 125);
         }
 
         /* Mobile Overlay */
@@ -945,8 +946,10 @@
         }
         /* Form styling */
         .form-control {
+            font-size: 13px;
+            font-weight: 400;
             border-radius: 8px;
-            padding: 10px;
+            padding: 6px;
             border: 1px solid #d1d5db; /* light gray */
         }
         .user-menu .img-radius {
@@ -957,8 +960,8 @@
         }
 
         .form-control:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+            border-color: #0554d4;
+            box-shadow: 0 0 0 0.2rem rgba(134, 175, 242, 0.25);
         }
         label {
             font-weight: 500;
@@ -1202,20 +1205,46 @@
 
 /* ===== BOARD ===== */
 .kb-board {
-    display: grid;
+    /* display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, auto));
     gap: 1rem;
     padding-bottom: 2rem;
     justify-content: start;
+     */
+      /* grid-template-columns: repeat(auto-fit, minmax(250px, auto)); */
+    display: flex;
+    flex-direction: row; 
+    gap: 16px;
+    padding-bottom: 12px;
+    align-items: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap !important;
     
 }
 
 /* ===== COLUMN ===== */
 .kb-column {
+  /* box-shadow:0 1px 4px #acbce0;
     background: #ebecf0;
     border-radius: 8px;
     transition: all 0.2s ease;
     display: flex;
+    flex-direction: column;
+    padding-bottom: 6px;
+     flex: 0 0 320px;  
+    max-width: 320px; */
+    vertical-align: top;
+    border: 1px solid #d1d5db;
+    flex: 0 0 320px !important ;          
+    min-width: 320px;
+    max-width: 320px;
+    flex-shrink: 0;
+    min-height: 100%;        /* equal visual height */
+    background: #edf2f4;
+    height: auto;
+    align-self: stretch;
+    border-radius: 8px;
     flex-direction: column;
 }
 
@@ -1224,10 +1253,12 @@
 }
 
 .kb-column-header {
-    background: #dfe1e6;
-    color: #172b4d;
+   margin: 8px;
+   border-radius: 6px;
+    /* background: #0c4f8d; */
+    /* color: #172b4d; */
     border-bottom: none;
-    padding: 1rem 1.25rem;
+    /* padding: 8px 1.25rem; */
     flex-shrink: 0;
 }
 
@@ -1235,12 +1266,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.1rem;
 }
 /* Three-dot menu button in header (minimal impact on header height) */
 .kb-column-header-top .dropdown-toggle {
     font-size: 1.1rem;
-    color: #495057;
+    color: #ffffff;
     padding: 0;           /* remove extra padding */
     background: transparent;
     border: none;
@@ -1253,13 +1284,13 @@
 }
 
 .kb-column-header-top .dropdown-toggle:hover {
-    color: #0d6efd; /* hover color */
+    color: #fefb96; /* hover color */
 }
 
 /* Dropdown menu styling */
 .kb-column-header .dropdown-menu {
-    min-width: 110px;
-    padding: 0.25rem 0;
+    min-width: 96px;
+    padding: 1px 12px;
     font-size: 0.85rem;
     border-radius: 6px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -1269,13 +1300,14 @@
 .kb-column-header .dropdown-item {
     padding: 0.35rem 1rem;
     font-size: 0.85rem;
-    color: #495057;
+    color: #001dff;
+    font-weight: 500;
     transition: background 0.15s ease, color 0.15s ease;
 }
 
 .kb-column-header .dropdown-item:hover {
     background: #f4f5f7;
-    color: #172b4d;
+    color: #900404;
 }
 
 /* Hide default dropdown arrow (only three dots used) */
@@ -1286,44 +1318,70 @@
 
 .kb-column-header-top h2 {
     margin: 0;
-    font-size: 15px;
-    font-weight: 700;
-    color: #172b4d;
+    font-size: 16px;
+    font-weight: 600;
+    color: #eceded;
 }
 
 .kb-column-header span {
-    font-size: 13px;
-    color: #5e6c84;
+    font-size: 16px;
+    color: #183d66;
     font-weight: 500;
 }
 
 .kb-add-task-btn {
+    margin-top: 10px;
+    margin-bottom: 6px; 
     padding: 8px 12px;
-    border: none;
+    border: 1px dashed #babaeb;
     background: transparent;
-    font-weight: 700;
+    font-weight: 600;
     color: #172b4d;
     border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
     transition: all 0.2s ease;
-    width: calc(100% - 1rem);
+    /* width: calc(100% - 0.10rem); */
+    width: 100%;
+    box-sizing: border-box;
     text-align: left;
     display: flex;
     align-items: center;
 }
 
 .kb-add-task-btn:hover {
-    background: #091e4214;
-    color: #172b4d;
+    box-shadow: 0 4px 12px rgba(218, 181, 181, 0.1);
+    background: #bee3eb;
+    color: #005b52;
 }
 
 .kb-column-body {
-    padding: 0.5rem;
+    /* padding: 12px;
+    padding-bottom: 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    margin: 0px 8px;
     overflow-y: auto;
     flex-grow: 1;
     min-height: 80px;
-    background: #c3c3c3;
+    background: #ffffff; */
+    position: relative;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    margin: 8px;
+     background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 14px;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding-bottom: 0px;
+    z-index: 1;
+}
+.kb-column-content {
+    padding: 14px;
+    padding-bottom: 20px;
 }
 
 .kb-column-body::-webkit-scrollbar {
@@ -1345,20 +1403,24 @@
 
 /* ===== CARD ===== */
 .kb-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
     background: #ffffff;
     padding: 0.75rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 10px;
     border-radius: 6px;
     cursor: pointer;
-    border: none;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 2px rgba(188, 220, 243, 0.1);
     transition: all 0.2s ease;
     position: relative;
 }
 
 .kb-card:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 8px rgba(178, 164, 164, 0.15);
     transform: translateY(-1px);
+    transition: all 0.2s ease;
 }
 
 .kb-card:last-child {
@@ -1366,11 +1428,29 @@
 }
 
 .kb-card h3 {
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
     margin: 0 0 0.5rem;
-    color: #172b4d;
+    color: #093889;
     line-height: 1.4;
+}
+
+.kb-checklist-progress {
+     display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    background: #ecfdf5;              /* light green background */
+    color: #15803d;                   /* dark green text */
+    padding: 4px 8px;
+    border-radius: 8px;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+.kb-checklist-progress i {
+    color: #16a34a;                   /* green icon */
+    font-size: 14px;
 }
 
 .kb-card p {
@@ -1379,13 +1459,20 @@
     margin-bottom: 0.5rem;
     line-height: 1.5;
 }
-
+/* 
 .kb-card-meta {
     display: flex;
     gap: 8px;
     align-items: center;
     flex-wrap: wrap;
+} */
+ .kb-card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 10px;
 }
+
 
 /* ===== TAGS ===== */
 .kb-tag {
@@ -1399,17 +1486,19 @@
 
 .kb-date {
     font-size: 12px;
-    color: #5e6c84;
-    font-weight: 500;
+    color: #ff5722;
+    font-weight: 600;
     display: flex;
     align-items: center;
     gap: 4px;
+    white-space: nowrap;
 }
 
 .kb-date::before {
     content: "📅";
-    font-size: 11px;
+    font-size: 13px;
 }
+
 
 
 
@@ -1563,3 +1652,286 @@
             }
         }
   
+
+
+
+
+        /* My code Column status pills */
+.kb-status-pill {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.kb-status-pill::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.kb-status-pill.todo {
+    background: #e0f2fe;
+    color: #0284c7;
+}
+.kb-status-pill.todo::before { background: #0284c7; }
+
+.kb-status-pill.doing {
+    background: #fff7ed;
+    color: #c2410c;
+}
+.kb-status-pill.doing::before { background: #c2410c; }
+
+.kb-status-pill.done {
+    background: #ecfdf5;
+    color: #15803d;
+}
+.kb-status-pill.done::before { background: #15803d; }
+
+/* Top wrapper */
+.card-top {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    width: 100%;
+}
+
+/* Pill + dots in same row */
+.priority-with-dots {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+/* Priority pill */
+.priority-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 999px;
+    color: #fff;
+}
+
+.priority-pill.high {
+    background: linear-gradient(135deg, #ff9f43, #ff6b00);
+}
+
+/* Dots */
+.color-dots {
+    display: flex;
+    align-items: center;
+    margin-left: 93px; 
+}
+
+.color-dots .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-left: 4px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+
+/* Dot colors */
+.dot.blue   { background: #3b82f6; }
+.dot.green  { background: #22c55e; }
+.dot.orange { background: #f97316; }
+.dot.red    { background: #ef4444; }
+.dot.pink   { background: #ec4899; }
+
+
+.color-dots .dot:hover {
+    transform: scale(1.15);
+}
+
+
+
+
+
+.kb-column-body .kb-card:last-child {
+    margin-bottom: 0;
+}
+.kb-container,
+.kb-board {
+    width: 100%;
+    max-width: none !important;
+}
+/* ===== Priority Pill (High) ===== */
+.priority-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 999px; /* oval shape */
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1;
+    width: fit-content;
+}
+
+.priority-pill i {
+    font-size: 14px;
+}
+
+/* High priority style */
+.priority-pill.high {
+    background: linear-gradient(135deg, #ff7a18, #ff9f1c);
+    box-shadow: 0 6px 14px rgba(255, 122, 24, 0.35);
+}
+
+
+
+/* =====================================
+   MAIN CONTENT FIX (CRITICAL)
+   ===================================== */
+
+.main-content {
+    height: auto !important;
+    min-height: 100vh;
+    overflow-x: visible !important;
+    overflow-y: auto;
+}
+
+/* =====================================
+   KANBAN BOARD HARD FIX
+   ===================================== */
+
+.kb-board {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;      /* never wrap columns */
+
+    gap: 16px;
+    width: 100%;
+    max-width: 100%;
+
+    overflow-x: auto !important;       /* horizontal scroll */
+    overflow-y: visible !important;
+
+    padding-bottom: 24px;              /* prevents bottom clipping */
+}
+
+/* Each column */
+.kb-column {
+    flex: 0 0 320px !important;
+    min-width: 320px !important;
+    max-width: 320px !important;
+}
+
+/* Prevent any parent from hiding content */
+body,
+html {
+    overflow-x: hidden;
+}
+
+/* ===== TO DO COLUMN HEADER ===== */
+.todo-header {
+    background: #a2d2e4;
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    /* 🔥 FIX */
+    margin-bottom: 14px;
+    position: relative;
+    z-index: 2;
+}
+
+
+.todo-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.todo-dot {
+    width: 10px;
+    height: 10px;
+    background: #3b82f6;
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px rgba(59,130,246,0.3);
+}
+
+.todo-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+/* fix dropdown icon color */
+.todo-header .dropdown-toggle::after {
+    display: none;
+}
+
+.todo-header i {
+    color: #ffffff;
+}
+/* ===== TASK DESCRIPTION ===== */
+.task-desc {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0px 0 10px;
+
+    display: -webkit-box;
+    -webkit-line-clamp: 2;      /* show only 2 lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+
+    cursor: pointer;
+    position: relative;
+}
+
+/* Ellipsis indicator */
+.task-desc::after {
+    content: '...';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding-left: 10px;
+    background: white;
+}
+
+/* Expanded state */
+.task-desc.expanded {
+    -webkit-line-clamp: unset;
+    overflow: visible;
+}
+
+/* Remove dots when expanded */
+.task-desc.expanded::after {
+    content: '';
+}
+.kb-add-column {
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+}
+
+.kb-add-card-column {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    text-align: left;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.kb-add-card-column:hover {
+    background: rgba(255,255,255,0.25);
+}

@@ -104,12 +104,12 @@
                 <!-- Column Header -->
                 <div class="kb-column-header">
 
-                    <!-- Top row: title + 3-dot menu -->
-                    <div class="kb-column-header-top">
-                        <h2>{{ $card->title }}</h2>
+                    <!-- Top row: title + 3-dot menu (Backend Code) -->
+                    <!-- <div class="kb-column-header-top">
+                        <h2>{{ $card->title }}</h2> -->
 
                         <!-- Three-dot menu (only in header) -->
-                        <div class="dropdown">
+                        <!-- <div class="dropdown">
                             <button class="btn btn-link p-0 dropdown-toggle" type="button"
                                 id="cardMenu{{ $card->id }}" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-ellipsis-v"></i>
@@ -120,49 +120,123 @@
                                 </li>
                             </ul>
                         </div>
+                    </div> -->
+
+                    <div class="kb-column-header-top todo-header">
+                        <div class="todo-left">
+                            <span class="todo-dot"></span>
+                            <span class="todo-title">{{ $card->title }}</span>
+                        </div>
+
+                        <div class="dropdown">
+                            <button class="btn btn-link p-0 dropdown-toggle text-white" type="button"
+                                id="cardMenu{{ $card->id }}" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item deleteCardBtn"
+                                    data-card-id="{{ $card->id }}"
+                                    data-board-id="{{ $board->id }}">
+                                    Delete
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
 
+
+
+
+
                     <!-- Task count below title -->
-                    <span class="task-count">{{ $card->tasks->count() }} Tasks</span>
+                    <!--<span class="task-count">{{ $card->tasks->count() }} Tasks</span>-->
                 </div>
 
                 <!-- Column Body -->
                 <div class="kb-column-body" data-card-id="{{ $card->id }}">
-                    @foreach ($card->tasks as $task)
-                        @php
-                            $priorityColors = [
-                                '1' => '#dc3545',
-                                '2' => '#198754',
-                            ];
-                            $priority = $task->priority ?? '0';
-                            $bgColor = $priorityColors[$priority] ?? '#fff';
-                        @endphp
-                        <div class="kb-card pms-task-item" data-task-id="{{ $task->id }}">
-                            <div class="d-flex justify-content-between align-items-center mb-0">
-                                <!-- Task title -->
-                                <h3>{{ $task->title }}</h3>
+                    <div class="kb-column-content">
 
-                                <!-- Assigned members stack -->
-                                <div class="d-flex align-items-center member-stack">
-                                    @foreach ($task->assignedEmployees as $employee)
-                                        @php
-                                            $profile = $employee->detail->profile_image ?? null;
-                                            $username = $employee->username ?? 'U';
-                                        @endphp
-                                        <div class="member-avatar" title="{{ $username }}" style="margin-left:-6px;">
-                                            @if ($profile)
-                                                <img src="{{ asset('storage/' . $profile) }}" alt="{{ $username }}">
-                                            @else
-                                                <span>{{ strtoupper($username[0]) }}</span>
-                                            @endif
-                                        </div>
-                                    @endforeach
+                        @if($card->tasks->isEmpty())
+                        <!-- Dummy Task Card (UI only) -->
+                        <div class="kb-card pms-task-item dummy-task">
+
+                            <!-- Mini color bars -->
+                            <div class="card-top">
+                                <div class="priority-with-dots">
+                                    <span class="priority-pill high">
+                                        <i class="fas fa-fire"></i> High
+                                    </span>
+
+                                    <div class="color-dots">
+                                        <span class="dot blue"></span>
+                                        <span class="dot green"></span>
+                                        <span class="dot orange"></span>
+                                        <span class="dot red"></span>
+                                        <span class="dot pink"></span>
+                                    </div>
                                 </div>
                             </div>
+                            
+                            <h3>UI / UX Design</h3>
+                            <p class="task-desc" onclick="toggleDesc(this)">
+                                This task focuses on designing a clean,
+                                user-friendly interface for the dashboard,
+                                ensuring accessibility, usability,
+                                and smooth user experience across all devices.
+                            </p>
 
                             <div class="kb-card-meta">
-                                <span class="kb-tag" style="background:{{ $bgColor }}">
+                                <span class="kb-checklist-progress">
+                                    <i class="fas fa-square-check"></i> 8/8
                                 </span>
+                                <span class="kb-date">Due date</span>
+                            </div>
+                        </div>
+                        @endif
+
+                        @foreach ($card->tasks as $task)
+                            @php
+                                $priorityColors = [
+                                    '1' => '#dc3545',
+                                    '2' => '#198754',
+                                ];
+                                $priority = $task->priority ?? '0';
+                                $bgColor = $priorityColors[$priority] ?? '#fff';
+                            @endphp
+                            <div class="kb-card pms-task-item" data-task-id="{{ $task->id }}">
+                                <div class="d-flex justify-content-between align-items-center mb-0">
+                                    <!-- Task title -->
+                                    <h3>{{ $task->title }}</h3>
+
+                                    <!-- Assigned members stack -->
+                                    <div class="d-flex align-items-center member-stack">
+                                        @foreach ($task->assignedEmployees as $employee)
+                                            @php
+                                                $profile = $employee->detail->profile_image ?? null;
+                                                $username = $employee->username ?? 'U';
+                                            @endphp
+                                            <div class="member-avatar" title="{{ $username }}" style="margin-left:-6px;">
+                                                @if ($profile)
+                                                    <img src="{{ asset('storage/' . $profile) }}" alt="{{ $username }}">
+                                                @else
+                                                    <span>{{ strtoupper($username[0]) }}</span>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <div class="kb-card-meta">
+                                    <!-- <span class="kb-tag" style="background:{{ $bgColor }}">
+                                    </span> -->
+                                    @if($priority === '1')
+                                <span class="priority-pill high">
+                                    <i class="fas fa-fire"></i>
+                                    High
+                                </span>
+                                @endif
+
                                 @forelse($task->labels as $label)
                                     <span class="kb-tag"
                                         style="background: {{ $label->color }}">{{ $label->title }}</span>
@@ -178,32 +252,32 @@
                                 @if ($task->end_date)
                                     <span class="kb-date">Due: {{ $task->end_date ?? 'N/A' }}</span>
                                 @endif
-
-
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
 
-                    <button class="kb-add-task-btn initiatePmsAddTaskBtn" data-card-id="{{ $card->id }}">
-                        + Add Task
-                    </button>
-                </div>
-
+                        <!-- <button class="kb-add-task-btn initiatePmsAddTaskBtn" data-card-id="{{ $card->id }}">
+                            + Add Task
+                        </button> -->
+                        <button class="kb-add-task-btn initiatePmsAddTaskBtn" data-card-id="{{ $card->id }}">
+                            + Add Task
+                        </button>
+                    </div> <!-- /.kb-column-content -->
+                </div> <!-- /.kb-column-body -->
             </div>
-            @empty
-            @endforelse
-        </div>
+        @empty
+        @endforelse
+    </div>
 
 
-        @include('pms.partial-edit-task', ['boardMembers' => $board->members]) @include('pms.partial-add-card', ['boardId' => $board->id]) <div id="inline-task-template" style="display:none;">
-            <div class="inline-task-form" style="margin-top:6px;">
-                <input type="text" name="title" class="form-control inline-task-input" style="margin-bottom:6px;"
-                    placeholder="Task title" />
-                <button type="button" class="btn btn-primary btn-save-task">Save</button>
-                <button type="button" class="btn btn-secondary btn-cancel-task">Cancel</button>
-            </div>
-        </div>
-    @endsection
+    @include('pms.partial-edit-task', ['boardMembers' => $board->members]) @include('pms.partial-add-card', ['boardId' => $board->id]) <div id="inline-task-template" style="display:none;">
+    <div class="inline-task-form" style="margin-top:6px;">
+        <input type="text" name="title" class="form-control inline-task-input" style="margin-bottom:6px;"
+            placeholder="Task title" />
+        <button type="button" class="btn btn-primary btn-save-task">Save</button>
+        <button type="button" class="btn btn-secondary btn-cancel-task">Cancel</button>
+    </div>
+   
+@endsection
 
     @push('scripts')
         <script src="{{ asset('js/pms/pms-board.js') }}"></script>
