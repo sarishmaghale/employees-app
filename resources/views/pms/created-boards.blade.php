@@ -179,18 +179,13 @@
                             </div>
                             
                             <h3>UI / UX Design</h3>
-                            <p class="task-desc" onclick="toggleDesc(this)">
-                                This task focuses on designing a clean,
-                                user-friendly interface for the dashboard,
-                                ensuring accessibility, usability,
-                                and smooth user experience across all devices.
-                            </p>
+                            
 
                             <div class="kb-card-meta">
                                 <span class="kb-checklist-progress">
                                     <i class="fas fa-square-check"></i> 8/8
                                 </span>
-                                <span class="kb-date">Due date</span>
+                                <span class="kb-date"><i class="fa-solid fa-clock"></i>Due date</span>
                             </div>
                         </div>
                         @endif

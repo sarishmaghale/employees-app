@@ -1,210 +1,444 @@
 <!-- Minimal Bootstrap Modal -->
 <div class="modal fade" id="pmsEditTaskModal" tabindex="-1" aria-labelledby="cardDetailsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
 
             <div class="modal-header d-flex align-items-center justify-content-between">
-
-                <!-- Left: Title + Members -->
                 <div class="d-flex align-items-center gap-3">
-
                     <h5 class="modal-title d-flex align-items-center gap-2 mb-0" id="pmsEditTaskTitle">
                         <i class="far fa-circle"></i>
-
+                        EVSS Intern Name
                     </h5>
-
-                    <!-- Stacked Member Avatars -->
-                    <div class="d-flex align-items-center member-stack" id="assignedEmployeesContainer">
-
-                    </div>
                 </div>
-
-                <!-- Right: Close -->
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-
             </div>
 
-            <div class="modal-body">
-                <div class="row">
-
-                    <!-- Left Column -->
-                    <div class="col-lg-6">
-                        <form id="pmsEditTaskForm">
-                            <input type="hidden" name="id" id="pms_edit_task_id">
-
-                            <!-- Action Buttons -->
-                            <div class="mb-3 d-flex align-items-center justify-content-between flex-wrap gap-1">
-
-                                <!-- Left side actions -->
-                                <div class="d-flex align-items-center gap-1">
-                                    <button type="button"
-                                        class="btn btn-link btn-sm py-0 px-1 d-flex align-items-center"
-                                        id="pmsAddChecklistBtn">
-                                        <i class="fas fa-plus"></i> Add CheckList
-                                    </button>
-
-                                    <!-- Add Member -->
-                                    <div class="dropdown">
-                                        <button type="button"
-                                            class="btn btn-link btn-sm py-0 px-1 d-flex align-items-center dropdown-toggle"
-                                            id="addTaskMemberBtn" data-bs-toggle="dropdown">
-                                            + Add Member
-                                        </button>
-
-                                        <ul class="dropdown-menu dropdown-menu-scroll">
-                                            @foreach ($boardMembers as $employee)
-                                                @php
-                                                    $profile = $employee->detail?->profile_image ?? null;
-                                                    $username = $employee->username ?? 'U';
-                                                @endphp
-
-                                                <li>
-                                                    <a class="dropdown-item add-task-member d-flex align-items-center gap-2"
-                                                        data-id="{{ $employee->id }}" href="#">
-                                                        @if ($profile)
-                                                            <img src="{{ asset('storage/' . $profile) }}"
-                                                                class="rounded-circle"
-                                                                style="width:32px;height:32px;object-fit:cover;">
-                                                        @else
-                                                            <div class="rounded-circle bg-warning text-white text-center"
-                                                                style="width:32px;height:32px;line-height:32px;font-weight:600;">
-                                                                {{ strtoupper(substr($username, 0, 1)) }}
-                                                            </div>
-                                                        @endif
-                                                        <span>{{ $username }}</span>
-                                                    </a>
-                                                </li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-
-                                    {{-- Add Label --}}
-                                    <div class="dropdown">
-                                        <button type="button"
-                                            class="btn btn-link btn-sm py-0 px-1 d-flex align-items-center dropdown-toggle"
-                                            id="addTaskLabelBtn" data-bs-toggle="dropdown">
-                                            + Add Label
-                                        </button>
-
-                                        <div class="dropdown-menu dropdown-menu-scroll">
-                                            @forelse (getLabels() as $label)
-                                                <div class="form-check mb-1">
-                                                    <input class="form-check-input add-task-label-checkbox"
-                                                        type="checkbox" value="{{ $label->id }}"
-                                                        id="label{{ $label->id }}">
-                                                    <label class="form-check-label" for="label{{ $label->id }}"
-                                                        style="background-color: {{ $label->color }}; color:#fff; padding:2px 6px; border-radius:4px;">
-                                                        {{ $label->title }}
-                                                    </label>
-                                                </div>
-                                            @empty
-                                            @endforelse
-                                        </div>
-                                    </div>
-
-                                    <div class="dropdown">
-                                        <button
-                                            class="btn btn-link btn-sm py-0 px-1 d-flex align-items-center dropdown-toggle"
-                                            type="button" id="addTaskPriorityBtn" data-bs-toggle="dropdown"
-                                            aria-expanded="false">
-                                            + Add Priority
-                                        </button>
-
-                                        <ul class="dropdown-menu" aria-labelledby="addTaskPriorityBtn">
-                                            <li><a class="dropdown-item task-priority-option" href="#"
-                                                    data-value="1">High</a></li>
-                                            <li><a class="dropdown-item task-priority-option" href="#"
-                                                    data-value="2">Medium</a></li>
-                                            <li><a class="dropdown-item task-priority-option" href="#"
-                                                    data-value="0">Low</a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <input type="hidden" name="priority" id="pmsTaskPriority" value="0">
-
-                                    {{-- Attach file --}}
-                                    <div>
-                                        <label for="pmsTaskAttachment"
-                                            class="btn btn-link btn-sm py-0 px-1 d-flex align-items-center">
-                                            <i class="fas fa-paperclip"></i> Attach File
-                                        </label>
-                                        <input type="file" id="pmsTaskAttachment" class="d-none" multiple>
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            <div class="left-scrollable"
-                                style="max-height: 50vh; overflow-y: auto; padding-right: 0.5rem;">
-                                <!-- Description -->
-                                <div class="mb-3">
-                                    <label for="pmsEditTaskDesc" class="form-label">Description</label>
-                                    <textarea class="form-control" id="pmsEditTaskDesc" rows="4" name="description"
-                                        placeholder="Add a more detailed description..."></textarea>
-                                </div>
-                                <!-- File Attachments -->
-                                <div class="mb-3" id="selectedFilesContainer"
-                                    style="font-size:0.9em; color:#555; display: none;">
-                                    <!-- Files will be appended here dynamically -->
-                                </div>
+ <div class="modal-body">
+    <div class="task-container">
+        <!-- ===== ALL TOGGLES (MUST COME FIRST) ===== -->
+<input type="checkbox" id="labelToggle" hidden>
+<input type="checkbox" id="createLabelToggle" hidden>
+<input type="checkbox" id="memberToggle" hidden>
+<input type="checkbox" id="pmProfileToggle" hidden>
+<input type="checkbox" id="dateToggle" hidden>
+<input type="checkbox" id="dateSavedToggle" hidden>
+<input type="checkbox" id="checklistToggle" hidden>
+<input type="checkbox" id="attachToggle" hidden>
 
 
-                                <!-- Dates in same line -->
-                                <div class="mb-3 row g-2">
-                                    <div class="col-md-6">
-                                        <label for="pmsEditTaskStart" class="form-label">Start Date</label>
-                                        <input type="text" class="form-control datepicker" name="start_date"
-                                            id="pmsEditTaskStart">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="pmsEditTaskEnd" class="form-label">End Date</label>
-                                        <input type="date" class="form-control datepicker" name="end_date"
-                                            id="pmsEditTaskEnd">
-                                    </div>
-                                </div>
+    <!-- Task Summary -->
+  <div class="task-summary">
+    <div class="task-name">
+      Task Name <i class="fa-solid fa-pen"></i>
+    </div>
 
-                                <!-- Checklist -->
-                                <div class="mb-3" id="taskChecklistContainer"></div>
+    <div class="task-right">
+      <!-- <div class="status">
+  <span class="status-dot"></span>
+  <span>Status :</span>Active
+</div> -->
 
-                                <!-- Save & Cancel Buttons -->
-                                <div class="d-flex align-items-center gap-2 mb-1">
-                                    <div class="d-flex gap-2">
-                                        <button type="submit" class="btn btn-primary"
-                                            id="pmsUpdateTaskBtn">Save</button>
-                                        <button type="button" class="btn btn-secondary"
-                                            data-bs-dismiss="modal">Cancel</button>
-                                    </div>
+      <div class="tasks">
+        <i class="fa-solid fa-list"></i> <span>Tasks :</span> 04
+      </div>
+    </div>
+  </div>
 
-                                    <button type="button" class="btn btn-danger btn-sm ms-auto"
-                                        id="pmsDeleteTaskBtn">
-                                        <i class="fas fa-trash-alt"></i> Delete Task
-                                    </button>
-                                </div>
+   <!-- ATTACHMENT TOGGLE (IMPORTANT) -->
+  <input type="checkbox" id="attachToggle" hidden>
+ 
 
-                            </div>
-                        </form>
-                    </div>
+  <!-- Action Bar -->
+  <div class="actions">
+    <div class="action-item">
+       <label for="labelToggle">
+    <i class="fa-solid fa-tag"></i> Labels
+    </label>
+    <div class="divider"></div>
+  </div>
 
-                    <!-- Right Column -->
-                    <div class="col-lg-6">
-                        <h6>Comments & Activity</h6>
-                        <form id="pmsTaskCommentForm">
-                            <div class="d-flex align-items-end mb-3 comment-box">
-                                <textarea class="form-control flex-grow-1" name="comment" id="commentInput" rows="3"
-                                    placeholder="Write a comment..." required></textarea>
+  <div class="action-item">
+    <label for="dateToggle"><i class="fa-regular fa-calendar"></i> Dates</label>
+    <div class="divider"></div>
+  </div>
+
+  <div class="action-item">
+    <label for="checklistToggle"><i class="fa-solid fa-list-check"></i> Checklist</label>
+    <div class="divider"></div>
+  </div>
+
+  <div class="action-item">
+    <label for="memberToggle"><i class="fa-solid fa-users"></i> Members</label>
+      <div class="divider"></div>
+  </div>
+
+  <div class="action-item">
+  <label for="attachToggle">
+    <span>
+      <i class="fa-solid fa-paperclip"></i> Attachment
+    </span>
+  </label>
+</div>
+</div>
 
 
-                                <button id="postCommentBtn" class="btn btn-primary ms-2 btn-circle"
-                                    title="Post Comment">
-                                    <i class="fas fa-paper-plane"></i>
-                                </button>
-                            </div>
-                        </form>
 
-                        <!-- Comments container -->
-                        <div id="commentsContainer" class="right-scrollable"
-                            style="max-height: 40vh; overflow-y: auto; "></div>
-                    </div>
+<!-- LABEL PANEL -->
+<div class="label-panel">
+
+  <div class="label-panel-header">
+    <span>Labels</span>
+    <label for="labelToggle"><i class="fa-solid fa-xmark"></i></label>
+  </div>
+
+  <label for="createLabelToggle" class="create-label-btn">
+    + Create a new label
+  </label>
+
+</div>
+
+<!-- CREATE LABEL PANEL -->
+<div class="create-label-panel">
+
+  <div class="label-panel-header">
+    <label for="createLabelToggle"><i class="fa-solid fa-arrow-left"></i></label>
+    <span>Create label</span>
+    <label for="labelToggle"><i class="fa-solid fa-xmark"></i></label>
+  </div>
+
+  <div class="label-preview"></div>
+
+  <input type="text" placeholder="Title" class="label-title">
+
+  <div class="color-grid">
+    <span class="color c1"></span>
+    <span class="color c2"></span>
+    <span class="color c3"></span>
+    <span class="color c4"></span>
+    <span class="color c5"></span>
+  </div>
+
+  <button class="create-btn">Create</button>
+
+</div>
+
+<div class="member-panel">
+
+  <div class="member-header">
+    <span>Members</span>
+    <label for="memberToggle">
+      <i class="fa-solid fa-xmark"></i>
+    </label>
+  </div>
+
+  <input type="text" placeholder="Search members" class="member-search">
+
+  <p class="member-sub">Board members</p>
+
+  <!-- MEMBER -->
+  <label class="member-item">
+    <input type="checkbox" hidden checked>
+    <span class="avatar pm">PM</span>
+    <span>Prensha Mhrzn</span>
+  </label>
+
+  <label class="member-item">
+    <input type="checkbox" hidden>
+    <span class="avatar as">AS</span>
+    <span>Ajay Singh</span>
+  </label>
+
+  <label class="member-item">
+    <input type="checkbox" hidden>
+    <span class="avatar rs">RS</span>
+    <span>Rikesh Shakya</span>
+  </label>
+</div>
+
+<!-- DATE PANEL -->
+<div class="date-panel">
+
+  <div class="date-header">
+    <span>Select Date</span>
+    <label for="dateToggle">
+      <i class="fa-solid fa-xmark"></i>
+    </label>
+  </div>
+
+  <input type="date">
+
+  <div class="date-actions">
+
+  <label for="dateToggle" class="cancel-date">Cancel</label>
+<label for="dateSavedToggle" class="save-date">Save</label>
+
+
+</div>
+
+
+</div>
+
+<!-- Checklist Panel  -->
+<div class="checklist-panel">
+
+  <div class="checklist-header">
+    <span>Add Checklist</span>
+    <label for="checklistToggle"><i class="fa-solid fa-xmark"></i></label>
+  </div>
+
+  <!-- TITLE -->
+  <input type="text" id="checklistTitle" placeholder="Checklist title">
+
+  <!-- ITEMS -->
+  <div id="checklistItems">
+    <label class="check-item">
+      <input type="checkbox">
+      <input type="text" placeholder="Item 1">
+    </label>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="checklist-actions">
+    <button id="addItem">Add</button>
+    <button class="cancel" onclick="closeChecklist()">Cancel</button>
+    <button class="save" onclick="saveChecklist()">Save</button>
+  </div>
+
+</div>
+
+<!-- META ROW -->
+<div class="meta-row">
+
+  <!-- LABELS -->
+  <div class="label-output">
+    <span class="label-title-text">Labels:</span>
+
+    <div class="task-label">
+      Copy Request
+      <i class="fa-solid fa-xmark"></i>
+    </div>
+
+    <label for="labelToggle" class="add-label-btn">
+      <i class="fa-solid fa-plus"></i>
+    </label>
+  </div>
+   <!-- MEMBERS -->
+ <div class="member-output">
+
+
+
+  <span class="label-title-text">Members:</span>
+
+  <!-- AVATAR (CLICK THIS) -->
+  <label for="pmProfileToggle" class="avatar pm">
+    PM
+  </label>
+
+  <!-- ADD BUTTON -->
+  <label for="memberToggle" class="add-member">+</label>
+
+  <!-- PROFILE CARD (DIRECT SIBLING) -->
+  <div class="member-profile-card">
+    <strong>Prensha Maharjan</strong>
+    <p>UI / UX Intern</p>
+
+    <label for="pmProfileToggle" class="remove-member">
+      Remove from card
+    </label>
+  </div>
+
+</div>
+  <!-- DATES -->
+<input type="checkbox" id="dateSavedToggle" hidden>
+
+<div class="date-output">
+  <span class="label-title-text">Date:</span>
+
+  <span class="date-chip">
+    12 Jan, 2026
+    <label for="dateToggle" class="date-arrow">
+      <i class="fa-solid fa-chevron-down"></i>
+    </label>
+  </span>
+</div>
+</div>
+  <!-- Description -->
+   <div class="description-section">
+  <div class="section-title">
+    <i class="fa-solid fa-bars"></i> Description
+  </div>
+  <textarea placeholder="Add any extra details..."></textarea>
+  </div>
+
+  <!-- Attachment Section (Hidden by default) -->
+   
+  <div class="attachment-section">
+    <div class="section-title">
+      <i class="fa-solid fa-paperclip"></i> Attachments
+    </div>
+
+    <div class="attachment-box">
+      <i class="fa-solid fa-upload"></i>
+      <span>Drop files here or click to upload</span>
+    </div>
+  </div>
+
+  <!-- Accordion -->
+  <details open class="accordion">
+    <summary class="accordion-header">
+  <span class="accordion-title">UI / UX Design</span>
+  <span class="accordion-actions">
+    <i class="fa-solid fa-trash"></i>
+    <i class="fa-solid fa-chevron-down"></i>
+  </span>
+</summary>
+
+
+    <div class="accordion-body">
+
+      <!-- Task Row 1 -->
+      <div class="task-row">
+        <input type="checkbox" checked>
+        <div class="task-text">Completed UI design HTML & CSS</div>
+
+        <input type="checkbox" id="m1" class="menu-toggle">
+        <label for="m1" class="menu-btn">
+          <i class="fa-solid fa-ellipsis-vertical"></i>
+        </label>
+
+        <div class="menu">
+          <div><i class="fa-solid fa-pen"></i> Edit</div>
+          <div><i class="fa-solid fa-trash"></i> Delete</div>
+          <div><i class="fa-solid fa-users"></i> Member</div>
+          
+        </div>
+      </div>
+
+      <!-- Task Row 2 -->
+      <div class="task-row">
+        <input type="checkbox">
+        <div class="task-text">Create wireframes for new project</div>
+
+        <input type="checkbox" id="m2" class="menu-toggle">
+        <label for="m2" class="menu-btn">
+          <i class="fa-solid fa-ellipsis-vertical"></i>
+        </label>
+
+        <div class="menu">
+          <div><i class="fa-solid fa-pen"></i> Edit</div>
+          <div><i class="fa-solid fa-trash"></i> Delete</div>
+          <div>
+    <i class="fa-solid fa-users"></i> Member
+  </div>
+        </div>
+      </div>
+
+      <!-- Add Task Toggle -->
+      <input type="checkbox" id="addTaskToggle" hidden>
+
+      <!-- Add Task Input -->
+      <div class="add-task-box">
+        <input type="text" placeholder="Enter new task..." />
+      </div>
+
+<!-- DUE DATE TOGGLE -->
+<input type="checkbox" id="dueDateToggle" hidden>
+
+<!-- Due Date Picker -->
+<div class="due-date-box">
+  <div class="due-date-header">
+    <i class="fa-solid fa-calendar"></i>
+    <span>Select Due Date</span>
+  </div>
+
+  <div class="due-date-action">
+    <input type="date">
+    <button class="add-date">Add</button>
+  </div>
+</div>
+
+      <!-- Footer -->
+      <div class="footerhere">
+        <div>
+          <label for="addTaskToggle" class="add">
+            <i class="fa-solid fa-plus"></i> Add New Task
+          </label>
+
+          <label for="dueDateToggle" class="due">
+
+            <i class="fa-regular fa-calendar"></i> Due Date
+          </label>
+        </div>
+
+        <div class="progress-here" style="--value:65">
+          <span></span>
+          <b>65%</b>
+        </div>
+      </div>
+
+    </div>
+  </details>
+  <div id="savedChecklists"></div>
+
+  <!-- Comments -->
+  <div class="comments-card">
+
+    <div class="comments-header">
+      <div class="title">
+        <i class="fa-regular fa-comment-dots"></i>
+        <span>Comments</span>
+      </div>
+      <button class="details-btn">Show Details</button>
+    </div>
+
+    <hr>
+
+    <div class="comment-box">
+      <label>Leave a Comment</label>
+      <div class="comment-input">
+        <input type="text" placeholder="Write a comment..." />
+        <div class="comment-actions">
+          <span class="attach">
+            <i class="fa-solid fa-paperclip"></i> Attach file
+          </span>
+          <button class="post-btn">Post Comment</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="comment-item">
+      <img src="https://i.pravatar.cc/50?img=32" alt="avatar">
+      <div class="comment-content">
+        <div class="comment-top">
+          <strong>Prensha Maharjan</strong>
+          <div class="comment-icons">
+            <i class="fa-regular fa-thumbs-up"></i>
+            <i class="fa-regular fa-thumbs-down"></i>
+            <span class="reply">Reply</span>
+          </div>
+        </div>
+        <p>One Task is added, and other two are completed.</p>
+        <small>15 min ago</small>
+      </div>
+    </div>
+
+       <div class="comment-item">
+      <img src="https://i.pravatar.cc/50?img=32" alt="avatar">
+      <div class="comment-content">
+        <div class="comment-top">
+          <strong>Prensha Maharjan</strong>
+          <div class="comment-icons">
+            <i class="fa-regular fa-thumbs-up"></i>
+            <i class="fa-regular fa-thumbs-down"></i>
+            <span class="reply">Reply</span>
+          </div>
+        </div>
+        <p>One Task is added, and other two are completed.</p>
+        <small>15 min ago</small>
+      </div>
+    </div>
+
+  </div>
 
                 </div>
             </div>
@@ -212,46 +446,98 @@
     </div>
 </div>
 
-<!-- Add Checklist Modal -->
-<div class="modal fade" id="pmsAddChecklistModal">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content p-3 bg-dark text-white">
-            <div class="modal-header">
-                <h5 class="modal-title">Add Checklist</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="pmsAddchecklistForm">
-                    <div class="mb-3">
-                        <input type="text" class="form-control" id="checklistTitleInput"
-                            placeholder="Checklist Title" required>
-                    </div>
-                    <div class="text-end">
-                        <button type="submit" class="btn btn-primary btn-sm">Add</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+<script>
+let itemCount = 1;
+
+document.getElementById("addItem").onclick = () => {
+  itemCount++;
+  const item = document.createElement("label");
+  item.className = "check-item";
+  item.innerHTML = `
+    <input type="checkbox">
+    <input type="text" placeholder="Item ${itemCount}">
+  `;
+  document.getElementById("checklistItems").appendChild(item);
+};
+
+function closeChecklist() {
+  document.getElementById("checklistToggle").checked = false;
+}
+
+function saveChecklist() {
+  const title = document.getElementById("checklistTitle").value;
+  if (!title) return;
+
+  const items = document.querySelectorAll("#checklistItems input[type='text']");
+  let listHTML = "";
+
+  items.forEach(i => {
+    if (i.value.trim()) {
+      const menuId = `menu_${Date.now()}_${Math.random()}`;
+
+listHTML += `
+  <div class="task-row">
+    <input type="checkbox">
+
+    <div class="task-text">${i.value}</div>
+
+    <input type="checkbox" id="${menuId}" class="menu-toggle">
+    <label for="${menuId}" class="menu-btn">
+      <i class="fa-solid fa-ellipsis-vertical"></i>
+    </label>
+
+    <div class="menu">
+      <div><i class="fa-solid fa-pen"></i> Edit</div>
+      <div><i class="fa-solid fa-trash"></i> Delete</div>
+      <div><i class="fa-solid fa-users"></i> Member</div>
+      
     </div>
-</div>
+  </div>
+`;
 
-@push('scripts')
-    <script src="{{ asset('js/pms/pms-task.js') }}"></script>
-    <script>
-        const modal = $('#pmsEditTaskModal');
+    }
+  });
 
-        modal.on('shown.bs.modal', function() {
-            const taskId = modal.data('task-id');
-            console.log("Task ID in partial JS:", taskId);
-            initializeTaskDetails(taskId, modal);
-        });
+  const card = document.createElement("details");
+  card.className = "accordion";
+  card.open = true;
+  card.innerHTML = `
+    <summary class="accordion-header">
+  <span class="accordion-title">${title}</span>
 
-        $(document).on('input', '#commentInput', function() {
-            $(this).removeClass('is-invalid');
-        });
+  
 
-        $(document).on('click', '#pmsAddChecklistBtn', () => {
-            $('#pmsAddChecklistModal').modal('show');
-        });
-    </script>
-@endpush
+  <span class="accordion-actions">
+    <i class="fa-solid fa-trash"></i>
+    <i class="fa-solid fa-chevron-down"></i>
+  </span>
+</summary>
+
+    <div class="accordion-body">${listHTML}
+       <div class="footer">
+      <div>
+        <label class="add">
+          <i class="fa-solid fa-plus"></i> Add New Task
+        </label>
+
+        <label class="due">
+          <i class="fa-solid fa-calendar"></i> Due Date
+        </label>
+      </div>
+
+      <div class="progress-here">
+        <span></span>
+        <b>0%</b>
+      </div>
+    </div>
+
+      
+      </div>
+  `;
+
+  document.getElementById("savedChecklists").appendChild(card);
+  closeChecklist();
+}
+</script>
+
+
