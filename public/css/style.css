@@ -2545,7 +2545,7 @@ summary {
   position: absolute;
   right: 30px;
    left: 30px;
-  top: 15%;
+  top: 14%;
   width: 280px;
   background: #fff;
   border-radius: 12px;
@@ -2706,7 +2706,7 @@ summary {
 .member-panel {
   position: absolute;
   left: 55%;
-  top: 15%;       /* ALIGN RIGHT */
+  top: 14%;       /* ALIGN RIGHT */
   width: 280px;
   background: #fff;
   border-radius: 12px;
@@ -2822,7 +2822,7 @@ summary {
 .date-panel {
   position: absolute;
    left: 20%;
-  top: 15%;
+  top: 14%;
   width: 260px;
   background: #fff;
   border-radius: 12px;
@@ -2875,7 +2875,7 @@ summary {
 .checklist-panel {
   position: absolute;
    left: 37%;
-  top: 15%;
+  top: 14%;
   width: 320px;
   background: #fff;
   border-radius: 12px;
