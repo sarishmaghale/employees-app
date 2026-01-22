@@ -288,7 +288,8 @@
     <summary class="accordion-header">
   <span class="accordion-title">UI / UX Design</span>
   <span class="accordion-actions">
-    <i class="fa-solid fa-trash"></i>
+   <i class="fa-regular fa-trash-can"></i>
+
     <i class="fa-solid fa-chevron-down"></i>
   </span>
 </summary>
@@ -308,7 +309,7 @@
 
         <div class="menu">
           <div><i class="fa-solid fa-pen"></i> Edit</div>
-          <div><i class="fa-solid fa-trash"></i> Delete</div>
+          <div><i class="fa-regular fa-trash-can"></i> Delete</div>
           <div><i class="fa-solid fa-users"></i> Member</div>
           
         </div>
@@ -326,7 +327,7 @@
 
         <div class="menu">
           <div><i class="fa-solid fa-pen"></i> Edit</div>
-          <div><i class="fa-solid fa-trash"></i> Delete</div>
+          <div><i class="fa-regular fa-trash-can"></i> Delete</div>
           <div>
     <i class="fa-solid fa-users"></i> Member
   </div>
@@ -488,7 +489,7 @@ listHTML += `
 
     <div class="menu">
       <div><i class="fa-solid fa-pen"></i> Edit</div>
-      <div><i class="fa-solid fa-trash"></i> Delete</div>
+      <div><i class="fa-regular fa-trash-can"></i> Delete</div>
       <div><i class="fa-solid fa-users"></i> Member</div>
       
     </div>
