@@ -1990,7 +1990,7 @@
 /* divider line */
 .divider {
   position: absolute;
-  right: 0;
+  right: -1px;
   top: 50%;
   transform: translateY(-50%);
   height: 24px;
@@ -2030,7 +2030,8 @@
 .action-item:hover label,
 .action-item:hover span,
 .action-item:hover i {
-  color: #2563eb;            
+  color: #2563eb;  
+            
 }
 
 /* keep content above background */
